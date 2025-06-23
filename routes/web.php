@@ -17,6 +17,9 @@ Route::get('/bundle-insersi', function () {
 Route::get('/bundle-maintenance', function () {
     return view('bundle-maintenance');
 });
+Route::get('/landing', function () {
+    return view('landing-page');
+});
 
 Route::middleware([
     'auth:sanctum',
