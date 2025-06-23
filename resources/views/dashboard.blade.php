@@ -45,8 +45,12 @@
             <!-- Logistik -->
             <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
             <div class="text-yellow-500 text-4xl mb-3"><i class="fas fa-boxes"></i></div>
+<<<<<<< HEAD
             <a href="/manajemen-logistik"><h2 class="text-lg font-semibold mb-2">Manajemen Logistik</h2></a>
          
+=======
+            <h2 class="text-lg font-semibold mb-2">Manajemen Logistik</h2>
+>>>>>>> ec370b524514f5ab6db496885e573f496a3a362a
             <p class="text-sm text-gray-600 mb-3">Pantau stok, alat kesehatan, linen, dan lainnya.</p>
             <a href="#" class="text-yellow-600 font-medium hover:underline">Lihat Inventaris</a>
             </div>

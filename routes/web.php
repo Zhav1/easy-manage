@@ -21,6 +21,9 @@ Route::get('/manajemen-logistik', function () {
     return view('manajemenlogistik');
 });
 
+Route::get('/landing', function () {
+    return view('landing-page');
+});
 
 Route::middleware([
     'auth:sanctum',
