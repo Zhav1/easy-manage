@@ -17,6 +17,10 @@ Route::get('/bundle-insersi', function () {
 Route::get('/bundle-maintenance', function () {
     return view('bundle-maintenance');
 });
+Route::get('/manajemen-logistik', function () {
+    return view('manajemenlogistik');
+});
+
 
 Route::middleware([
     'auth:sanctum',
