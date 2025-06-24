@@ -1,33 +1,62 @@
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
-            <x-authentication-card-logo />
+            <img src="{{ asset('images/Logo Easy Manage.png') }}" alt="EasyManage Logo" class="w-28 h-auto mx-auto transparent-bg">
         </x-slot>
-
+<style>
+    img.transparent-bg {
+        background-color: transparent;
+        mix-blend-mode: multiply;
+    }
+</style>
         <x-validation-errors class="mb-4" />
 
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
             <div>
-                <x-label for="name" value="{{ __('Name') }}" />
-                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            </div>
+    <x-label for="name" value="{{ __('Name') }}" />
+    <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+</div>
 
-            <div class="mt-4">
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            </div>
+<div class="mt-4">
+    <x-label for="rumah_sakit" value="{{ __('Rumah Sakit') }}" />
+    <select id="rumah_sakit" name="rumah_sakit" required
+        class="block mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500">
+        <option value="" disabled selected>Pilih Rumah Sakit</option>
+        <option value="RSUP Adam Malik">RSUP H. Adam Malik</option>
+        <option value="RSU Pirngadi Medan">RSU dr. Pirngadi Medan</option>
+        <option value="RSUD Deli Serdang">RSUD Deli Serdang</option>
+        <option value="RS Bhayangkara Medan">RS Bhayangkara TK II Medan</option>
+        <option value="RS Haji Medan">RS Haji Medan</option>
+        <option value="RS Royal Prima">RS Royal Prima Medan</option>
+        <option value="RS Siloam Medan">RS Siloam Medan</option>
+        <option value="RS USU">RS Universitas Sumatera Utara</option>
+        <option value="RS Mitra Sejati">RS Mitra Sejati</option>
+        <option value="RS Bunda Thamrin">RS Bunda Thamrin</option>
+    </select>
+</div>
 
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            </div>
+<div class="mt-4">
+    <x-label for="id_pegawai" value="{{ __('ID Pegawai') }}" />
+    <x-input id="id_pegawai" class="block mt-1 w-full" type="text" name="id_pegawai" :value="old('id_pegawai')" required autocomplete="off" />
+</div>
 
-            <div class="mt-4">
-                <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-            </div>
+<div class="mt-4">
+    <x-label for="email" value="{{ __('Email') }}" />
+    <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+</div>
+
+<div class="mt-4">
+    <x-label for="password" value="{{ __('Password') }}" />
+    <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+</div>
+
+<div class="mt-4">
+    <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
+    <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+</div>
+
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                 <div class="mt-4">

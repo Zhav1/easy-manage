@@ -1,9 +1,14 @@
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
-            <x-authentication-card-logo />
+            <img src="{{ asset('images/Logo Easy Manage.png') }}" alt="EasyManage Logo" class="w-28 h-auto mx-auto transparent-bg">
         </x-slot>
-
+<style>
+    img.transparent-bg {
+        background-color: transparent;
+        mix-blend-mode: multiply;
+    }
+</style>
         <div class="mb-4 text-sm text-gray-600">
             {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
         </div>
