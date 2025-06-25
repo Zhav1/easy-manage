@@ -20,20 +20,13 @@
 </div>
 
 <div class="mt-4">
-    <x-label for="rumah_sakit" value="{{ __('Rumah Sakit') }}" />
-    <select id="rumah_sakit" name="rumah_sakit" required
+    <x-label for="hospital_id" value="{{ __('Rumah Sakit') }}" />
+    <select id="hospital_id" name="hospital_id" required
         class="block mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500">
         <option value="" disabled selected>Pilih Rumah Sakit</option>
-        <option value="RSUP Adam Malik">RSUP H. Adam Malik</option>
-        <option value="RSU Pirngadi Medan">RSU dr. Pirngadi Medan</option>
-        <option value="RSUD Deli Serdang">RSUD Deli Serdang</option>
-        <option value="RS Bhayangkara Medan">RS Bhayangkara TK II Medan</option>
-        <option value="RS Haji Medan">RS Haji Medan</option>
-        <option value="RS Royal Prima">RS Royal Prima Medan</option>
-        <option value="RS Siloam Medan">RS Siloam Medan</option>
-        <option value="RS USU">RS Universitas Sumatera Utara</option>
-        <option value="RS Mitra Sejati">RS Mitra Sejati</option>
-        <option value="RS Bunda Thamrin">RS Bunda Thamrin</option>
+        @foreach(\App\Models\Hospital::all() as $hospital)
+            <option value="{{ $hospital->id }}">{{ $hospital->name }}</option>
+        @endforeach
     </select>
 </div>
 
