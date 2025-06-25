@@ -1,9 +1,19 @@
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
-            <x-authentication-card-logo />
+            <img src="{{ asset('images/l2.jpg') }}" alt="EasyManage Logo" class="w-28 h-auto mx-auto  transparent-bg ">
+            
         </x-slot>
+<style>
+    img.transparent-bg {
+        background-color: transparent;
+        mix-blend-mode: multiply;
+    }
+</style>
 
+<x-slot name="logo">
+    <img src="{{ asset('images/Logo Easy Manage.png') }}" alt="EasyManage Logo" class="w-28 h-auto mx-auto transparent-bg">
+</x-slot>
         <x-validation-errors class="mb-4" />
 
         @session('status')
@@ -15,10 +25,10 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <div>
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            </div>
+            <div class="mt-4">
+            <x-label for="id_pegawai" value="{{ __('ID Pegawai') }}" />
+            <x-input id="id_pegawai" class="block mt-1 w-full" type="text" name="id_pegawai" :value="old('id_pegawai')" required autocomplete="off" />
+    </div>
 
             <div class="mt-4">
                 <x-label for="password" value="{{ __('Password') }}" />

@@ -35,7 +35,14 @@
                      class="h-24 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
             </div>
         </div>
-
+<div class="mb-6">
+ <button class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl" onclick="openAddItemModal()">
+                <svg class="w-4 h-4 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+                </svg>
+                Tambahkan Barang
+            </button>
+        </div>
             <!-- Enhanced Logistics Menu with Better Styling -->
             <div class="space-y-6">
                 <!-- Alat Kesehatan -->
@@ -460,38 +467,46 @@
             <form class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                    <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <option>Alat Kesehatan</option>
-                        <option>Linen</option>
-                        <option>Floor Stock</option>
-                        <option>Alat Rumah Tangga</option>
-                        <option>Alat Keselamatan</option>
-                    </select>
-                </div>
+    <select class="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-green-500 focus:border-transparent">
+        <option value="" disabled selected>Pilih kategori</option>
+        <option>Alat Kesehatan</option>
+        <option>Linen</option>
+        <option>Floor Stock</option>
+        <option>Alat Rumah Tangga</option>
+        <option>Alat Keselamatan</option>
+    </select>
+</div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nama Barang</label>
-                    <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Masukkan nama barang">
-                </div>
+                   <input type="text" 
+           class="w-full p-3 border border-gray-300 rounded-lg text-gray-800 bg-white focus:ring-2 focus:ring-gray-800 focus:border-transparent" 
+           placeholder="Masukkan nama barang">
+</div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Stok</label>
-                    <input type="number" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="0">
+<input type="number" class="w-full p-3 border border-gray-300 rounded-lg text-gray-800 bg-white focus:ring-2 focus:ring-gray-800 focus:border-transparent"  placeholder="0">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Satuan</label>
-                    <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="unit, buah, box, dll">
-                </div>
-                
-                <div class="flex space-x-3 pt-4">
-                    <button type="button" onclick="closeAddItemModal()" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors duration-200">
-                        Batal
-                    </button>
-                    <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105">
-                        Tambahkan
-                    </button>
-                </div>
+                    <input type="text" 
+           class="w-full p-3 border border-gray-300 rounded-lg text-gray-800 bg-white focus:ring-2 focus:ring-gray-800 focus:border-transparent" *
+           placeholder="unit, buah, box, dll">
+</div>
+
+<div class="flex space-x-3 pt-4">
+    <button type="button" 
+            onclick="closeAddItemModal()" 
+            class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors duration-200">
+        Batal
+    </button>
+    <button type="submit" 
+            class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105">
+        Tambahkan
+    </button>
+</div>
             </form>
         </div>
     </div>

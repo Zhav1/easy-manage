@@ -26,6 +26,7 @@
         <!-- Welcome -->
         <div class="flex items-center gap-6 mb-10">
             <img src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="Foto Profil" class="w-20 h-20 rounded-full border-2 border-green-500 shadow-md" />
+            
             <div>
             <h1 class="text-3xl font-bold text-gray-900 mb-1">Selamat Pagi, Abidzar!</h1>
             <p class="text-sm text-gray-500">Senin, 23 Juni 2025</p>
