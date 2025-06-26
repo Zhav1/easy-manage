@@ -85,7 +85,8 @@
             to { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5)); }
         }
         
-        .floating-elements {
+        /* Floating Health Elements */
+        .floating-health-elements {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -93,102 +94,109 @@
             pointer-events: none;
         }
         
-        .floating-elements span {
+        .health-element {
             position: absolute;
-            display: block;
-            width: 20px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            animation: animate 25s linear infinite;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            animation: healthFloat 25s linear infinite;
             bottom: -150px;
-            border-radius: 50%;
         }
         
-        .floating-elements span:nth-child(1) {
-            left: 25%;
-            width: 80px;
-            height: 80px;
-            animation-delay: 0s;
-        }
-        
-        .floating-elements span:nth-child(2) {
+        .health-element:nth-child(1) {
             left: 10%;
-            width: 20px;
-            height: 20px;
-            animation-delay: 2s;
-            animation-duration: 12s;
-        }
-        
-        .floating-elements span:nth-child(3) {
-            left: 70%;
-            width: 20px;
-            height: 20px;
-            animation-delay: 4s;
-        }
-        
-        .floating-elements span:nth-child(4) {
-            left: 40%;
-            width: 60px;
-            height: 60px;
+            font-size: 40px;
             animation-delay: 0s;
+            animation-duration: 20s;
+        }
+        
+        .health-element:nth-child(2) {
+            left: 20%;
+            font-size: 25px;
+            animation-delay: 3s;
             animation-duration: 18s;
         }
         
-        .floating-elements span:nth-child(5) {
-            left: 65%;
-            width: 20px;
-            height: 20px;
-            animation-delay: 0s;
+        .health-element:nth-child(3) {
+            left: 30%;
+            font-size: 35px;
+            animation-delay: 6s;
+            animation-duration: 22s;
         }
         
-        .floating-elements span:nth-child(6) {
-            left: 75%;
-            width: 110px;
-            height: 110px;
-            animation-delay: 3s;
+        .health-element:nth-child(4) {
+            left: 40%;
+            font-size: 30px;
+            animation-delay: 9s;
+            animation-duration: 16s;
         }
         
-        .floating-elements span:nth-child(7) {
-            left: 35%;
-            width: 150px;
-            height: 150px;
-            animation-delay: 7s;
-        }
-        
-        .floating-elements span:nth-child(8) {
+        .health-element:nth-child(5) {
             left: 50%;
-            width: 25px;
-            height: 25px;
+            font-size: 28px;
+            animation-delay: 12s;
+            animation-duration: 24s;
+        }
+        
+        .health-element:nth-child(6) {
+            left: 60%;
+            font-size: 45px;
             animation-delay: 15s;
-            animation-duration: 45s;
+            animation-duration: 19s;
         }
         
-        .floating-elements span:nth-child(9) {
-            left: 20%;
-            width: 15px;
-            height: 15px;
-            animation-delay: 2s;
-            animation-duration: 35s;
+        .health-element:nth-child(7) {
+            left: 70%;
+            font-size: 32px;
+            animation-delay: 18s;
+            animation-duration: 21s;
         }
         
-        .floating-elements span:nth-child(10) {
+        .health-element:nth-child(8) {
+            left: 80%;
+            font-size: 26px;
+            animation-delay: 21s;
+            animation-duration: 17s;
+        }
+        
+        .health-element:nth-child(9) {
+            left: 90%;
+            font-size: 38px;
+            animation-delay: 24s;
+            animation-duration: 23s;
+        }
+        
+        .health-element:nth-child(10) {
+            left: 15%;
+            font-size: 42px;
+            animation-delay: 27s;
+            animation-duration: 15s;
+        }
+        
+        .health-element:nth-child(11) {
             left: 85%;
-            width: 150px;
-            height: 150px;
-            animation-delay: 0s;
-            animation-duration: 11s;
+            font-size: 29px;
+            animation-delay: 30s;
+            animation-duration: 25s;
         }
         
-        @keyframes animate {
+        .health-element:nth-child(12) {
+            left: 25%;
+            font-size: 33px;
+            animation-delay: 33s;
+            animation-duration: 14s;
+        }
+        
+        @keyframes healthFloat {
             0% {
                 transform: translateY(0) rotate(0deg);
-                opacity: 1;
-                border-radius: 0;
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 0.3;
             }
             100% {
-                transform: translateY(-1000px) rotate(720deg);
+                transform: translateY(-1200px) rotate(360deg);
                 opacity: 0;
-                border-radius: 50%;
             }
         }
         
@@ -211,18 +219,20 @@
 </head>
 <body>
     <div class="gradient-bg flex items-center justify-center min-h-screen p-4">
-        <!-- Floating Background Elements -->
-        <div class="floating-elements">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
+        <!-- Floating Health Elements -->
+        <div class="floating-health-elements">
+            <i class="health-element fas fa-syringe"></i>
+            <i class="health-element fas fa-stethoscope"></i>
+            <i class="health-element fas fa-pills"></i>
+            <i class="health-element fas fa-hospital"></i>
+            <i class="health-element fas fa-heartbeat"></i>
+            <i class="health-element fas fa-band-aid"></i>
+            <i class="health-element fas fa-flask"></i>
+            <i class="health-element fas fa-microscope"></i>
+            <i class="health-element fas fa-user-md"></i>
+            <i class="health-element fas fa-ambulance"></i>
+            <i class="health-element fas fa-thermometer"></i>
+            <i class="health-element fas fa-briefcase-medical"></i>
         </div>
         
         <!-- Login Card -->
@@ -262,25 +272,24 @@
 </div>
 
                     </div>
-                    
                     <!-- Password -->
                     <div class="space-y-2">
-                        <label for="password" class="block text-sm -medium text-black/90">
+                        <label for="password" class="block text-sm font-medium text-black/90">
                             Password
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-lock text-white/60"></i>
+                                <i class="fas fa-lock text-gray-400"></i>
                             </div>
                             <input
                                 id="password"
                                 name="password"
                                 type="password"
                                 required
-class="input-focus block w-full pl-10 pr-3 py-3
-               bg-gray-50 border border-gray-300 rounded-xl
-               text-gray-800 placeholder-black-400
-               focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                class="input-focus block w-full pl-10 pr-3 py-3
+                                       bg-gray-50 border border-gray-300 rounded-xl
+                                       text-gray-800 placeholder-gray-400
+                                       focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                 placeholder="Masukkan password"
                             />
                             <button
@@ -288,7 +297,7 @@ class="input-focus block w-full pl-10 pr-3 py-3
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center"
                                 onclick="togglePassword()"
                             >
-                                <i id="passwordToggle" class="fas fa-eye-slash text-white/60 hover:text-white/90 transition-colors"></i>
+                                <i id="passwordToggle" class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors"></i>
                             </button>
                         </div>
                     </div>
@@ -300,7 +309,7 @@ class="input-focus block w-full pl-10 pr-3 py-3
                                 id="remember_me"
                                 name="remember"
                                 type="checkbox"
-                                class="w-4 h-4 text-purple-600 bg-white/10 border-white/30 rounded focus:ring-purple-500 focus:ring-2"
+                                class="w-4 h-4 text-green-600 bg-gray-50 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
                             />
                             <label for="remember_me" class="text-sm text-black/90">
                                 Ingat saya
@@ -314,10 +323,10 @@ class="input-focus block w-full pl-10 pr-3 py-3
                     <!-- Login Button -->
                     <button
                         type="submit"
-                        class="btn-hover w-full py-3 px-4 bg-white text-purple-700 -semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300"
+                        class="btn-hover w-full py-3 px-4 bg-white text-purple-700 font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300"
                     >
                         <span class="flex items-center justify-center space-x-2 font-bold text-[#0CC0DF]">
-                            <i class="fas fa-sign-in-alt font-bold text-[#0CC0DF] "></i>
+                            <i class="fas fa-sign-in-alt font-bold text-[#0CC0DF]"></i>
                             <span>Masuk</span>
                         </span>
                     </button>
@@ -388,18 +397,70 @@ class="input-focus block w-full pl-10 pr-3 py-3
             });
         });
         
-        // Add typing animation to logo
+        // Add hover animation to logo
         document.addEventListener('DOMContentLoaded', function() {
-            const logo = document.querySelector('.logo-glow > div');
-            logo.addEventListener('mouseenter', function() {
-                this.style.transform = 'rotate(360deg) scale(1.1)';
-                this.style.transition = 'transform 0.6s ease';
-            });
-            
-            logo.addEventListener('mouseleave', function() {
-                this.style.transform = 'rotate(0deg) scale(1)';
-            });
+            const logoContainer = document.querySelector('.logo-glow');
+            if (logoContainer) {
+                logoContainer.addEventListener('mouseenter', function() {
+                    this.style.transform = 'rotate(5deg) scale(1.1)';
+                    this.style.transition = 'transform 0.6s ease';
+                });
+                
+                logoContainer.addEventListener('mouseleave', function() {
+                    this.style.transform = 'rotate(0deg) scale(1)';
+                });
+            }
         });
+
+        // Add random health elements periodically
+        function addRandomHealthElement() {
+            const healthIcons = [
+                'fas fa-syringe',
+                'fas fa-stethoscope', 
+                'fas fa-pills',
+                'fas fa-hospital',
+                'fas fa-heartbeat',
+                'fas fa-band-aid',
+                'fas fa-flask',
+                'fas fa-microscope',
+                'fas fa-user-md',
+                'fas fa-ambulance',
+                'fas fa-thermometer',
+                'fas fa-briefcase-medical',
+                'fas fa-tooth',
+                'fas fa-eye',
+                'fas fa-lungs'
+            ];
+            const container = document.querySelector('.floating-health-elements');
+            
+            if (container) {
+                const element = document.createElement('i');
+                element.className = 'health-element ' + healthIcons[Math.floor(Math.random() * healthIcons.length)];
+                element.style.left = Math.random() * 100 + '%';
+                element.style.fontSize = (20 + Math.random() * 25) + 'px';
+                element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                element.style.animationDelay = '0s';
+                
+                container.appendChild(element);
+                
+                // Remove element after animation
+                setTimeout(() => {
+                    if (element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                }, 25000);
+            }
+        }
+
+        // Add new health elements every 3 seconds
+        setInterval(addRandomHealthElement, 3000);
+        
+        // Initial health elements
+        setTimeout(() => {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(addRandomHealthElement, i * 1000);
+            }
+        }, 1000);
     </script>
 </body>
 </html>

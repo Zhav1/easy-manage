@@ -88,7 +88,20 @@
             50% { transform: translate(0, -10px); }
             100% { transform: translate(0, -0px); }
         }
-        
+        html {
+  scrollbar-width: none;
+}
+
+/* Untuk IE/Edge */
+body {
+  -ms-overflow-style: none;
+}
+
+/* Pastikan konten utama bisa scroll */
+.main-content {
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch; /* Untuk scroll halus di mobile */
+}
         .ripple {
             position: relative;
             overflow: hidden;

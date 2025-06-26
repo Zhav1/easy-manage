@@ -5,633 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>MovieStack</title>
-    <script src={{ asset('js/dinas.js') }}></script>
-    <style src={{ asset('css/dinas.css') }}></style>
-    @vite('resources/css/app.css')
-    <script>
-        if (localStorage.getItem('color-theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('color-theme', 'light');
-        }
-    </script>
-
-</head>
-<body class="min-h-full">
-    @include('components.sidebar-navbar')
-    <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
-        <div class="p-6 border border-gray-200 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
-            <!-- Enhanced Header with Animation -->
-            <div class="text-center mb-10">
-                <div class="inline-block p-4  transform hover:scale-105 transition-all duration-300">
-                    <h1 class="text-3xl font-bold text-green-500 tracking-wide">Jadwal Dinas</h1>
-                </div>
-                
-               <!-- logo -->
-                <div class="flex justify-center">
-                <img src="{{ asset('images/icon-jadwal-piket.png') }}" alt="Logo Jadwal Dinas"
-                     class="h-24 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
-            </div>
-        </div>
-
-            <!-- Enhanced Logistics Menu with Better Styling -->
-            <div class="space-y-6">
-                <!-- Alat Kesehatan -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                    <div class="p-6 cursor-pointer" onclick="toggleSection('alat-kesehatan')">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mr-4 shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6 text-blue-800">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <span class="text-lg font-semibold text-gray-900">Tambah Jadwal Dinas</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">6 Pertanyaan</div>
-                                <svg class="w-6 h-6 text-gray-400 transform transition-transform duration-300" id="arrow-alat-kesehatan" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="alat-kesehatan" class="hidden border-t border-gray-100">
-                        <div class="p-6 bg-gray-50 space-y-3">
-                            <form>
-                <div class="grid gap-6 mb-6 md:grid-cols-2">
-                    <div>
-                        <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama Rumah Sakit</label>
-                        <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
-                    </div>
-                    <div>
-                        <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama Ruangan</label>
-                        <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" required />
-                    </div>
-                    <div class="pt-5 border-t border-gray-200 dark:border-gray-800 flex sm:flex-row flex-col sm:space-x-5 rtl:space-x-reverse">
-                        <div  inline-datepicker datepicker-buttons datepicker-autoselect-today datepicker-today-btn-classes="!bg-green-600 hover:!bg-green-700 text-white dark:!bg-green-700 dark:hover:!bg-green-800" class="mx-auto sm:mx-0"></div>
-                        <div class="sm:ms-7 sm:ps-5 sm:border-s border-gray-200 dark:border-gray-800 w-full sm:max-w-[15rem] mt-5 sm:mt-0">
-                            <h3 class="text-gray-900 dark:text-white text-base font-medium mb-3 text-center">Wednesday 30 June 2024</h3>
-                            <button type="button" data-collapse-toggle="timetable" class="inline-flex items-center w-full py-2 px-5 me-2 justify-center text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
-                                <svg class="w-4 h-4 text-gray-800 dark:text-white me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
-                                </svg>
-                                Pick a time
-                            </button>
-                            <label class="sr-only">
-                            Pick a time
-                            </label>
-                            <ul id="timetable" class="grid w-full grid-cols-2 gap-2 mt-5">
-                                <li>
-                                    <input type="radio" id="10-am" value="" class="hidden peer" name="timetable">
-                                    <label for="10-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    10:00 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="10-30-am" value="" class="hidden peer" name="timetable">
-                                    <label for="10-30-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    10:30 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="11-am" value="" class="hidden peer" name="timetable">
-                                    <label for="11-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    11:00 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="11-30-am" value="" class="hidden peer" name="timetable">
-                                    <label for="11-30-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    11:30 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="12-am" value="" class="hidden peer" name="timetable" checked>
-                                    <label for="12-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    12:00 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="12-30-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="12-30-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    12:30 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="1-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="1-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    01:00 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="1-30-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="1-30-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    01:30 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="2-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="2-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    02:00 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="2-30-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="2-30-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    02:30 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="3-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="3-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    03:00 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="3-30-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="3-30-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    03:30 PM
-                                    </label>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Submit</button>
-            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Jadwal Dinas -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                    <div class="p-6 cursor-pointer" onclick="toggleSection('linen')">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center mr-4 shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6 text-green-800">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                                    </svg>
-
-                                </div>
-                                <div>
-                                    <span class="text-lg font-semibold text-gray-900">Jadwal Dinas</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">8 Pertanyaan</div>
-                                <svg class="w-6 h-6 text-gray-400 transform transition-transform duration-300" id="arrow-linen" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="linen" class="hidden border-t border-gray-100">
-                        <div class="p-6 bg-gray-50 space-y-3">
-                        <div id="indicators-carousel" class="relative w-full" data-carousel="static">
-                            <!-- Carousel wrapper -->
-                            <div class="relative h-56 overflow-hidden rounded-lg h-full">
-                                <!-- Item 1 -->
-                                <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
-                                    <div class="bg-gradient-to-br  w-full from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                        <div class="flex items-center justify-between px-8">
-                                            <div>
-                                                <h3 class="text-lg font-semibold mb-2">Total Stok Tersedia</h3>
-                                                <p class="text-3xl font-bold">870</p>
-                                                <p class="text-green-100 text-sm mt-1">Items dalam kondisi baik</p>
-                                            </div>
-                                            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Item 2 -->
-                                <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
-                                    <div class="bg-gradient-to-br  w-full from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <h3 class="text-lg font-semibold mb-2">Total Stok Tersedia</h3>
-                                                <p class="text-3xl font-bold">870</p>
-                                                <p class="text-green-100 text-sm mt-1">Items dalam kondisi baik</p>
-                                            </div>
-                                            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Item 3 -->
-                                <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
-                                    <div class="bg-gradient-to-br  w-full from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <h3 class="text-lg font-semibold mb-2">Total Stok Tersedia</h3>
-                                                <p class="text-3xl font-bold">870</p>
-                                                <p class="text-green-100 text-sm mt-1">Items dalam kondisi baik</p>
-                                            </div>
-                                            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Item 4 -->
-                                <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
-                                    <div class="bg-gradient-to-br  w-full from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <h3 class="text-lg font-semibold mb-2">Total Stok Tersedia</h3>
-                                                <p class="text-3xl font-bold">870</p>
-                                                <p class="text-green-100 text-sm mt-1">Items dalam kondisi baik</p>
-                                            </div>
-                                            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Item 5 -->
-                                <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
-                                    <div class="bg-gradient-to-br  w-full from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <h3 class="text-lg font-semibold mb-2">Total Stok Tersedia</h3>
-                                                <p class="text-3xl font-bold">870</p>
-                                                <p class="text-green-100 text-sm mt-1">Items dalam kondisi baik</p>
-                                            </div>
-                                            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Slider indicators -->
-                            <div class="absolute z-30 flex -translate-x-1/2 space-x-3 rtl:space-x-reverse bottom-5 left-1/2">
-                                <button type="button" class="w-3 h-3 rounded-full" aria-current="true" aria-label="Slide 1" data-carousel-slide-to="0"></button>
-                                <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 2" data-carousel-slide-to="1"></button>
-                                <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 3" data-carousel-slide-to="2"></button>
-                                <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 4" data-carousel-slide-to="3"></button>
-                                <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 5" data-carousel-slide-to="4"></button>
-                            </div>
-                            <!-- Slider controls -->
-                            <button type="button" class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
-                                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
-                                    <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
-                                    </svg>
-                                    <span class="sr-only">Previous</span>
-                                </span>
-                            </button>
-                            <button type="button" class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-next>
-                                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
-                                    <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                                    </svg>
-                                    <span class="sr-only">Next</span>
-                                </span>
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-
-                
-
-            <!-- Summary Cards -->
-            <div class="grid md:grid-cols-3 gap-6 mt-8">
-                <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Total Stok Tersedia</h3>
-                            <p class="text-3xl font-bold">870</p>
-                            <p class="text-green-100 text-sm mt-1">Items dalam kondisi baik</p>
-                        </div>
-                        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Stok Terbatas</h3>
-                            <p class="text-3xl font-bold">28</p>
-                            <p class="text-yellow-100 text-sm mt-1">Perlu segera diisi ulang</p>
-                        </div>
-                        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Stok Menipis</h3>
-                            <p class="text-3xl font-bold">18</p>
-                            <p class="text-red-100 text-sm mt-1">Butuh perhatian urgent</p>
-                        </div>
-                        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 border-2 border-gray-200 border-dashed flex flex-col gap-8 rounded-lg dark:border-gray-700 mt-14">
-            <!-- Breadcrumb -->
-            <nav class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-                <li class="inline-flex items-center">
-                <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                    <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-                    </svg>
-                    Dashboard
-                </a>
-                </li>
-                <li aria-current="page">
-                <div class="flex items-center">
-                    <svg class="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                    </svg>
-                    <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">Jadwal Dinas</span>
-                </div>
-                </li>
-            </ol>
-            </nav>
-            <div class="font-medium dark:text-white text-black text-3xl">Tambah Jadwal Dinas</div>
-            <form>
-                <div class="grid gap-6 mb-6 md:grid-cols-2">
-                    <div>
-                        <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama Rumah Sakit</label>
-                        <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
-                    </div>
-                    <div>
-                        <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama Ruangan</label>
-                        <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" required />
-                    </div>
-                    <div class="pt-5 border-t border-gray-200 dark:border-gray-800 flex sm:flex-row flex-col sm:space-x-5 rtl:space-x-reverse">
-                        <div  inline-datepicker datepicker-buttons datepicker-autoselect-today datepicker-today-btn-classes="!bg-green-600 hover:!bg-green-700 text-white dark:!bg-green-700 dark:hover:!bg-green-800" class="mx-auto sm:mx-0"></div>
-                        <div class="sm:ms-7 sm:ps-5 sm:border-s border-gray-200 dark:border-gray-800 w-full sm:max-w-[15rem] mt-5 sm:mt-0">
-                            <h3 class="text-gray-900 dark:text-white text-base font-medium mb-3 text-center">Wednesday 30 June 2024</h3>
-                            <button type="button" data-collapse-toggle="timetable" class="inline-flex items-center w-full py-2 px-5 me-2 justify-center text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
-                                <svg class="w-4 h-4 text-gray-800 dark:text-white me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
-                                </svg>
-                                Pick a time
-                            </button>
-                            <label class="sr-only">
-                            Pick a time
-                            </label>
-                            <ul id="timetable" class="grid w-full grid-cols-2 gap-2 mt-5">
-                                <li>
-                                    <input type="radio" id="10-am" value="" class="hidden peer" name="timetable">
-                                    <label for="10-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    10:00 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="10-30-am" value="" class="hidden peer" name="timetable">
-                                    <label for="10-30-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    10:30 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="11-am" value="" class="hidden peer" name="timetable">
-                                    <label for="11-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    11:00 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="11-30-am" value="" class="hidden peer" name="timetable">
-                                    <label for="11-30-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    11:30 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="12-am" value="" class="hidden peer" name="timetable" checked>
-                                    <label for="12-am"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    12:00 AM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="12-30-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="12-30-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    12:30 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="1-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="1-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    01:00 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="1-30-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="1-30-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    01:30 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="2-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="2-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    02:00 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="2-30-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="2-30-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    02:30 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="3-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="3-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    03:00 PM
-                                    </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="3-30-pm" value="" class="hidden peer" name="timetable">
-                                    <label for="3-30-pm"
-                                    class="inline-flex items-center justify-center w-full p-2 text-sm font-medium text-center bg-white border rounded-lg cursor-pointer text-green-600 border-green-600 dark:hover:text-white dark:border-blue-500 dark:peer-checked:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-600 hover:text-white peer-checked:text-white  dark:peer-checked:text-white hover:bg-green-500 dark:text-green-500 dark:bg-gray-900 dark:hover:bg-green-600 dark:hover:border-green-600 dark:peer-checked:bg-green-500">
-                                    03:30 PM
-                                    </label>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Submit</button>
-            </form>
-
-            <div class="font-medium dark:text-white text-black text-3xl">Jadwal Dinas</div>
-            <div class="w-full p-4 text-left bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">
-                <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">RSUP Adam Malik</h5>
-                <p class="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">Senin, 31 Juni 2025, 14:00 - 15:30</p>
-                <div class="flex flex-row gap-6">
-                <button type="button" class="w-full text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Red</button>
-                <button type="button" class="w-full text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Green</button>
-                </div>
-            </div>
-            <div class="w-full p-4 text-left bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">
-                <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">RSUP Adam Malik</h5>
-                <p class="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">Senin, 31 Juni 2025, 14:00 - 15:30</p>
-                <div class="flex flex-row gap-6">
-                <button type="button" class="w-full text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Red</button>
-                <button type="button" class="w-full text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Green</button>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-    <!-- Modal for Adding Items -->
-    <div id="addItemModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-900">Tambahkan Barang Baru</h2>
-                <p class="text-gray-600 mt-2">Masukkan detail barang yang akan ditambahkan</p>
-            </div>
-            
-            <form class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                    <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <option>Alat Kesehatan</option>
-                        <option>Linen</option>
-                        <option>Floor Stock</option>
-                        <option>Alat Rumah Tangga</option>
-                        <option>Alat Keselamatan</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Barang</label>
-                    <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Masukkan nama barang">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Stok</label>
-                    <input type="number" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="0">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Satuan</label>
-                    <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="unit, buah, box, dll">
-                </div>
-                
-                <div class="flex space-x-3 pt-4">
-                    <button type="button" onclick="closeAddItemModal()" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors duration-200">
-                        Batal
-                    </button>
-                    <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105">
-                        Tambahkan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Toggle section visibility
-        function toggleSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            const arrow = document.getElementById('arrow-' + sectionId);
-            
-            if (section.classList.contains('hidden')) {
-                section.classList.remove('hidden');
-                arrow.classList.add('rotate-180');
-            } else {
-                section.classList.add('hidden');
-                arrow.classList.remove('rotate-180');
-            }
-        }
-
-        // Modal functions
-        function openAddItemModal() {
-            document.getElementById('addItemModal').classList.remove('hidden');
-            document.getElementById('addItemModal').classList.add('flex');
-        }
-
-        function closeAddItemModal() {
-            document.getElementById('addItemModal').classList.add('hidden');
-            document.getElementById('addItemModal').classList.remove('flex');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('addItemModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAddItemModal();
-            }
-        });
-
-        // Add fade-in animation for elements
-        document.addEventListener('DOMContentLoaded', function() {
-            const elements = document.querySelectorAll('.animate-fadeIn');
-            elements.forEach((el, index) => {
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        });
-    </script>
-
+    <title>Jadwal Dinas Rumah Sakit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
     <style>
         .animate-fadeIn {
             opacity: 0;
@@ -651,8 +29,797 @@
         }
 
         .animate-fadeIn {
-            animation: fadeIn 0.6s ease-out;
+            animation: fadeIn 0.6s ease-out forwards;
         }
+
+        .shift-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            display: inline-block;
+            margin: 0.1rem;
+        }
+
+        .shift-pagi {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .shift-sore {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .shift-malam {
+            background-color: #E5E7EB;
+            color: #4B5563;
+        }
+
+        /* FullCalendar custom styles */
+        .fc-event {
+            cursor: pointer;
+            font-size: 0.8em;
+            padding: 2px 4px;
+            margin: 1px 2px;
+        }
+
+        .fc-event-pagi {
+            background-color: #FEF3C7;
+            border-color: #F59E0B;
+            color: #92400E;
+        }
+
+        .fc-event-sore {
+            background-color: #DBEAFE;
+            border-color: #3B82F6;
+            color: #1E40AF;
+        }
+
+        .fc-event-malam {
+            background-color: #E5E7EB;
+            border-color: #6B7280;
+            color: #4B5563;
+        }
+
+        .fc-toolbar-title {
+            font-size: 1.1em;
+        }
+        
+        /* Smaller calendar */
+        .fc .fc-toolbar {
+            padding: 0.5em 0;
+        }
+        
+        .fc .fc-button {
+            padding: 0.3em 0.6em;
+            font-size: 0.9em;
+        }
+        
+        .fc .fc-view-harness {
+            min-height: 400px;
+        }
+        
+        /* Green buttons */
+        .btn-green {
+            background-color: #10B981;
+            color: white;
+            border: none;
+        }
+        
+        .btn-green:hover {
+            background-color: #059669;
+        }
+        
+        .btn-outline-green {
+            background-color: transparent;
+            color: #10B981;
+            border: 1px solid #10B981;
+        }
+        
+        .btn-outline-green:hover {
+            background-color: #ECFDF5;
+        }
+        
+        .btn-red {
+            background-color: #EF4444;
+            color: white;
+            border: none;
+        }
+        
+        .btn-red:hover {
+            background-color: #DC2626;
+        }
+        
+        /* Staff table styles */
+        .staff-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .staff-table th, .staff-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .staff-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        
+        .staff-table tr:hover {
+            background-color: #f3f4f6;
+        }
+        html {
+  scrollbar-width: none;
+}
+
+/* Untuk IE/Edge */
+body {
+  -ms-overflow-style: none;
+}
+
+/* Pastikan konten utama bisa scroll */
+.main-content {
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch; /* Untuk scroll halus di mobile */
+}
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+</head>
+<body class="min-h-full">
+    @include('components.sidebar-navbar')
+    <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
+        <div class="p-6 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-white-800/80">
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
+                    <h1 class="text-2xl font-bold text-green-500 tracking-wide">Jadwal Dinas</h1>
+                </div>
+                <div class="flex justify-center">
+                    <img src="{{ asset('images/icon-jadwal-piket.png') }}" alt="Logo Jadwal Dinas"
+                         class="h-20 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
+                </div>
+            </div>
+
+            <!-- Profile Kepala Ruangan - Compact Version -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                <div class="md:flex">
+                    <div class="md:w-1/4 p-4 flex justify-center">
+                        <div class="relative">
+                            <img class="h-32 w-32 rounded-full object-cover border-4 border-green-500" 
+                                 src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="Profile Photo">
+                            <div class="absolute bottom-0 right-0 bg-green-500 rounded-full p-1 border-2 border-white">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-3/4 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800">Dr. Ahmad Budiman, S.Kep, Ns</h2>
+                                <p class="text-gray-600 text-sm mb-1">Kepala Ruangan Rawat Inap</p>
+                                <div class="flex items-center text-gray-600 text-sm mb-3">
+                                    <i class="fas fa-hospital mr-2"></i>
+                                    <span>RS Adam Malik Medan</span>
+                                </div>
+                            </div>
+                            <div class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                Aktif
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2 mt-4">
+                            <div class="bg-gray-50 p-2 rounded-lg text-center">
+                                <p class="text-gray-500 text-xs">Total Ruangan</p>
+                                <p class="text-lg font-bold">4</p>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded-lg text-center">
+                                <p class="text-gray-500 text-xs">Total Staff</p>
+                                <p class="text-lg font-bold" id="totalStaffCount">68</p>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded-lg text-center">
+                                <p class="text-gray-500 text-xs">Masa Jabatan</p>
+                                <p class="text-lg font-bold">3 Tahun</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jadwal Dinas Section -->
+            <div class="mt-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-calendar-alt mr-2 text-green-600"></i>
+                    Kalender Jadwal Dinas
+                </h2>
+
+                <!-- Calendar Container - Smaller -->
+                <div id="calendar" class="mb-6"></div>
+
+                <!-- Staff Management Section -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-users mr-2 text-green-600"></i>
+                            Manajemen Staff
+                        </h3>
+                        <button onclick="openAddStaffModal()" class="btn-green px-3 py-1 rounded-lg text-sm">
+                            <i class="fas fa-plus mr-1"></i> Tambah Staff
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto bg-white rounded-lg shadow">
+                        <table class="staff-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Jabatan</th>
+                                    <th>Ruangan</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTableBody">
+                                <!-- Staff data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Shift Legend -->
+                <div class="bg-white p-3 rounded-lg shadow border border-gray-200">
+                    <h3 class="font-medium text-gray-800 text-sm mb-2">Keterangan Shift:</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center text-sm">
+                            <span class="shift-badge shift-pagi mr-2">P</span>
+                            <span>Pagi (07:00 - 14:00)</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <span class="shift-badge shift-sore mr-2">S</span>
+                            <span>Sore (14:00 - 21:00)</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <span class="shift-badge shift-malam mr-2">M</span>
+                            <span>Malam (21:00 - 07:00)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Schedule Modal -->
+    <div id="scheduleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-5 w-full max-w-md">
+            <div class="flex justify-between items-center mb-3">
+                <h3 id="modalTitle" class="text-lg font-bold">Tambah Jadwal Dinas</h3>
+                <button onclick="closeScheduleModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="scheduleForm">
+                <input type="hidden" id="eventId">
+                <div class="mb-3">
+                    <label class="block text-gray-700 text-sm mb-1" for="staffName">Nama Staff</label>
+                    <select id="staffName" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+                        <option value="">Pilih Staff</option>
+                        <!-- Staff options will be loaded dynamically -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-gray-700 text-sm mb-1" for="shiftType">Jenis Shift</label>
+                    <select id="shiftType" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+                        <option value="">Pilih Shift</option>
+                        <option value="P">Pagi (07:00 - 14:00)</option>
+                        <option value="S">Sore (14:00 - 21:00)</option>
+                        <option value="M">Malam (21:00 - 07:00)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-gray-700 text-sm mb-1" for="startDate">Tanggal Mulai</label>
+                        <input type="date" id="startDate" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm mb-1" for="endDate">Tanggal Selesai</label>
+                        <input type="date" id="endDate" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeScheduleModal()" class="px-3 py-1 rounded-lg text-sm text-gray-700 hover:bg-gray-100 btn-outline-green">Batal</button>
+                    <button type="submit" class="px-3 py-1 rounded-lg text-sm text-white btn-green">Simpan</button>
+                    <button type="button" id="deleteBtn" onclick="deleteEvent()" class="px-3 py-1 rounded-lg text-sm text-white btn-red hidden">Hapus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Staff Modal -->
+    <div id="staffModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-5 w-full max-w-md">
+            <div class="flex justify-between items-center mb-3">
+                <h3 id="staffModalTitle" class="text-lg font-bold">Tambah Staff Baru</h3>
+                <button onclick="closeStaffModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="staffForm">
+                <input type="hidden" id="staffId">
+                <div class="mb-3">
+                    <label class="block text-gray-700 text-sm mb-1" for="staffFullName">Nama Lengkap</label>
+                    <input type="text" id="staffFullName" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-gray-700 text-sm mb-1" for="staffPosition">Jabatan</label>
+                    <select id="staffPosition" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+                        <option value="">Pilih Jabatan</option>
+                        <option value="Perawat">Perawat</option>
+                        <option value="Dokter">Dokter</option>
+                        <option value="Bidan">Bidan</option>
+                        <option value="Apoteker">Apoteker</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-gray-700 text-sm mb-1" for="staffDepartment">Ruangan</label>
+                    <select id="staffDepartment" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+                        <option value="">Pilih Ruangan</option>
+                        <option value="Rawat Inap">Rawat Inap</option>
+                        <option value="IGD">IGD</option>
+                        <option value="ICU">ICU</option>
+                        <option value="Radiologi">Radiologi</option>
+                        <option value="Laboratorium">Laboratorium</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-gray-700 text-sm mb-1" for="staffStatus">Status</label>
+                    <select id="staffStatus" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Tidak Aktif">Tidak Aktif</option>
+                        <option value="Cuti">Cuti</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeStaffModal()" class="px-3 py-1 rounded-lg text-sm text-gray-700 hover:bg-gray-100 btn-outline-green">Batal</button>
+                    <button type="submit" class="px-3 py-1 rounded-lg text-sm text-white btn-green">Simpan</button>
+                    <button type="button" id="deleteStaffBtn" onclick="deleteStaff()" class="px-3 py-1 rounded-lg text-sm text-white btn-red hidden">Hapus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/id.js'></script>
+    
+    <script>
+        // Staff data
+        let staffData = [
+            { id: 1, name: 'Mita', position: 'Perawat', department: 'Rawat Inap', status: 'Aktif' },
+            { id: 2, name: 'Yani', position: 'Perawat', department: 'Rawat Inap', status: 'Aktif' },
+            { id: 3, name: 'Yono', position: 'Perawat', department: 'Rawat Inap', status: 'Aktif' },
+            { id: 4, name: 'Rudi', position: 'Perawat', department: 'IGD', status: 'Aktif' },
+            { id: 5, name: 'Siti', position: 'Perawat', department: 'IGD', status: 'Aktif' },
+            { id: 6, name: 'Andi', position: 'Perawat', department: 'ICU', status: 'Aktif' },
+            { id: 7, name: 'Budi', position: 'Perawat', department: 'ICU', status: 'Aktif' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize staff table
+            renderStaffTable();
+            updateTotalStaffCount();
+            
+            // Initialize calendar
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'id',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                height: 'auto',
+                events: [
+                    {
+                        id: '1',
+                        title: 'Mita (P)',
+                        start: '2025-06-01T07:00:00',
+                        end: '2025-06-01T14:00:00',
+                        className: 'fc-event-pagi',
+                        extendedProps: {
+                            staff: 'Mita',
+                            shift: 'P'
+                        }
+                    },
+                    {
+                        id: '2',
+                        title: 'Yani (S)',
+                        start: '2025-06-01T14:00:00',
+                        end: '2025-06-01T21:00:00',
+                        className: 'fc-event-sore',
+                        extendedProps: {
+                            staff: 'Yani',
+                            shift: 'S'
+                        }
+                    },
+                    {
+                        id: '3',
+                        title: 'Yono (P)',
+                        start: '2025-06-02T07:00:00',
+                        end: '2025-06-02T14:00:00',
+                        className: 'fc-event-pagi',
+                        extendedProps: {
+                            staff: 'Yono',
+                            shift: 'P'
+                        }
+                    },
+                    {
+                        id: '4',
+                        title: 'Mita (S)',
+                        start: '2025-06-02T14:00:00',
+                        end: '2025-06-02T21:00:00',
+                        className: 'fc-event-sore',
+                        extendedProps: {
+                            staff: 'Mita',
+                            shift: 'S'
+                        }
+                    },
+                    {
+                        id: '5',
+                        title: 'Yani (P)',
+                        start: '2025-06-03T07:00:00',
+                        end: '2025-06-03T14:00:00',
+                        className: 'fc-event-pagi',
+                        extendedProps: {
+                            staff: 'Yani',
+                            shift: 'P'
+                        }
+                    },
+                    {
+                        id: '6',
+                        title: 'Yono (S)',
+                        start: '2025-06-03T14:00:00',
+                        end: '2025-06-03T21:00:00',
+                        className: 'fc-event-sore',
+                        extendedProps: {
+                            staff: 'Yono',
+                            shift: 'S'
+                        }
+                    },
+                    {
+                        id: '7',
+                        title: 'Mita (P)',
+                        start: '2025-06-04T07:00:00',
+                        end: '2025-06-04T14:00:00',
+                        className: 'fc-event-pagi',
+                        extendedProps: {
+                            staff: 'Mita',
+                            shift: 'P'
+                        }
+                    },
+                    {
+                        id: '8',
+                        title: 'Yani (M)',
+                        start: '2025-06-04T21:00:00',
+                        end: '2025-06-05T07:00:00',
+                        className: 'fc-event-malam',
+                        extendedProps: {
+                            staff: 'Yani',
+                            shift: 'M'
+                        }
+                    }
+                ],
+                eventClick: function(info) {
+                    openEditModal(info.event);
+                },
+                dateClick: function(info) {
+                    openAddModal(info.dateStr);
+                },
+                eventContent: function(arg) {
+                    // Custom event display
+                    const shiftBadge = document.createElement('div');
+                    shiftBadge.classList.add('shift-badge');
+                    
+                    if (arg.event.extendedProps.shift === 'P') {
+                        shiftBadge.classList.add('shift-pagi');
+                        shiftBadge.innerHTML = `${arg.event.extendedProps.staff} (P)`;
+                    } else if (arg.event.extendedProps.shift === 'S') {
+                        shiftBadge.classList.add('shift-sore');
+                        shiftBadge.innerHTML = `${arg.event.extendedProps.staff} (S)`;
+                    } else {
+                        shiftBadge.classList.add('shift-malam');
+                        shiftBadge.innerHTML = `${arg.event.extendedProps.staff} (M)`;
+                    }
+                    
+                    const arrayOfDomNodes = [shiftBadge];
+                    return { domNodes: arrayOfDomNodes };
+                }
+            });
+
+            calendar.render();
+
+            // Staff table functions
+            function renderStaffTable() {
+                const tbody = document.getElementById('staffTableBody');
+                tbody.innerHTML = '';
+                
+                staffData.forEach((staff, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${staff.name}</td>
+                        <td>${staff.position}</td>
+                        <td>${staff.department}</td>
+                        <td>
+                            <span class="px-2 py-1 rounded-full text-xs ${
+                                staff.status === 'Aktif' ? 'bg-green-100 text-green-800' : 
+                                staff.status === 'Cuti' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                            }">
+                                ${staff.status}
+                            </span>
+                        </td>
+                        <td class="flex space-x-2">
+                            <button onclick="openEditStaffModal(${staff.id})" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="confirmDeleteStaff(${staff.id})" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Update staff dropdown in schedule modal
+                updateStaffDropdown();
+            }
+            
+            function updateStaffDropdown() {
+                const select = document.getElementById('staffName');
+                select.innerHTML = '<option value="">Pilih Staff</option>';
+                
+                staffData.forEach(staff => {
+                    if (staff.status === 'Aktif') {
+                        const option = document.createElement('option');
+                        option.value = staff.name;
+                        option.textContent = `${staff.name} (${staff.department})`;
+                        select.appendChild(option);
+                    }
+                });
+            }
+            
+            function updateTotalStaffCount() {
+                document.getElementById('totalStaffCount').textContent = staffData.length;
+            }
+            
+            // Staff modal functions
+            window.openAddStaffModal = function() {
+                document.getElementById('staffModalTitle').textContent = 'Tambah Staff Baru';
+                document.getElementById('staffId').value = '';
+                document.getElementById('staffFullName').value = '';
+                document.getElementById('staffPosition').value = '';
+                document.getElementById('staffDepartment').value = '';
+                document.getElementById('staffStatus').value = 'Aktif';
+                document.getElementById('deleteStaffBtn').classList.add('hidden');
+                
+                document.getElementById('staffModal').classList.remove('hidden');
+                document.getElementById('staffModal').classList.add('flex');
+            }
+            
+            window.openEditStaffModal = function(staffId) {
+                const staff = staffData.find(s => s.id === staffId);
+                if (!staff) return;
+                
+                document.getElementById('staffModalTitle').textContent = 'Edit Staff';
+                document.getElementById('staffId').value = staff.id;
+                document.getElementById('staffFullName').value = staff.name;
+                document.getElementById('staffPosition').value = staff.position;
+                document.getElementById('staffDepartment').value = staff.department;
+                document.getElementById('staffStatus').value = staff.status;
+                document.getElementById('deleteStaffBtn').classList.remove('hidden');
+                
+                document.getElementById('staffModal').classList.remove('hidden');
+                document.getElementById('staffModal').classList.add('flex');
+            }
+            
+            window.closeStaffModal = function() {
+                document.getElementById('staffModal').classList.add('hidden');
+                document.getElementById('staffModal').classList.remove('flex');
+            }
+            
+            // Staff form submission
+            document.getElementById('staffForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const staffId = document.getElementById('staffId').value;
+                const name = document.getElementById('staffFullName').value;
+                const position = document.getElementById('staffPosition').value;
+                const department = document.getElementById('staffDepartment').value;
+                const status = document.getElementById('staffStatus').value;
+                
+                if (staffId) {
+                    // Update existing staff
+                    const index = staffData.findIndex(s => s.id == staffId);
+                    if (index !== -1) {
+                        staffData[index] = {
+                            id: parseInt(staffId),
+                            name,
+                            position,
+                            department,
+                            status
+                        };
+                    }
+                } else {
+                    // Add new staff
+                    const newId = staffData.length > 0 ? Math.max(...staffData.map(s => s.id)) + 1 : 1;
+                    staffData.push({
+                        id: newId,
+                        name,
+                        position,
+                        department,
+                        status
+                    });
+                }
+                
+                renderStaffTable();
+                updateTotalStaffCount();
+                closeStaffModal();
+            });
+            
+            window.confirmDeleteStaff = function(staffId) {
+                if (confirm('Apakah Anda yakin ingin menghapus staff ini?')) {
+                    deleteStaff(staffId);
+                }
+            };
+            
+            window.deleteStaff = function() {
+                const staffId = document.getElementById('staffId').value;
+                if (!staffId) return;
+                
+                staffData = staffData.filter(s => s.id != staffId);
+                renderStaffTable();
+                updateTotalStaffCount();
+                closeStaffModal();
+            };
+
+            // Schedule modal functions
+            function openAddModal(dateStr) {
+                document.getElementById('modalTitle').textContent = 'Tambah Jadwal Dinas';
+                document.getElementById('eventId').value = '';
+                document.getElementById('staffName').value = '';
+                document.getElementById('shiftType').value = '';
+                document.getElementById('startDate').value = dateStr;
+                document.getElementById('endDate').value = dateStr;
+                document.getElementById('deleteBtn').classList.add('hidden');
+                
+                document.getElementById('scheduleModal').classList.remove('hidden');
+                document.getElementById('scheduleModal').classList.add('flex');
+            }
+
+            function openEditModal(event) {
+                document.getElementById('modalTitle').textContent = 'Edit Jadwal Dinas';
+                document.getElementById('eventId').value = event.id;
+                document.getElementById('staffName').value = event.extendedProps.staff;
+                document.getElementById('shiftType').value = event.extendedProps.shift;
+                
+                // Format dates without time
+                const startDate = event.start.toISOString().split('T')[0];
+                const endDate = event.end ? event.end.toISOString().split('T')[0] : startDate;
+                
+                document.getElementById('startDate').value = startDate;
+                document.getElementById('endDate').value = endDate;
+                document.getElementById('deleteBtn').classList.remove('hidden');
+                
+                document.getElementById('scheduleModal').classList.remove('hidden');
+                document.getElementById('scheduleModal').classList.add('flex');
+            }
+
+            window.closeScheduleModal = function() {
+                document.getElementById('scheduleModal').classList.add('hidden');
+                document.getElementById('scheduleModal').classList.remove('flex');
+            }
+
+            // Form submission
+            document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const eventId = document.getElementById('eventId').value;
+                const staffName = document.getElementById('staffName').value;
+                const shiftType = document.getElementById('shiftType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                // Determine event time based on shift type
+                let startTime, endTime;
+                if (shiftType === 'P') {
+                    startTime = 'T07:00:00';
+                    endTime = 'T14:00:00';
+                } else if (shiftType === 'S') {
+                    startTime = 'T14:00:00';
+                    endTime = 'T21:00:00';
+                } else {
+                    startTime = 'T21:00:00';
+                    // Next day 07:00 for night shift
+                    const nextDay = new Date(new Date(endDate).getTime() + 86400000);
+                    const nextDayStr = new Date(nextDay).toISOString().split('T')[0];
+                    endTime = 'T07:00:00';
+                    endDate = nextDayStr;
+                }
+                
+                const eventData = {
+                    id: eventId || Date.now().toString(),
+                    title: `${staffName} (${shiftType})`,
+                    start: startDate + startTime,
+                    end: endDate + endTime,
+                    className: shiftType === 'P' ? 'fc-event-pagi' : 
+                              shiftType === 'S' ? 'fc-event-sore' : 'fc-event-malam',
+                    extendedProps: {
+                        staff: staffName,
+                        shift: shiftType
+                    }
+                };
+                
+                if (eventId) {
+                    // Update existing event
+                    const existingEvent = calendar.getEventById(eventId);
+                    if (existingEvent) {
+                        existingEvent.setProp('title', eventData.title);
+                        existingEvent.setStart(eventData.start);
+                        existingEvent.setEnd(eventData.end);
+                        existingEvent.setProp('className', eventData.className);
+                        existingEvent.setExtendedProp('staff', staffName);
+                        existingEvent.setExtendedProp('shift', shiftType);
+                    }
+                } else {
+                    // Add new event
+                    calendar.addEvent(eventData);
+                }
+                
+                closeScheduleModal();
+                
+                // In a real app, you would save to database here
+                console.log('Event saved:', eventData);
+            });
+
+            window.deleteEvent = function() {
+                const eventId = document.getElementById('eventId').value;
+                const event = calendar.getEventById(eventId);
+                
+                if (event) {
+                    if (confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) {
+                        event.remove();
+                        closeScheduleModal();
+                        
+                        // In a real app, you would delete from database here
+                        console.log('Event deleted:', eventId);
+                    }
+                }
+            };
+
+            // Close modal when clicking outside
+            document.getElementById('scheduleModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeScheduleModal();
+                }
+            });
+            
+            document.getElementById('staffModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeStaffModal();
+                }
+            });
+
+            // Add fade-in animation for elements
+            const elements = document.querySelectorAll('.animate-fadeIn');
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
 </body>
+</html>

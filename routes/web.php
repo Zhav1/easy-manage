@@ -8,6 +8,9 @@ Route::get('/', function () {
 Route::get('/notifikasi', function () {
     return view('notifikasi');
 });
+Route::get('/profile', function () {
+    return view('profile');
+});
 Route::get('/dinas', function () {
     return view('jadwal-dinas');
 });
