@@ -276,7 +276,7 @@
                         <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-2">
                             <i class="fas fa-file-alt text-teal-600"></i>
                         </div>
-                        <span class="text-sm font-medium text-gray-700">Buat Laporan</span>
+                        <span class="text-sm font-medium text-gray-700">Lihat Laporan</span>
                     </button>
                     
                     <button class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200">

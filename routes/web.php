@@ -31,6 +31,26 @@ Route::get('/landing', function () {
     return view('landing-page');
 });
 
+Route::get('/schedule', function () {
+    return view('schedule');
+});
+
+Route::get('/laporan', function () {
+    return view('laporan');
+});
+
+Route::get('/kinerja-staff', function () {
+    return view('kinerja-staff');
+});
+
+Route::get('/tna', function () {
+    return view('tna');
+});
+
+Route::get('/indikator-mutu', function () {
+    return view('indikator-mutu');
+});
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
