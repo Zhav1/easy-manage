@@ -8,6 +8,9 @@ Route::get('/', function () {
 Route::get('/notifikasi', function () {
     return view('notifikasi');
 });
+Route::get('/logout-other-browser-sessions-form', function () {
+    return view('logout-other-browser-sessions-form.');
+});
 Route::get('/profile', function () {
     return view('profile');
 });
@@ -42,6 +45,10 @@ Route::get('/laporan', function () {
 Route::get('/kinerja-staff', function () {
     return view('kinerja-staff');
 });
+Route::get('/login', function () {
+    return view('auth.login'); // Pastikan view ini ada
+})->name('login');
+
 
 Route::get('/tna', function () {
     return view('tna');

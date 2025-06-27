@@ -1,17 +1,12 @@
 <x-guest-layout>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
         
         * {
             font-family: 'Inter', sans-serif;
         }
-
-        img.transparent-bg {
-    background-color: transparent;
-    mix-blend-mode: multiply;
-    border-radius: 0 !important;   /* reset sudut */
-}
-
+        
         .gradient-bg {
             background: linear-gradient(135deg,rgb(1, 74, 24) 0%,rgb(31, 240, 251) 100%);
             min-height: 100vh;
@@ -102,87 +97,128 @@
         }
         
         .health-element:nth-child(1) {
-            left: 5%;
-            font-size: 35px;
+            left: 10%;
+            font-size: 40px;
             animation-delay: 0s;
-            animation-duration: 22s;
+            animation-duration: 20s;
         }
         
         .health-element:nth-child(2) {
-            left: 15%;
-            font-size: 28px;
-            animation-delay: 2s;
+            left: 20%;
+            font-size: 25px;
+            animation-delay: 3s;
             animation-duration: 18s;
         }
         
         .health-element:nth-child(3) {
-            left: 25%;
-            font-size: 32px;
-            animation-delay: 4s;
-            animation-duration: 20s;
+            left: 30%;
+            font-size: 35px;
+            animation-delay: 6s;
+            animation-duration: 22s;
         }
         
         .health-element:nth-child(4) {
-            left: 35%;
-            font-size: 26px;
-            animation-delay: 6s;
-            animation-duration: 24s;
-        }
-        
-        .health-element:nth-child(5) {
-            left: 45%;
-            font-size: 40px;
-            animation-delay: 8s;
+            left: 40%;
+            font-size: 30px;
+            animation-delay: 9s;
             animation-duration: 16s;
         }
         
-        .health-element:nth-child(6) {
-            left: 55%;
-            font-size: 30px;
-            animation-delay: 10s;
-            animation-duration: 21s;
+        .health-element:nth-child(5) {
+            left: 50%;
+            font-size: 28px;
+            animation-delay: 12s;
+            animation-duration: 24s;
         }
         
-        .health-element:nth-child(7) {
-            left: 65%;
-            font-size: 38px;
-            animation-delay: 12s;
+        .health-element:nth-child(6) {
+            left: 60%;
+            font-size: 45px;
+            animation-delay: 15s;
             animation-duration: 19s;
         }
         
-        .health-element:nth-child(8) {
-            left: 75%;
-            font-size: 24px;
-            animation-delay: 14s;
-            animation-duration: 23s;
+        .health-element:nth-child(7) {
+            left: 70%;
+            font-size: 32px;
+            animation-delay: 18s;
+            animation-duration: 21s;
         }
         
-        .health-element:nth-child(9) {
-            left: 85%;
-            font-size: 34px;
-            animation-delay: 16s;
+        .health-element:nth-child(8) {
+            left: 80%;
+            font-size: 26px;
+            animation-delay: 21s;
             animation-duration: 17s;
         }
         
-        .health-element:nth-child(10) {
-            left: 95%;
-            font-size: 29px;
-            animation-delay: 18s;
-            animation-duration: 25s;
+        .health-element:nth-child(9) {
+            left: 90%;
+            font-size: 38px;
+            animation-delay: 24s;
+            animation-duration: 23s;
+        }
+        /* Tambahkan di bagian <style> */
+.floating-health-elements {
+    pointer-events: none; /* Pastikan ini ada */
+    z-index: 1; /* Nilai lebih rendah dari card */
+}
+
+.bg-white {
+    position: relative;
+    z-index: 2; /* Pastikan card di atas floating elements */
+}
+
+/* Untuk tombol login */
+.login-container {
+    position: relative;
+    z-index: 3;
+}
+        /* Style untuk dropdown tanpa scroll dan selalu buka ke bawah */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        /* Hilangkan scrollbar pada dropdown */
+        select::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Pastikan dropdown selalu buka ke bawah */
+        select option {
+            direction: ltr;
+            padding: 8px 12px;
+        }
+
+        /* Style tambahan untuk dropdown yang lebih baik */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
         }
         
-        .health-element:nth-child(11) {
-            left: 10%;
+        .health-element:nth-child(10) {
+            left: 15%;
             font-size: 42px;
-            animation-delay: 20s;
+            animation-delay: 27s;
             animation-duration: 15s;
         }
         
+        .health-element:nth-child(11) {
+            left: 85%;
+            font-size: 29px;
+            animation-delay: 30s;
+            animation-duration: 25s;
+        }
+        
         .health-element:nth-child(12) {
-            left: 80%;
-            font-size: 27px;
-            animation-delay: 22s;
-            animation-duration: 26s;
+            left: 25%;
+            font-size: 33px;
+            animation-delay: 33s;
+            animation-duration: 14s;
         }
         
         @keyframes healthFloat {
@@ -199,49 +235,44 @@
             }
         }
         
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
         .transparent-bg {
-            background-color: white ;
+            background-color: transparent;
             mix-blend-mode: multiply;
         }
     </style>
 
-    <div class="gradient-bg">
+    <div class="gradient-bg flex items-center justify-center min-h-screen p-4">
         <!-- Floating Health Elements -->
         <div class="floating-health-elements">
-            <div class="health-element">🏥</div>
-            <div class="health-element">💊</div>
-            <div class="health-element">🩺</div>
-            <div class="health-element">❤️</div>
-            <div class="health-element">⚕️</div>
-            <div class="health-element">🏥</div>
-            <div class="health-element">💉</div>
-            <div class="health-element">🧑‍⚕️</div>
-            <div class="health-element">📋</div>
-            <div class="health-element">🩹</div>
-            <div class="health-element">🔬</div>
-            <div class="health-element">💊</div>
+            <i class="health-element fas fa-syringe"></i>
+            <i class="health-element fas fa-stethoscope"></i>
+            <i class="health-element fas fa-pills"></i>
+            <i class="health-element fas fa-hospital"></i>
+            <i class="health-element fas fa-heartbeat"></i>
+            <i class="health-element fas fa-band-aid"></i>
+            <i class="health-element fas fa-flask"></i>
+            <i class="health-element fas fa-microscope"></i>
+            <i class="health-element fas fa-user-md"></i>
+            <i class="health-element fas fa-ambulance"></i>
+            <i class="health-element fas fa-thermometer"></i>
+            <i class="health-element fas fa-briefcase-medical"></i>
         </div>
-
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
-            <!-- Logo Section -->
-            
-            <!-- Registration Card -->
-            <div class="w-full sm:max-w-lg mt-6 px-6 py-8 bg-white card-shadow rounded-3xl">
-                <div class="mb-8">
-                    <div class="logo-glow">
-                        <img src="{{ asset('images/Logo Easy Manage.png') }}" alt="EasyManage Logo" 
-                             class="w-28 h-28 mx-auto transparent-bg rounded-full ">
+        
+        <!-- Registration Card -->
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-3xl card-shadow p-8">
+                <!-- Logo Section -->
+                <div class="text-center mb-8">
+                    <div class="logo-glow mb-4">
+                        <img
+                            src="{{ asset('images/Logo Easy Manage.png') }}"   
+                            alt="EasyManage Logo"
+                            class="w-24 h-24 mx-auto transparent-bg object-contain"       
+                        >
                     </div>
-                    <h1 class="text-4xl font-bold  text-[#0CC0DF] text-center mt-4 drop-shadow-lg">EasyManage</h1>
-                    <p class="text-black/80 text-center mt-2">Daftar Akun Baru</p>
+                    <h1 class="text-3xl font-bold text-[#0CC0DF] mb-2">EasyManage</h1>
+                    <p class="text-black/80 text-sm">Daftar Akun Baru</p>
                 </div>
-               
                 
                 <!-- Validation Errors -->
                 <x-validation-errors class="mb-4 p-4 bg-red-500/20 border border-red-400/50 rounded-lg text-red-200" />
@@ -250,112 +281,265 @@
                     @csrf
                     
                     <!-- Name Field -->
-                    <div>
-                        <x-label for="name" value="{{ __('Nama Lengkap') }}" class="block text-sm font-medium text-black/90 mb-2" />
-                        <x-input id="name" 
-                                class="input-focus w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-black placeholder-gray/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm" 
-                                type="text" 
-                                name="name" 
-                                :value="old('name')" 
-                                required 
-                                autofocus 
-                                autocomplete="name" 
-                                placeholder="Masukkan nama lengkap" />
+                    <div class="space-y-2">
+                        <label for="name" class="block text-sm font-medium text-gray-800">Nama Lengkap</label>
+                        <div class="relative flex items-center">
+                            <i class="fas fa-user text-gray-400 mr-2"></i>
+                            <x-input id="name" 
+                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    type="text" 
+                                    name="name" 
+                                    :value="old('name')" 
+                                    required 
+                                    autofocus 
+                                    autocomplete="name" 
+                                    placeholder="Masukkan nama lengkap" />
+                        </div>
+                    </div>
+                    
+                    <!-- Room Field -->
+                    <div class="space-y-2">
+                        <label for="room" class="block text-sm font-medium text-gray-800">Ruangan</label>
+                        <div class="relative flex items-center">
+                            <i class="fas fa-door-open text-gray-400 mr-2"></i>
+                            <select id="room" name="room"
+                                class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="" selected>Pilih Ruangan</option>
+                                <option value="igd">IGD (Instalasi Gawat Darurat)</option>
+                                <option value="icu">ICU (Intensive Care Unit)</option>
+                                <option value="nicu">NICU (Neonatal ICU)</option>
+                                <option value="picu">PICU (Pediatric ICU)</option>
+                                <option value="ok">OK (Operasi)</option>
+                                <option value="vip">Ruang VIP</option>
+                                <option value="kelas1">Ruang Kelas 1</option>
+                                <option value="kelas2">Ruang Kelas 2</option>
+                                <option value="kelas3">Ruang Kelas 3</option>
+                                <option value="isolasi">Ruang Isolasi</option>
+                                <option value="persalinan">Ruang Persalinan</option>
+                                <option value="perawatan">Ruang Perawatan</option>
+                                <option value="rawat_jalan">Rawat Jalan</option>
+                                <option value="laboratorium">Laboratorium</option>
+                                <option value="radiologi">Radiologi</option>
+                                <option value="fisioterapi">Fisioterapi</option>
+                                <option value="hemodialisa">Hemodialisa</option>
+                                <option value="kamar_mayat">Kamar Mayat</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Hospital Selection -->
-                    <div>
-                        <x-label for="hospital_id" value="{{ __('Rumah Sakit') }}" class="block text-sm font-medium text-black/90 mb-2" />
-                        <select id="hospital_id" name="hospital_id" required
-                            class="input-focus w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm">
-                            <option value="" disabled selected style="color: #374151;">Pilih Rumah Sakit</option>
-                            @foreach(\App\Models\Hospital::all() as $hospital)
-                                <option value="{{ $hospital->id }}" style="color: #374151;" {{ old('hospital_id') == $hospital->id ? 'selected' : '' }}>
-                                    {{ $hospital->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="space-y-2">
+                        <label for="hospital_id" class="block text-sm font-medium text-gray-800">Rumah Sakit</label>
+                        <div class="relative flex items-center">
+                            <i class="fas fa-hospital text-gray-400 mr-2"></i>
+                            <select id="hospital_id" name="hospital_id" required
+                                class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="" disabled selected>Pilih Rumah Sakit</option>
+                                @foreach(\App\Models\Hospital::all() as $hospital)
+                                    <option value="{{ $hospital->id }}" {{ old('hospital_id') == $hospital->id ? 'selected' : '' }}>
+                                        {{ $hospital->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Employee ID -->
-                    <div>
-                        <x-label for="id_pegawai" value="{{ __('ID Pegawai') }}" class="block text-sm font-medium text-black/90 mb-2" />
-                        <x-input id="id_pegawai" 
-                                class="input-focus w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-black  placeholder-gray/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm" 
-                                type="text" 
-                                name="id_pegawai" 
-                                :value="old('id_pegawai')" 
-                                required 
-                                autocomplete="off" 
-                                placeholder="Masukkan ID pegawai" />
+                    <div class="space-y-2">
+                        <label for="id_pegawai" class="block text-sm font-medium text-gray-800">ID Pegawai</label>
+                        <div class="relative flex items-center">
+                            <i class="fas fa-id-card text-gray-400 mr-2"></i>
+                            <x-input id="id_pegawai" 
+                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    type="text" 
+                                    name="id_pegawai" 
+                                    :value="old('id_pegawai')" 
+                                    required 
+                                    autocomplete="off" 
+                                    placeholder="Masukkan ID pegawai" />
+                        </div>
                     </div>
 
                     <!-- Email Field -->
-                    <div>
-                        <x-label for="email" value="{{ __('Email') }}" class="block text-sm font-medium text-black/90 mb-2" />
-                        <x-input id="email" 
-                                class="input-focus w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-black placeholder-gray/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm" 
-                                type="email" 
-                                name="email" 
-                                :value="old('email')" 
-                                required 
-                                autocomplete="username" 
-                                placeholder="Masukkan alamat email" />
+                    <div class="space-y-2">
+                        <label for="email" class="block text-sm font-medium text-gray-800">Email</label>
+                        <div class="relative flex items-center">
+                            <i class="fas fa-envelope text-gray-400 mr-2"></i>
+                            <x-input id="email" 
+                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    type="email" 
+                                    name="email" 
+                                    :value="old('email')" 
+                                    required 
+                                    autocomplete="username" 
+                                    placeholder="Masukkan alamat email" />
+                        </div>
                     </div>
 
                     <!-- Password Field -->
-                    <div>
-                        <x-label for="password" value="{{ __('Password') }}" class="block text-sm font-medium text-black/90 mb-2" />
-                        <x-input id="password" 
-                                class="input-focus w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-black placeholder-gray/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm" 
-                                type="password" 
-                                name="password" 
-                                required 
-                                autocomplete="new-password" 
-                                placeholder="Masukkan password" />
+                    <div class="space-y-2">
+                        <label for="password" class="block text-sm font-medium text-gray-800">Password</label>
+                        <div class="relative flex items-center">
+                            <i class="fas fa-lock text-gray-400 mr-2"></i>
+                            <x-input id="password" 
+                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    type="password" 
+                                    name="password" 
+                                    required 
+                                    autocomplete="new-password" 
+                                    placeholder="Masukkan password" />
+                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword('password')">
+                                <i id="passwordToggle" class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Confirm Password Field -->
-                    <div>
-                        <x-label for="password_confirmation" value="{{ __('Konfirmasi Password') }}" class="block text-sm font-medium text-black/90 mb-2" />
-                        <x-input id="password_confirmation" 
-                                class="input-focus w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-black placeholder-gray/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm" 
-                                type="password" 
-                                name="password_confirmation" 
-                                required 
-                                autocomplete="new-password" 
-                                placeholder="Konfirmasi password" />
+                    <div class="space-y-2">
+                        <label for="password_confirmation" class="block text-sm font-medium text-gray-800">Konfirmasi Password</label>
+                        <div class="relative flex items-center">
+                            <i class="fas fa-lock text-gray-400 mr-2"></i>
+                            <x-input id="password_confirmation" 
+                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    type="password" 
+                                    name="password_confirmation" 
+                                    required 
+                                    autocomplete="new-password" 
+                                    placeholder="Konfirmasi password" />
+                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword('password_confirmation')">
+                                <i id="passwordConfirmationToggle" class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Terms and Conditions -->
                     @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                         <div class="flex items-start space-x-3">
                             <x-checkbox name="terms" id="terms" required 
-                                       class="mt-1 w-4 h-4 text-cyan-400 bg-white/10 border-white/20 rounded focus:ring-cyan-400 focus:ring-2" />
-                            <x-label for="terms" class="text-sm text-black /90">
+                                       class="w-4 h-4 text-green-600 bg-gray-50 border-gray-300 rounded focus:ring-green-500 focus:ring-2" />
+                            <label for="terms" class="text-sm text-gray-800">
                                 <div class="flex flex-wrap">
                                     {!! __('Saya menyetujui :terms_of_service dan :privacy_policy', [
-                                            'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="text-cyan-300 hover:text-cyan-200 underline">'.__('Syarat & Ketentuan').'</a>',
-                                            'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="text-cyan-300 hover:text-cyan-200 underline">'.__('Kebijakan Privasi').'</a>',
+                                            'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="text-[#0CC0DF] hover:text-[#0CC0DF]/80 underline">'.__('Syarat & Ketentuan').'</a>',
+                                            'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="text-[#0CC0DF] hover:text-[#0CC0DF]/80 underline">'.__('Kebijakan Privasi').'</a>',
                                     ]) !!}
                                 </div>
-                            </x-label>
+                            </label>
                         </div>
                     @endif
 
-                    <!-- Register Button and Login Link -->
-                    <div class="flex items-center justify-between pt-4">
-                        <a class="text-cyan-300 hover:text-cyan-200 text-sm underline focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-transparent rounded-md" 
-                           href="{{ route('login') }}">
-                            {{ __('Sudah punya akun?') }}
-                        </a>
-                        
-                        <x-button class="btn-hover bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-semibold py-3 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-transparent ms-4">
-                            {{ __('Daftar Sekarang') }}
-                        </x-button>
-                    </div>
+                    <!-- Register Button -->
+<div class="pt-4 space-y-3"> <!-- Reduced space between elements -->
+    <!-- Register Button - Centered and compact -->
+    <div class="text-center">
+        <x-button class="btn-hover w-full max-w-xs mx-auto py-3 px-4 bg-[#0CC0DF] text-white font-semibold rounded-xl shadow-lg hover:scale-[1.02] transform transition-all duration-300 text-center">
+            <span class="flex items-center justify-center space-x-2">
+                <i class="fas fa-user-plus"></i>
+                <span class="font-bold">Daftar Sekarang</span>
+            </span>
+        </x-button>
+    </div>
+
+    <!-- Login Link - Compact and stylish -->
+    <div class="text-center pt-1"> <!-- Reduced top padding -->
+        <p class="text-gray-600 text-sm mb-1"> <!-- Smaller margin -->
+            Sudah punya akun? 
+        </p>
+        <a href="{{ route('login') }}" 
+           class="inline-block w-full max-w-xs mx-auto py-2 px-4 bg-white border-2 border-[#0CC0DF] text-[#0CC0DF] hover:bg-[#0CC0DF]/5 font-medium rounded-xl transition-all duration-200 hover:shadow-md">
+           <span class="font-semibold">Masuk Disini</span> 
+        </a>
+    </div>
+</div>
                 </form>
+                
+                <!-- Login Link -->
+            </div>
+            <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginBtn = document.querySelector('a[href="{{ route('login') }}"]');
+    
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function(e) {
+            console.log('Login link clicked - redirecting to:', this.href);
+            // Jika console log muncul tapi tidak redirect, ada masalah lain
+        });
+    }
+});
+</script>
+            <!-- Footer -->
+            <div class="text-center mt-8">
+                <p class="text-black/60 text-xs">
+                    © 2024 EasyManage. Semua hak dilindungi.
+                </p>
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePassword(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const toggleIcon = document.getElementById(fieldId + 'Toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            }
+        }
+        
+        // Add random health elements periodically
+        function addRandomHealthElement() {
+            const healthIcons = [
+                'fas fa-syringe',
+                'fas fa-stethoscope', 
+                'fas fa-pills',
+                'fas fa-hospital',
+                'fas fa-heartbeat',
+                'fas fa-band-aid',
+                'fas fa-flask',
+                'fas fa-microscope',
+                'fas fa-user-md',
+                'fas fa-ambulance',
+                'fas fa-thermometer',
+                'fas fa-briefcase-medical',
+                'fas fa-tooth',
+                'fas fa-eye',
+                'fas fa-lungs'
+            ];
+            const container = document.querySelector('.floating-health-elements');
+            
+            if (container) {
+                const element = document.createElement('i');
+                element.className = 'health-element ' + healthIcons[Math.floor(Math.random() * healthIcons.length)];
+                element.style.left = Math.random() * 100 + '%';
+                element.style.fontSize = (20 + Math.random() * 25) + 'px';
+                element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                element.style.animationDelay = '0s';
+                
+                container.appendChild(element);
+                
+                // Remove element after animation
+                setTimeout(() => {
+                    if (element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                }, 25000);
+            }
+        }
+
+        // Add new health elements every 3 seconds
+        setInterval(addRandomHealthElement, 3000);
+        
+        // Initial health elements
+        setTimeout(() => {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(addRandomHealthElement, i * 1000);
+            }
+        }, 1000);
+    </script>
 </x-guest-layout>

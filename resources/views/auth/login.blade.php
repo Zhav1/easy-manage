@@ -321,25 +321,34 @@
                     </div>
                     
                     <!-- Login Button -->
-                    <button
-                        type="submit"
-                        class="btn-hover w-full py-3 px-4 bg-white text-purple-700 font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300"
-                    >
-                        <span class="flex items-center justify-center space-x-2 font-bold text-[#0CC0DF]">
-                            <i class="fas fa-sign-in-alt font-bold text-[#0CC0DF]"></i>
-                            <span>Masuk</span>
-                        </span>
-                    </button>
+                   <!-- Login Button -->
+<button
+    type="submit"
+    class="btn-hover w-full py-3 px-4 bg-white text-purple-700 font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300"
+>
+    <span class="flex items-center justify-center space-x-2 font-bold text-[#0CC0DF]">
+        <i class="fas fa-sign-in-alt font-bold text-[#0CC0DF]"></i>
+        <span>Masuk</span>
+    </span>
+</button>
+
+<!-- Register Button -->
+<a href="{{ route('register') }}" 
+   class="btn-hover w-full mt-4 py-3 px-4 bg-transparent border-2 border-[#0CC0DF] text-[#0CC0DF] font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 block text-center">
+    <span class="flex items-center justify-center space-x-2 font-bold">
+        <i class="fas fa-user-plus font-bold"></i>
+        <span>Daftar Akun</span>
+    </span>
+</a>
                 </form>
                 
                 <!-- Additional Links -->
                 <div class="mt-6 text-center">
                     <p class="text-black/70 text-sm">
                         Belum punya akun? 
-                       <a href="{{ route('register') }}" class="text-black hover:text-black/80 font-medium transition-colors">
-    Silahkan Daftar Akun
-</a>
-
+                        <a href="#" class="text-black hover:text-black/80 font-medium transition-colors">
+                            Silahkan Daftar Akun Terlebih Dahulu
+                        </a>
                     </p>
                 </div>
             </div>
