@@ -432,13 +432,14 @@
 <div class="pt-4 space-y-3"> <!-- Reduced space between elements -->
     <!-- Register Button - Centered and compact -->
     <div class="text-center">
-        <x-button class="btn-hover w-full max-w-xs mx-auto py-3 px-4 bg-[#0CC0DF] text-white font-semibold rounded-xl shadow-lg hover:scale-[1.02] transform transition-all duration-300 text-center">
-            <span class="flex items-center justify-center space-x-2">
-                <i class="fas fa-user-plus"></i>
-                <span class="font-bold">Daftar Sekarang</span>
-            </span>
-        </x-button>
-    </div>
+    <x-button
+        class="btn-hover max-w-xs mx-auto py-3 px-4 bg-[#0CC0DF] text-white font-semibold rounded-xl shadow-lg hover:scale-[1.02] transform transition-all duration-300">
+        <span class="flex items-center justify-center space-x-2">
+            <i class="fas fa-user-plus"></i>
+            <span class="font-bold">Daftar Sekarang</span>
+        </span>
+    </x-button>
+</div>
 
     <!-- Login Link - Compact and stylish -->
     <div class="text-center pt-1"> <!-- Reduced top padding -->

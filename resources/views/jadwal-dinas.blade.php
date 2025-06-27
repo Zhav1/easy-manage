@@ -7,24 +7,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Jadwal Dinas Rumah Sakit</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script src={{ asset('js/dinas.js') }}></script>
     <link rel="stylesheet" href={{ asset('css/dinas.css') }}>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />        
-}
-
-/* Untuk IE/Edge */
-body {
-  -ms-overflow-style: none;
-}
-
-/* Pastikan konten utama bisa scroll */
-.main-content {
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: touch; /* Untuk scroll halus di mobile */
-}
-    </style>
 </head>
 <body class="min-h-full">
     @include('components.sidebar-navbar')

@@ -16,6 +16,7 @@
             localStorage.setItem('color-theme', 'light');
         }
     </script>
+      <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </head>
 <body class="min-h-full bg-gradient-to-br from-slate-50 to-blue-50">
      @include('components.sidebar-navbar')
