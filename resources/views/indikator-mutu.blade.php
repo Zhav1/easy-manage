@@ -491,9 +491,123 @@
         .form-card .checkbox-item input {
             margin: 0;
         }
+
+        /* Styles for indicator acronyms */
+/* Styles for indicator table */
+.indicator-table-container {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+.indicator-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 8px;
+}
+
+.indicator-table td {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 12px 8px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9em;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+.indicator-table td:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    color: #3498db;
+}
+
+.list-item {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    z-index: 1;
+}
+
+/* Hover animation for all items */
+.indicator-table td:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Additional hover effect for LIST button */
+.list-item:hover {
+    background: linear-gradient(135deg, #3a9bee 0%, #00d9e6 100%);
+}
+
+
+/* Navigation tabs styles (existing) */
+.navigation-tabs {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 50px;
+    padding: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: flex;
+    gap: 5px;
+    z-index: 1000;
+}
+
+.nav-tab {
+    padding: 12px 16px;
+    border-radius: 25px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    background: transparent;
+    color: #666;
+}
+
+.nav-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.nav-tab:hover:not(.active) {
+    background: #f8f9fa;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .indicator-table {
+        display: block;
+        white-space: nowrap;
+    }
+    
+    .navigation-tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+        bottom: 10px;
+        padding: 8px;
+    }
+    
+    .nav-tab {
+        padding: 8px 12px;
+        font-size: 0.7em;
+    }
+}
     </style>
-</head>
-<body>
+    </head>
+    <body>
      @include('components.sidebar-navbar')
     <div class="p-4 pt-20 pl-60 pr-5" >
         <!-- Header -->
@@ -501,6 +615,45 @@
             <h1><i class="fas fa-chart-line"></i> Dashboard Indikator Mutu</h1>
             <p>Sistem Monitoring Kualitas Pelayanan Rumah Sakit</p>
         </div>
+
+<!-- Indicator Acronyms Table -->
+<div class="indicator-table-container">
+    <table class="indicator-table">
+        <tr>
+            <td onclick="showSection('list')" class="list-button">LIST</td>
+            <td onclick="showSection('hand-hygiene')">HAND HYGIENE</td>
+            <td onclick="showSection('apd')">APD</td>
+            <td onclick="showSection('identifikasi')">IDENTIFIKASI</td>
+            <td onclick="showSection('wtri')">WTRI</td>
+            <td onclick="showSection('kritis-lab')">KRITIS LAB</td>
+            <td onclick="showSection('fornas')">FORNAS</td>
+            <td onclick="showSection('visite')">VISITE</td>
+            <td onclick="showSection('jatuh')">JATUH</td>
+            <td onclick="showSection('cp')">CP</td>
+            <td onclick="showSection('kepuasan')">KEPUASAN</td>
+            <td onclick="showSection('krk')">KRK</td>
+            <td onclick="showSection('poe')">POE</td>
+        </tr>
+    </table>
+</div>
+
+{{-- <!-- Navigation Tabs -->
+<div class="navigation-tabs">
+    <button class="nav-tab active" onclick="showSection('list')">LIST</button>
+    <button class="nav-tab" onclick="showSection('hand-hygiene')">Hand Hygiene</button>
+    <button class="nav-tab" onclick="showSection('apd')">APD</button>
+    <button class="nav-tab" onclick="showSection('identifikasi')">Identifikasi</button>
+    <button class="nav-tab" onclick="showSection('wtri')">WTRI</button>
+    <button class="nav-tab" onclick="showSection('kritis-lab')">Kritis Lab</button>
+    <button class="nav-tab" onclick="showSection('fornas')">FORNAS</button>
+    <button class="nav-tab" onclick="showSection('visite')">VISITE</button>
+    <button class="nav-tab" onclick="showSection('jatuh')">JATUH</button>
+    <button class="nav-tab" onclick="showSection('cp')">CP</button>
+    <button class="nav-tab" onclick="showSection('kepuasan')">Kepuasan</button>
+    <button class="nav-tab" onclick="showSection('krk')">KRK</button>
+    <button class="nav-tab" onclick="showSection('poe')">POE</button>
+    <button class="nav-tab" onclick="showSection('sc')">SC</button>
+</div> --}}
 
         <!-- Statistics Overview -->
         <div class="stats-grid">
@@ -1504,7 +1657,7 @@
          
         </div>
 
-        <!-- Navigation Tabs -->
+        {{-- <!-- Navigation Tabs -->
         <div class="navigation-tabs">
             <button class="nav-tab active" onclick="showSection('list')">LIST</button>
             <button class="nav-tab" onclick="showSection('hand-hygiene')">Hand Hygiene</button>
@@ -1521,7 +1674,7 @@
             <button class="nav-tab" onclick="showSection('poe')">POE</button>
             <button class="nav-tab" onclick="showSection('sc')">SC</button>
         </div>
-    </div>
+    </div> --}}
 
     <script>
         // Global variables
