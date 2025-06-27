@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(HospitalSeeder::class);
+        $this->call(DepartmentSeeder::class);
+        $this->call(PositionSeeder::class);
+        $this->call(ShiftSeeder::class);
 
     }
 }
