@@ -10,47 +10,38 @@
             <a href="#" class="text-gray-700 hover:text-yellow-600"><i class="fa fa-boxes mr-1"></i>Logistik</a>
             <a href="#" class="text-gray-700 hover:text-blue-600"><i class="fa fa-shield-virus mr-1"></i>PPI</a>
         </div>
-
-        <div class="flex items-center">
-            <div class="flex items-center ms-3">
-                <div class="flex flex-row justify-between gap-6">
-                <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 " aria-expanded="false" data-dropdown-toggle="dropdown-user">
-                    <span class="sr-only">Open user menu</span>
-                    <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
-                </button>
-                </div>
-                <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gra-100 rounded-sm shadow-sm  " id="dropdown-user">
-                <div class="px-4 py-3" role="none">
-                    <p class="text-sm text-gray-900 dark:text-black" role="none">
-                    Neil Sims
-                    </p>
-                    <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                    neil.sims@flowbite.com
-                    </p>
-                </div>
-                <ul class="py-1" role="none">
-                    <li>
-                    <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 " role="menuitem">Lihat Profile</a>
-                    </li>
-                    <li>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 " role="menuitem">Dashboard</a>
-                    </li>
-                    <li>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 " role="menuitem">Settings</a>
-                    </li>
-                    <li>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 " role="menuitem">Earnings</a>
-                    </li>
-                    <li>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 " role="menuitem">Sign out</a>
-                    </li>
-                </ul>
-                </div>
-            </div>
-            </div>
+<div class="flex items-center ms-3">
+    <div>
+        <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300" 
+                aria-expanded="false" data-dropdown-toggle="dropdown-user">
+            <span class="sr-only">Open user menu</span>
+            <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
+        </button>
+    </div>
+    
+    <!-- Dropdown menu -->
+    <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow" id="dropdown-user">
+        <div class="px-4 py-3" role="none">
+            <p class="text-sm text-gray-900" role="none">Neil Sims</p>
+            <p class="text-sm font-medium text-gray-900 truncate" role="none">neil.sims@flowbite.com</p>
+        </div>
+        <ul class="py-1" role="none">
+            <li>
+                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Lihat Profile</a>
+            </li>
+            <li>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+            </li>
+            <li>
+                <a href="/login" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+            </li>
+        </ul>
+    </div>
+</div>
         </div>
     </div>
     </nav>
+   
     <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 " aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white ">
         <ul class="space-y-2 font-medium">

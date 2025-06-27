@@ -336,9 +336,10 @@
                 <div class="mt-6 text-center">
                     <p class="text-black/70 text-sm">
                         Belum punya akun? 
-                        <a href="#" class="text-black hover:text-black/80 font-medium transition-colors">
-                            Hubungi Administrator
-                        </a>
+                       <a href="{{ route('register') }}" class="text-black hover:text-black/80 font-medium transition-colors">
+    Silahkan Daftar Akun
+</a>
+
                     </p>
                 </div>
             </div>

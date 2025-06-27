@@ -70,7 +70,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="border-t">
+            <tr class="border-t text-center">
               <td class="px-4 py-2">26-06-2025 07:30</td>
               <td class="px-4 py-2">Ya</td>
               <td class="px-4 py-2">Tidak</td>
@@ -100,7 +100,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="border-t">
+            <tr class="border-t text-center">
               <td class="px-4 py-2">Yanti</td>
               <td class="px-4 py-2">Tepat Waktu</td>
               <td class="px-4 py-2">Baik</td>
@@ -126,7 +126,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="border-t">
+            <tr class="border-t text-center">
               <td class="px-4 py-2">Yanti</td>
               <td class="px-4 py-2">Webinar ICU 2024</td>
               <td class="px-4 py-2">Pelatihan Keselamatan</td>
