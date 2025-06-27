@@ -8,6 +8,7 @@
     <title>Indikator Mutu - Dashboard Rumah Sakit</title>
     @vite('resources/css/app.css')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -417,27 +418,7 @@
             }
         }
 
-        .loading-spinner {
-            display: none;
-            text-align: center;
-            padding: 50px;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+   
         /* Additional styles for new forms */
         .form-card .form-header {
             display: flex;
@@ -855,7 +836,125 @@
                     </div>
                 </div>
             </div>
-
+<!-- Identifikasi Pasien Form -->
+<div class="form-card" id="identifikasi-form" style="display: none;">
+    <h3><i class="fas fa-id-card"></i> Kepatuhan Identifikasi Pasien</h3>
+    
+    <div class="form-section">
+        <div class="form-section-title">Unit Kerja: 
+            <select>
+                <option>PJT</option>
+                <option>RA</option>
+                <option>GIZI</option>
+                <option>REHAB ME</option>
+                <option>RADIOTERAPI</option>
+                <option>PAVILI</option>
+                <option>RB</option>
+                <option>IRJ</option>
+                <option>UTD</option>
+                <option>KEDOKTERAN NUKLIR</option>
+                <option>ICD</option>
+                <option>PK</option>
+                <option>IBS</option>
+                <option>RADIOLOGI</option>
+                <option>ICU</option>
+                <option>PA</option>
+                <option>IDT</option>
+                <option>MIKROBIOLOGI</option>
+            </select>
+        </div>
+        
+        <table class="form-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">No (D)</th>
+                    <th rowspan="2">Tgl</th>
+                    <th rowspan="2">Staf yang Diobservasi</th>
+                    <th colspan="6">Parameter Disk</th>
+                    <th rowspan="2">Verbal</th>
+                    <th rowspan="2">Visual</th>
+                    <th rowspan="2">Identifikasi</th>
+                    <th rowspan="2">Tidak Dilakukan</th>
+                </tr>
+                <tr>
+                    <th>Parameter Diagnostik/Tindakan</th>
+                    <th>Nama</th>
+                    <th>Tanggal Lahir</th>
+                    <th>No. RM</th>
+                    <th>Alamat</th>
+                    <th>Lainnya</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="number" value="1" /></td>
+                    <td><input type="date" /></td>
+                    <td><input type="text" placeholder="Nama Staf" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                </tr>
+                <tr>
+                    <td><input type="number" value="2" /></td>
+                    <td><input type="date" /></td>
+                    <td><input type="text" placeholder="Nama Staf" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                </tr>
+                <!-- NB row -->
+                <tr>
+                    <td><strong>NB</strong></td>
+                    <td colspan="11">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <input type="checkbox" id="verbal-visual" />
+                                <label for="verbal-visual">Verbal & Visual</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="dua-parameter" />
+                                <label for="dua-parameter">2 Parameter</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="satu-parameter" />
+                                <label for="satu-parameter">1 Parameter</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="tidak-dilakukan" />
+                                <label for="tidak-dilakukan">Tidak Dilakukan</label>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="formula-box">
+        <div class="formula-text">
+            Formula: (Jumlah identifikasi pasien yang dilakukan dengan benar sesuai SPO / Jumlah pasien yang diobservasi) x 100% ≥ 80%
+        </div>
+    </div>
+    
+    <div class="form-actions">
+        <button class="save-btn" onclick="saveFormData('identifikasi')"><i class="fas fa-save"></i> Simpan</button>
+        <button class="cancel-btn" onclick="backToList()"><i class="fas fa-times"></i> Batal</button>
+    </div>
+</div>
             <!-- Waktu Tunggu Rawat Jalan Form -->
             <div class="form-card" id="wtri-form" style="display: none;">
                 <h3><i class="fas fa-clock"></i> Waktu Tunggu Pelayanan Rawat Jalan (WTPR)</h3>
@@ -1111,7 +1210,7 @@
                                 <th>No. RM</th>
                                 <th>Ruangan</th>
                                 <th>Skor Risiko Jatuh</th>
-                                <th>Identifikasi Risiko</th>
+                                <th> Risiko</th>
                                 <th>Intervensi</th>
                                 <th>Evaluasi</th>
                                 <th>Kepatuhan</th>
@@ -1402,7 +1501,7 @@
         <!-- Loading Spinner -->
         <div class="loading-spinner" id="loading">
             <div class="spinner"></div>
-            <p>Memuat data...</p>
+         
         </div>
 
         <!-- Navigation Tabs -->
@@ -1467,16 +1566,10 @@
         }
 
         // Show loading spinner
-        function showLoading() {
-            document.getElementById('loading').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-            }, 1000);
-        }
-
+       
         // Show specific section
         function showSection(section) {
-            showLoading();
+            
             
             // Update active tab
             document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -1505,6 +1598,7 @@
                 // Show specific form based on section
                 const formMap = {
                     'hand-hygiene': 'kebersihan-form',
+                    'identifikasi': 'identifikasi-form',
                     'apd': 'apd-form',
                     'wtri': 'wtri-form',
                     'kritis-lab': 'kritis-form',
@@ -1532,7 +1626,7 @@
 
         // Open specific form
         function openForm(formType) {
-            showLoading();
+            
             
             // Hide main grid
             document.querySelector('.main-grid').style.display = 'none';
@@ -1555,6 +1649,7 @@
                     const tabMap = {
                         'kebersihan': 'hand-hygiene',
                         'apd': 'apd',
+                        'identifikasi': 'identifikasi',
                         'wtri': 'wtri',
                         'kritis': 'kritis-lab',
                         'fornas': 'fornas',
@@ -1584,7 +1679,7 @@
 
         // Save form data
         function saveFormData(formType) {
-            showLoading();
+            ading();
             
             // Simulate saving data
             setTimeout(() => {
