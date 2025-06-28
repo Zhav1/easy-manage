@@ -28,6 +28,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'hospital_id',
+        'department_id',
         'id_pegawai',
         'email',
         'password',
@@ -69,5 +70,9 @@ class User extends Authenticatable
 
     public function hospital() {
         return $this->belongsTo(Hospital::class);
+    }
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

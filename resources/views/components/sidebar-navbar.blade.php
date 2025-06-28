@@ -33,7 +33,10 @@
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
             </li>
             <li>
-                <a href="/login" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                <form action="{{ route('logout') }}" method="POST" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                @csrf
+                    <button type="submit" class="w-full block text-left text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</button>
+                </form>
             </li>
         </ul>
     </div>

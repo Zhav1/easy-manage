@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
             $table->foreignId('hospital_id')->constrained()->onDelete('cascade');
+            $table->foreignId('department_id')->nullable()->constrained()->onDelete('set null'); // NEW
             $table->string('id_pegawai')->unique();
             $table->timestamps();
         });

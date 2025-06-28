@@ -7,26 +7,18 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Jadwal Dinas Rumah Sakit</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src={{ asset('js/dinas.js') }}></script>
     <link rel="stylesheet" href={{ asset('css/dinas.css') }}>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />        
-}
-
-/* Untuk IE/Edge */
-body {
-  -ms-overflow-style: none;
-}
-
-/* Pastikan konten utama bisa scroll */
-.main-content {
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: touch; /* Untuk scroll halus di mobile */
-}
-    </style>
 </head>
 <body class="min-h-full">
+    <script>
+    window.authToken = "{{ session('token') }}";
+    </script>
+
     @include('components.sidebar-navbar')
     
     <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
@@ -57,31 +49,20 @@ body {
                     <div class="md:w-3/4 p-4">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h2 class="text-xl font-bold text-gray-800">Dr. Ahmad Budiman, S.Kep, Ns</h2>
-                                <p class="text-gray-600 text-sm mb-1">Kepala Ruangan Rawat Inap</p>
+                                <h2 class="text-xl font-bold text-gray-800">{{ Auth::user()->name }}</h2>
+                                <p class="text-gray-600 text-sm mb-1">Kepala Ruangan {{ Auth::user()->department->name }}</p>
                                 <div class="flex items-center text-gray-600 text-sm mb-3">
                                     <i class="fas fa-hospital mr-2"></i>
-                                    <span>RS Adam Malik Medan</span>
+                                    <span>{{ Auth::user()->hospital->name }}</span>
                                 </div>
                             </div>
                             <div class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
                                 Aktif
                             </div>
                         </div>
-                        
-                        <div class="grid grid-cols-3 gap-2 mt-4">
-                            <div class="bg-gray-50 p-2 rounded-lg text-center">
-                                <p class="text-gray-500 text-xs">Total Ruangan</p>
-                                <p class="text-lg font-bold">4</p>
-                            </div>
-                            <div class="bg-gray-50 p-2 rounded-lg text-center">
-                                <p class="text-gray-500 text-xs">Total Staff</p>
-                                <p class="text-lg font-bold" id="totalStaffCount">68</p>
-                            </div>
-                            <div class="bg-gray-50 p-2 rounded-lg text-center">
-                                <p class="text-gray-500 text-xs">Masa Jabatan</p>
-                                <p class="text-lg font-bold">3 Tahun</p>
-                            </div>
+                        <div class="bg-gray-50 p-2 rounded-lg text-center">
+                            <p class="text-gray-500 text-xs">Total Staff</p>
+                            <p class="text-lg font-bold" id="totalStaffCount">68</p>
                         </div>
                     </div>
                 </div>
@@ -107,9 +88,6 @@ body {
                         <div class="flex- justify-between">
                             <button onclick="openAddStaffModal()" class="btn-green px-3 py-1 rounded-lg text-sm">
                                 <i class="fas fa-plus mr-1"></i> Tambah Staff
-                            </button>
-                            <button onclick="openAddDepartmentModal()" class="btn-green px-3 py-1 rounded-lg text-sm">
-                                <i class="fas fa-plus mr-1"></i> Tambah Ruangan
                             </button>
                             <button onclick="openAddPositionModal()" class="btn-green px-3 py-1 rounded-lg text-sm">
                                 <i class="fas fa-plus mr-1"></i> Tambah Jabatan
@@ -212,6 +190,8 @@ body {
             </div>
             <form id="staffForm">
                 <input type="hidden" id="staffId">
+                <input type="hidden" id="staffDepartment" value="{{ auth()->user()->department_id }}">
+                <input type="hidden" id="staffHospital" value="{{ auth()->user()->hospital_id }}">
                 <div class="mb-3">
                     <label class="block text-gray-700 text-sm mb-1" for="staffFullName">Nama Lengkap</label>
                     <input type="text" id="staffFullName" class="w-full px-3 py-2 border rounded-lg text-sm" required>
@@ -220,12 +200,6 @@ body {
                     <label class="block text-gray-700 text-sm mb-1" for="staffPosition">Jabatan</label>
                     <select id="staffPosition" class="w-full px-3 py-2 border rounded-lg text-sm" required>
                         <option value="">Pilih Jabatan</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="block text-gray-700 text-sm mb-1" for="staffDepartment">Ruangan</label>
-                    <select id="staffDepartment" class="w-full px-3 py-2 border rounded-lg text-sm" required>
-                        <option value="">Pilih Ruangan</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -240,39 +214,6 @@ body {
                     <button type="button" onclick="closeStaffModal()" class="px-3 py-1 rounded-lg text-sm text-gray-700 hover:bg-gray-100 btn-outline-green">Batal</button>
                     <button type="submit" class="px-3 py-1 rounded-lg text-sm text-white btn-green">Simpan</button>
                     <button type="button" id="deleteStaffBtn" onclick="deleteStaff()" class="px-3 py-1 rounded-lg text-sm text-white btn-red hidden">Hapus</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Department Modal -->
-    <div id="departmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-5 w-full max-w-md">
-            <div class="flex justify-between items-center mb-3">
-                <h3 id="departmentModalTitle" class="text-lg font-bold">Tambah Ruangan Baru</h3>
-                <button onclick="closeDepartmentModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="departmentForm">
-                <input type="hidden" id="departmentId">
-                <div class="mb-3">
-                    <label class="block text-gray-700 text-sm mb-1" for="departmentName">Nama Ruangan</label>
-                    <input type="text" id="departmentName" class="w-full px-3 py-2 border rounded-lg text-sm" required>
-                </div>
-                <div class="mb-3">
-                    <label class="block text-gray-700 text-sm mb-1" for="departmentCode">Kode Ruangan</label>
-                    <input type="text" id="departmentCode" class="w-full px-3 py-2 border rounded-lg text-sm" required>
-                </div>
-                <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="closeDepartmentModal()" 
-                            class="px-3 py-1 rounded-lg text-sm text-gray-700 hover:bg-gray-100 btn-outline-green">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                            class="px-3 py-1 rounded-lg text-sm text-white btn-green">
-                        Simpan
-                    </button>
                 </div>
             </form>
         </div>

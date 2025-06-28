@@ -13,10 +13,11 @@ return new class extends Migration
     {
     Schema::create('departments', function (Blueprint $table) {
         $table->id();
-        $table->string('name'); // Rawat Inap, IGD, etc.
-        $table->string('code')->unique();
+        $table->string('name')->unique(); // e.g., IGD, ICU, etc.
         $table->timestamps();
     });
+
+
     }
 
     /**

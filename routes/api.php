@@ -7,20 +7,31 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\UserDataController;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 
-Route::prefix('v1')->group(function() {
+
+Route::middleware('auth:sanctum')->post('/token', function (Request $request) {
+    $token = $request->user()->createToken('api-token')->plainTextToken;
+    return ['token' => $token];
+});
+
+Route::middleware(['auth:sanctum'])->prefix('v1')->group(function() {
     // Departments
-    Route::get('/departments', [DepartmentController::class, 'index']);
+    Route::get('/departments', [DepartmentController::class, 'index']) ;
     Route::post('/departments', [DepartmentController::class, 'store']);
 
     // shifts
     Route::apiResource('shifts', ShiftController::class);
-
     
     // Positions
     Route::get('/positions', [PositionController::class, 'index']);
     Route::post('/positions', [PositionController::class, 'store']);
+
+    //user data
+    Route::get('/user/info', [UserDataController::class, 'index']);
+
     
     // Staff
     Route::get('/staff', [StaffController::class, 'index']);

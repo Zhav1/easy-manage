@@ -6,21 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>Schedule - Catatan Pribadi</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ asset('css/schedule.css') }}">
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .card-hover {
-      transition: all 0.3s ease;
-    }
-    .card-hover:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-    .glass-effect {
-      backdrop-filter: blur(16px) saturate(180%);
-      background-color: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(209, 213, 219, 0.3);
-    }
-  </style>
 </head>
 <body class="min-h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-800">
      @include('components.sidebar-navbar')
