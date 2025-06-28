@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LogisticController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,6 +21,9 @@ Route::get('/dinas', function () {
 Route::get('/pengendalian-dan-pencegahan-infeksi', function () {
     return view('ppi');
 });
+// routes/web.php
+Route::get('/mltable', [LogisticController::class, 'index'])->name('logistics.index');
+Route::resource('logistics', LogisticController::class);
 Route::get('/bundle-insersi', function () {
     return view('bundle-insersi');
 });

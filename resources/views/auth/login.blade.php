@@ -333,20 +333,14 @@
 </button>
 
 <!-- Register Button -->
-<a href="{{ route('register') }}" 
-   class="btn-hover w-full mt-4 py-3 px-4 bg-transparent border-2 border-[#0CC0DF] text-[#0CC0DF] font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 block text-center">
-    <span class="flex items-center justify-center space-x-2 font-bold">
-        <i class="fas fa-user-plus font-bold"></i>
-        <span>Daftar Akun</span>
-    </span>
-</a>
+
                 </form>
                 
                 <!-- Additional Links -->
                 <div class="mt-6 text-center">
                     <p class="text-black/70 text-sm">
                         Belum punya akun? 
-                        <a href="#" class="text-black hover:text-black/80 font-medium transition-colors">
+                        <a href="{{ route('register') }}" class="text-black hover:text-black/80 font-medium transition-colors">
                             Silahkan Daftar Akun Terlebih Dahulu
                         </a>
                     </p>
