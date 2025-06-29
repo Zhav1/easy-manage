@@ -57,3 +57,57 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    /* Modal Styles */
+#scheduleModal {
+    transition: all 0.3s ease;
+}
+
+/* Button Styles */
+.btn-gradient {
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cancel {
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background-color: #f3f4f6;
+    transform: translateY(-2px);
+}
+
+.btn-delete {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+    transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.input-focus {
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.input-focus:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}

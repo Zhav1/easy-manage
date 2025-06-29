@@ -8,6 +8,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserDataController;
+use App\Http\Controllers\PrivateScheduleController;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 
@@ -39,10 +40,17 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function() {
     Route::put('/staff/{staff}', [StaffController::class, 'update']);
     Route::delete('/staff/{staff}', [StaffController::class, 'destroy']);
     
-    // Schedules
+    // Staff Schedules
     Route::get('/schedules', [ScheduleController::class, 'index']);
     Route::post('/schedules', [ScheduleController::class, 'store']);
     Route::delete('/schedules/{schedule}', [ScheduleController::class, 'destroy']);
     Route::put('/schedules/{schedule}', [ScheduleController::class, 'update']);
+
+    //Private Schedules
+    Route::get('/private-schedules', [PrivateScheduleController::class, 'index']);
+    Route::post('/private-schedules', [PrivateScheduleController::class, 'store']);
+    Route::get('/private-schedules/{id}', [PrivateScheduleController::class, 'show']);
+    Route::put('/private-schedules/{id}', [PrivateScheduleController::class, 'update']);
+    Route::delete('/private-schedules/{id}', [PrivateScheduleController::class, 'destroy']);
 
 });

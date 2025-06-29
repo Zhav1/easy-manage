@@ -75,4 +75,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function privateSchedules()
+    {
+        return $this->hasMany(\App\Models\PrivateSchedule::class);
+    }
+
 }
