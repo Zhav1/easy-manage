@@ -26,7 +26,7 @@
             <!-- Header -->
             <div class="text-center mb-6">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
-                    <h1 class="text-2xl font-bold text-green-500 tracking-wide">Jadwal Dinas</h1>
+                    <h1 class="text-4xl font-bold text-black mb-3">Jadwal Dinas</h1>
                 </div>
                 <div class="flex justify-center">
                     <img src="{{ asset('images/icon-jadwal-piket.png') }}" alt="Logo Jadwal Dinas"

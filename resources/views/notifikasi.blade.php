@@ -128,13 +128,30 @@ body {
 </head>
 <body class="h-full border-gray-200">
      @include('components.sidebar-navbar')
+     {{-- <!-- Header dengan efek floating -->
+<div class="floating mt-16">
+    <div class="container mx-auto px-6 pt-8 pl-60 pr-5">
+        <div class="glass-effect rounded-2xl p-6 mb-8 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 p-3 rounded-xl shadow-lg">
+                        <i class="fas fa-bell text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Notifikasi</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> --}}
     <!-- Header dengan efek floating -->
     <div class="floating mt-16">
         <div class="container mx-auto px-6 pt-8 pl-60 pr-5 ">
             <div class="glass-effect rounded-2xl p-6 mb-8 shadow-2xl">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 p-3 rounded-xl shadow-lg">
                             <i class="fas fa-bell text-white text-2xl"></i>
                         </div>
                         <div>

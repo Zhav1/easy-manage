@@ -115,12 +115,11 @@
   @include('components.sidebar-navbar')
   <div class="p-4">
     <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
-      <!-- Header Section -->
       <div class="glass-effect rounded-3xl p-8 mb-8 shadow-xl animate-fade-in-up">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
-              <i class="fas fa-chart-line mr-3"></i>Kinerja Staf
+            <h1 class="text-4xl font-bold text-black mb-3">
+              <i class="fas fa-chart-line mr-3 text-green-500"></i>Kinerja Staf
             </h1>
             <p class="text-gray-600 text-lg">Lihat dan catat penilaian kinerja staf Anda berdasarkan indikator yang tersedia.</p>
           </div>
@@ -136,61 +135,61 @@
       </div>
 
       <!-- Statistics Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="card-hover bg-gradient-to-br from-green-400 to-green-600 rounded-2xl p-6 text-white shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-green-100 text-sm font-medium">Excellent Performance</p>
-              <p class="text-3xl font-bold">2</p>
-            </div>
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <i class="fas fa-star text-2xl"></i>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card-hover bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-blue-100 text-sm font-medium">Good Performance</p>
-              <p class="text-3xl font-bold">1</p>
-            </div>
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <i class="fas fa-thumbs-up text-2xl"></i>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card-hover bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6 text-white shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-yellow-100 text-sm font-medium">Need Mentoring</p>
-              <p class="text-3xl font-bold">1</p>
-            </div>
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <i class="fas fa-exclamation-triangle text-2xl"></i>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card-hover bg-gradient-to-br from-red-400 to-red-600 rounded-2xl p-6 text-white shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-red-100 text-sm font-medium">Need Improvement</p>
-              <p class="text-3xl font-bold">1</p>
-            </div>
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <i class="fas fa-arrow-up text-2xl"></i>
-            </div>
-          </div>
-        </div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  <div class="bg-white rounded-2xl p-6 text-gray-700 shadow-lg hover:shadow-xl transition">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Excellent Performance</p>
+        <p class="text-3xl font-bold text-gray-700">2</p>
       </div>
+      <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+        <i class="fas fa-star text-2xl text-yellow-500"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl p-6 text-gray-700 shadow-lg hover:shadow-xl transition">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Good Performance</p>
+        <p class="text-3xl font-bold text-gray-700">1</p>
+      </div>
+      <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+        <i class="fas fa-thumbs-up text-2xl text-blue-500"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl p-6 text-gray-700 shadow-lg hover:shadow-xl transition">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Need Mentoring</p>
+        <p class="text-3xl font-bold text-gray-700">1</p>
+      </div>
+      <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+        <i class="fas fa-exclamation-triangle text-2xl text-yellow-500"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl p-6 text-gray-700 shadow-lg hover:shadow-xl transition">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Need Improvement</p>
+        <p class="text-3xl font-bold text-gray-700">1</p>
+      </div>
+      <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+        <i class="fas fa-arrow-up text-2xl text-red-500"></i>
+      </div>
+    </div>
+  </div>
+</div>
 
       <!-- Tabel Kinerja Staf -->
       <div class="card-hover bg-white rounded-3xl shadow-xl p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-800">
-            <i class="fas fa-users mr-3 text-purple-500"></i>Rekapitulasi Penilaian Staf
+            <i class="fas fa-users mr-3 text-green-500"></i>Rekapitulasi Penilaian Staf
           </h2>
           <div class="flex items-center space-x-4">
             <div class="relative">
@@ -213,49 +212,48 @@
               <tr class="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700">
                 <th class="px-6 py-4 text-left font-semibold rounded-tl-xl">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-user text-indigo-500"></i>
                     <span>Nama</span>
                   </div>
                 </th>
                 <th class="px-6 py-4 text-left font-semibold">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-clock text-green-500"></i>
+                    
                     <span>Kedisiplinan</span>
                   </div>
                 </th>
                 <th class="px-6 py-4 text-left font-semibold">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-comments text-blue-500"></i>
+                   
                     <span>Komunikasi</span>
                   </div>
                 </th>
                 <th class="px-6 py-4 text-left font-semibold">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-exclamation-circle text-orange-500"></i>
+                    
                     <span>Komplain</span>
                   </div>
                 </th>
                 <th class="px-6 py-4 text-left font-semibold">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-shield-alt text-purple-500"></i>
+                    
                     <span>Kepatuhan</span>
                   </div>
                 </th>
                 <th class="px-6 py-4 text-left font-semibold">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-target text-red-500"></i>
+                    
                     <span>Target Kerja</span>
                   </div>
                 </th>
                 <th class="px-6 py-4 text-left font-semibold">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-award text-yellow-500"></i>
+                    
                     <span>Status</span>
                   </div>
                 </th>
                 <th class="px-6 py-4 text-left font-semibold rounded-tr-xl">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-cogs text-gray-500"></i>
+                    
                     <span>Aksi</span>
                   </div>
                 </th>

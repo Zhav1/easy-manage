@@ -14,12 +14,11 @@
   @include('components.sidebar-navbar')
   <div class="p-4">
     <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
-      <!-- Header Section -->
       <div class="glass-effect rounded-3xl p-8 mb-8 shadow-xl animate-fade-in">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3">
-              <i class="fas fa-calendar-alt mr-3 text-indigo-500"></i>
+            <h1 class="text-4xl font-bold text-black mb-3">
+              <i class="fas fa-calendar-alt mr-3 text-green-500"></i>
               Catatan Pribadi & Jadwal Harian
             </h1>
             <p class="text-gray-600 text-lg">Input dan kelola kegiatan harian untuk pengingat, pelaporan, dan supervisi.</p>

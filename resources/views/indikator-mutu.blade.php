@@ -30,7 +30,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
             padding: 30px;
             border-radius: 20px;
             margin-bottom: 30px;
@@ -612,9 +612,9 @@
     <div class="p-4 pt-20 pl-60 pr-5" >
         <!-- Header -->
         <div class="header">
-            <h1><i class="fas fa-chart-line"></i> Dashboard Indikator Mutu</h1>
-            <p>Sistem Monitoring Kualitas Pelayanan Rumah Sakit</p>
-        </div>
+    <h1 style="color:black"><i class="fas fa-chart-line mr-3 text-green-500" style="color:"></i>Dashboard Indikator Mutu</h1>
+    <p style="color:gray">Sistem Monitoring Kualitas Pelayanan Rumah Sakit</p>
+</div>
 
 <!-- Indicator Acronyms Table -->
 <div class="indicator-table-container">

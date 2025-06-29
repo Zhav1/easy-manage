@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>PPI Monitoring System</title>
     <script src={{ asset('js/dashboard.js') }}></script>
-    @vite('resources/css/app.css')
+    @vite('resources/css/app.css') 
     <script>
         if (localStorage.getItem('color-theme') === 'dark') {
             document.documentElement.classList.add('dark');
@@ -49,7 +49,7 @@
             <!-- Enhanced Header with Animation -->
             <div class="text-center mb-10">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
-                    <h1 class="text-3xl font-bold text-green-500 tracking-wide">Pengendalian dan Pencegahan Infeksi</h1>
+                    <h1 class="text-4xl font-bold text-black mb-3">Pengendalian dan Pencegahan Infeksi</h1>
                     <p class="text-gray-600 mt-2">Sistem Monitoring Bundle CVC Terintegrasi</p>
                 </div>
                 
