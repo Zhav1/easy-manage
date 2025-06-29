@@ -5,10 +5,10 @@
             <div class="text-xl font-bold text-[#0CC0DF]">EasyManage</div>
         </div>
         <div class="space-x-4 hidden md:flex text-sm gap-8">
-            <a href="#" class="text-gray-700 hover:text-green-600"><i class="fa fa-home mr-1"></i>Dashboard</a>
-            <a href="#" class="text-gray-700 hover:text-green-600"><i class="fa fa-calendar-check mr-1"></i>Jadwal Dinas</a>
-            <a href="#" class="text-gray-700 hover:text-yellow-600"><i class="fa fa-boxes mr-1"></i>Logistik</a>
-            <a href="#" class="text-gray-700 hover:text-blue-600"><i class="fa fa-shield-virus mr-1"></i>PPI</a>
+            <a href="/" class="text-gray-700 hover:text-green-600"><i class="fa fa-home mr-1"></i>Dashboard</a>
+            <a href="/dinas" class="text-gray-700 hover:text-green-600"><i class="fa fa-calendar-check mr-1"></i>Jadwal Dinas</a>
+            <a href="/manajemen-logistik" class="text-gray-700 hover:text-yellow-600"><i class="fa fa-boxes mr-1"></i>Logistik</a>
+            <a href="/pengendalian-dan-pencegahan-infeksi" class="text-gray-700 hover:text-blue-600"><i class="fa fa-shield-virus mr-1"></i>PPI</a>
         </div>
 <div class="flex items-center ms-3">
     <div>
@@ -30,7 +30,7 @@
                 <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Lihat Profile</a>
             </li>
             <li>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+                <a href="settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
             </li>
             <li>
                 <form action="{{ route('logout') }}" method="POST" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">

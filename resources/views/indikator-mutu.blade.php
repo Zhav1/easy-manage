@@ -220,6 +220,7 @@
         .legend-color.visite { background: linear-gradient(135deg, #e84393 0%, #fd79a8 100%); }
         .legend-color.kritis { background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%); }
         .legend-color.fornas { background: linear-gradient(135deg, #00cec9 0%, #55efc4 100%); }
+        .legend-color.sc { background: linear-gradient(135deg, #00cec9 0%, #55efc4 100%); }
         .legend-color.cp { background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); }
         .legend-color.risiko { background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%); }
         .legend-color.krk { background: linear-gradient(135deg, #ff7675 0%, #d63031 100%); }
@@ -633,6 +634,7 @@
             <td onclick="showSection('kepuasan')">KEPUASAN</td>
             <td onclick="showSection('krk')">KRK</td>
             <td onclick="showSection('poe')">POE</td>
+            <td onclick="showSection('sc')">SC</td>
         </tr>
     </table>
 </div>
@@ -857,6 +859,10 @@
                         <span>CP</span>
                     </div>
                     <div class="legend-item">
+                        <div class="legend-color sc"></div>
+                        <span>SC</span>
+                    </div>
+                    <div class="legend-item">
                         <div class="legend-color risiko"></div>
                         <span>Risiko Jatuh</span>
                     </div>
@@ -873,53 +879,132 @@
         </div>
 
         <!-- Data Forms Section -->
-        <div class="data-forms">
+        <div class="data-forms overflow-x: auto;">
             <!-- Kebersihan Tangan Form -->
-            <div class="form-card" id="kebersihan-form" style="display: none;">
-                <h3><i class="fas fa-hands-wash"></i> Kepatuhan Kebersihan Tangan</h3>
-                <table class="form-table">
-                    <thead>
-                        <tr>
-                            <th>Bulan</th>
-                            <th>Dokter</th>
-                            <th>Perawat</th>
-                            <th>Pendidikan</th>
-                            <th>Tenaga Kesehatan Lain</th>
-                            <th>Total Per Sesi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td rowspan="3">Januari</td>
-                            <td>Kepatuhan (%)</td>
-                            <td><input type="number" value="85" /></td>
-                            <td><input type="number" value="90" /></td>
-                            <td><input type="number" value="88" /></td>
-                            <td><input type="number" value="87.7" readonly /></td>
-                        </tr>
-                        <tr>
-                            <td>Handwash (%)</td>
-                            <td><input type="number" value="75" /></td>
-                            <td><input type="number" value="80" /></td>
-                            <td><input type="number" value="78" /></td>
-                            <td><input type="number" value="77.7" readonly /></td>
-                        </tr>
-                        <tr>
-                            <td>Kepatuhan (%)</td>
-                            <td><input type="number" value="92" /></td>
-                            <td><input type="number" value="88" /></td>
-                            <td><input type="number" value="90" /></td>
-                            <td><input type="number" value="90" readonly /></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="formula-box">
-                    <div class="formula-text">
-                        Formula = (Total kepatuhan kebersihan tangan yang dilakukan / Petugas kebersihan tangan yang seharusnya menggunakan APD sesuai SPO pada saat melayani pasien) × 100%
-                    </div>
-                </div>
-            </div>
+          <div class="form-card overflow-x: auto;" id="kebersihan-form">
+    <h3><i class="fas fa-hands-wash "></i> LEMBAR PENGUMPUL DATA KEPATUHAN KEBERSIHAN TANGAN</h3>
+    <div style="overflow-x: auto;">
+  
+        <table class="form-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">Bulan</th>
+                    <th rowspan="2">Sesi (n)</th>
+                    <th colspan="3">DPJP</th>
+                    <th colspan="3">Perawat</th>
+                    <th colspan="3">Pendidikan</th>
+                    <th colspan="3">Tenaga Kesehatan Lain</th>
+                    <th colspan="3">Total Per Sesi</th>
+                </tr>
+                <tr>
+                    <!-- DPJP -->
+                    <th>Kesempatan (n)</th>
+                    <th>Handwash (n)</th>
+                    <th>Handrub (n)</th>
+                    
+                    <!-- Perawat -->
+                    <th>Kesempatan (n)</th>
+                    <th>Handwash (n)</th>
+                    <th>Handrub (n)</th>
+                    
+                    <!-- Pendidikan -->
+                    <th>Kesempatan (n)</th>
+                    <th>Handwash (n)</th>
+                    <th>Handrub (n)</th>
+                    
+                    <!-- Tenaga Kesehatan Lain -->
+                    <th>Kesempatan (n)</th>
+                    <th>Handwash (n)</th>
+                    <th>Handrub (n)</th>
+                    
+                    <!-- Total Per Sesi -->
+                    <th>Kesempatan (n)</th>
+                    <th>Handwash (n)</th>
+                    <th>Handrub (n)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <select class="bulan-select">
+                            <option value="1">Januari</option>
+                            <option value="2">Februari</option>
+                            <!-- bulan lainnya -->
+                        </select>
+                    </td>
+                    <td><input type="number" min="1" value="1" class="sesi-input" /></td>
+                    
+                    <!-- DPJP -->
+                    <td><input type="number" min="0" value="0" /></td>
+                    <td><input type="number" min="0" value="0" /></td>
+                    <td><input type="number" min="0" value="0" /></td>
+                    
+                    <!-- Perawat -->
+                    <td><input type="number" min="0" value="0" /></td>
+                    <td><input type="number" min="0" value="0" /></td>
+                    <td><input type="number" min="0" value="0" /></td>
+                    
+                    <!-- Pendidikan -->
+                    <td><input type="number" min="0" value="0" /></td>
+                    <td><input type="number" min="0" value="0" /></td>
+                    <td><input type="number" min="0" value="0" /></td>
+                    
+                    <!-- Tenaga Kesehatan Lain -->
+                    <td><input type="number" min="0" value="0" /></td>
+                    <td><input type="number" min="0" value="0" /></td>
+                    <td><input type="number" min="0" value="0" /></td>
+                    
+                    <!-- Total Per Sesi -->
+                    <td><input type="number" min="0" value="0" readonly /></td>
+                    <td><input type="number" min="0" value="0" readonly /></td>
+                    <td><input type="number" min="0" value="0" readonly /></td>
+                </tr>
+            </tbody>
+        </table>
+</div>
+</div>
 
+<style>
+/* Hilangkan panah/spinner pada semua input number */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    width: 50px;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #ddd;
+    margin: 2px;
+}
+
+.bulan-select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 100px;
+}
+
+.form-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+}
+
+.form-table th, .form-table td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: center;
+}
+
+.form-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+</style>
             <!-- APD Form -->
             <div class="form-card" id="apd-form" style="display: none;">
                 <h3><i class="fas fa-shield-alt"></i> Kepatuhan Penggunaan APD</h3>
@@ -929,7 +1014,7 @@
                             <th>TGL</th>
                             <th>PROFESI</th>
                             <th>RUANG</th>
-                            <th>AKAN/PELAY</th>
+                            <th>DAKAN/PELAYAN</th>
                             <th colspan="2">S.Tangan</th>
                             <th colspan="2">Masker</th>
                             <th colspan="2">Topi</th>
@@ -1018,83 +1103,111 @@
         </div>
         
         <table class="form-table">
-            <thead>
-                <tr>
-                    <th rowspan="2">No (D)</th>
-                    <th rowspan="2">Tgl</th>
-                    <th rowspan="2">Staf yang Diobservasi</th>
-                    <th colspan="6">Parameter Disk</th>
-                    <th rowspan="2">Verbal</th>
-                    <th rowspan="2">Visual</th>
-                    <th rowspan="2">Identifikasi</th>
-                    <th rowspan="2">Tidak Dilakukan</th>
-                </tr>
-                <tr>
-                    <th>Parameter Diagnostik/Tindakan</th>
-                    <th>Nama</th>
-                    <th>Tanggal Lahir</th>
-                    <th>No. RM</th>
-                    <th>Alamat</th>
-                    <th>Lainnya</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><input type="number" value="1" /></td>
-                    <td><input type="date" /></td>
-                    <td><input type="text" placeholder="Nama Staf" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                </tr>
-                <tr>
-                    <td><input type="number" value="2" /></td>
-                    <td><input type="date" /></td>
-                    <td><input type="text" placeholder="Nama Staf" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                    <td><input type="checkbox" /></td>
-                </tr>
-                <!-- NB row -->
-                <tr>
-                    <td><strong>NB</strong></td>
-                    <td colspan="11">
-                        <div style="display: flex; justify-content: space-between;">
-                            <div>
-                                <input type="checkbox" id="verbal-visual" />
-                                <label for="verbal-visual">Verbal & Visual</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="dua-parameter" />
-                                <label for="dua-parameter">2 Parameter</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="satu-parameter" />
-                                <label for="satu-parameter">1 Parameter</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="tidak-dilakukan" />
-                                <label for="tidak-dilakukan">Tidak Dilakukan</label>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <!-- Atur lebar kolom utama bila perlu -->
+    <colgroup>
+        <col style="width:60px"><!-- No -->
+        <col style="width:110px"><!-- Tgl -->
+        <col style="width:200px"><!-- Staf -->
+        <col span="11"><!-- kolom sisanya otomatis -->
+    </colgroup>
+
+    <thead>
+        <tr>
+            <th rowspan="2">No (D)</th>
+            <th rowspan="2">Tgl</th>
+            <th rowspan="2">Staf yang<br>Diobservasi</th>
+
+            <th colspan="5">Tindakan</th>
+            <th colspan="2">Verbal</th>
+            <th colspan="2">Visual</th>
+            <th colspan="2">Identifikasi</th>
+        </tr>
+        <tr>
+            <th>Pemberian<br>Obat</th>
+            <th>Transfusi<br>Darah</th>
+            <th>Pemberian<br>Diet</th>
+            <th>Pengambilan<br>Spesimen</th>
+            <th>Pemeriksaan<br>Diagnostik/Tindakan</th>
+
+            <th>Nama</th>
+            <th>Tgl Lahir</th>
+
+            <th>Nama</th>
+            <th>RM</th>
+
+            <th>Dilakukan (N)</th>
+            <th>Tidak Dilakukan</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <!-- ===== Baris data 1 ===== -->
+        <tr>
+            <td><input type="number" value="1" /></td>
+            <td><input type="date" /></td>
+            <td><input type="text" placeholder="Nama Staf" /></td>
+
+            <!-- 5 kolom Tindakan -->
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+
+            <!-- 2 kolom Verbal -->
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+
+            <!-- 2 kolom Visual -->
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+
+            <!-- 2 kolom Identifikasi -->
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+        </tr>
+
+        <!-- ===== Baris data 2 ===== -->
+        <tr>
+            <td><input type="number" value="2" /></td>
+            <td><input type="date" /></td>
+            <td><input type="text" placeholder="Nama Staf" /></td>
+
+            <!-- 5 kolom Tindakan -->
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+
+            <!-- 2 kolom Verbal -->
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+
+            <!-- 2 kolom Visual -->
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+
+            <!-- 2 kolom Identifikasi -->
+            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" /></td>
+        </tr>
+
+        <!-- ===== Baris NB ===== -->
+        <tr>
+            <td><strong>NB</strong></td>
+            <td colspan="13">
+                <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+                    <label><input type="checkbox"> Verbal & Visual</label>
+                    <label><input type="checkbox"> 2 Parameter</label>
+                    <label><input type="checkbox"> 1 Parameter</label>
+                    <label><input type="checkbox"> Tidak Dilakukan</label>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
     </div>
     
     <div class="formula-box">
@@ -1218,65 +1331,63 @@
             </div>
 
             <!-- FORNAS Form -->
-            <div class="form-card" id="fornas-form" style="display: none;">
-                <h3><i class="fas fa-pills"></i> Kepatuhan Penggunaan Formularium Nasional (FORNAS)</h3>
-                <div class="form-section">
-                    <div class="form-section-title">Unit Kerja: Seluruh Depo Farmasi</div>
-                    <table class="form-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Unit Kerja</th>
-                                <th>Nama Pasien</th>
-                                <th>No. RM</th>
-                                <th>Jumlah Resep</th>
-                                <th>Formularium & Non Formularium (D)</th>
-                            </tr>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th>Formularium (N)</th>
-                                <th>Non Formularium</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><input type="text" placeholder="Unit Kerja" /></td>
-                                <td><input type="text" placeholder="Nama Pasien" /></td>
-                                <td><input type="text" placeholder="No. RM" /></td>
-                                <td><input type="number" /></td>
-                                <td><input type="number" /></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td><input type="text" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="number" /></td>
-                                <td><input type="number" /></td>
-                            </tr>
-                            <tr>
-                                <td colspan="4">TOTAL</td>
-                                <td><input type="number" readonly /></td>
-                                <td>N/D × 100%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="formula-box">
-                    <div class="formula-text">
-                        Formula = (Jumlah R/ recipe dalam lembar resep yang sesuai dengan formularium nasional / Jumlah R/ recipe dalam lembar resep yang diobservasi) × 100%
-                    </div>
-                </div>
-                <div class="form-note">
-                    Kriteria Eksklusi:<br>
-                    1. Obat yang direcephan di luar FORNAS tetapi dibutuhkan pasien dan telah mendapatkan persetujuan komite medik dan direktur.<br>
-                    2. Bila dalam resep terdapat obat di luar FORNAS karena stok obat nasional berdasarkan e-handag habis/kosong.
-                </div>
-            </div>
+        <div class="form-card" id="fornas-form" style="display: none;">
+    <h3><i class="fas fa-pills"></i> Kepatuhan Penggunaan Formularium Nasional (FORNAS)</h3>
+    <div class="form-section">
+        <div class="form-section-title">Unit Kerja: Seluruh Depo Farmasi</div>
+        <table class="form-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">No</th>
+                    <th rowspan="2">Unit Kerja</th>
+                    <th rowspan="2">Nama Pasien</th>
+                    <th rowspan="2">RM</th>
+                    <th rowspan="2">Jumlah Resep</th>
+                    <th colspan="2">Formularium & Non Formularium (D)</th>
+                </tr>
+                <tr>
+                    <th>Formularium (N)</th>
+                    <th>Non Formularium</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" placeholder="Unit Kerja" /></td>
+                    <td><input type="text" placeholder="Nama Pasien" /></td>
+                    <td><input type="text" placeholder="No. RM" /></td>
+                    <td><input type="number" /></td>
+                    <td><input type="number" /></td>
+                    <td><input type="number" /></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><input type="text" /></td>
+                    <td><input type="text" /></td>
+                    <td><input type="text" /></td>
+                    <td><input type="number" /></td>
+                    <td><input type="number" /></td>
+                    <td><input type="number" /></td>
+                </tr>
+               
+                <tr>
+                    <td colspan="5" style="text-align: center;">Total:</td>
+                    <td colspan="2"><strong>N/D × 100%</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="formula-box">
+        <div class="formula-text">
+            Formula = (Jumlah R/ recipe dalam lembar resep yang sesuai dengan formularium nasional / Jumlah R/ recipe dalam lembar resep yang diobservasi) × 100%
+        </div>
+    </div>
+    <div class="form-note">
+        Kriteria Eksklusi:<br>
+        1. Obat yang direcephan di luar FORNAS tetapi dibutuhkan pasien dan telah mendapatkan persetujuan komite medik dan direktur.<br>
+        2. Bila dalam resep terdapat obat di luar FORNAS karena stok obat nasional berdasarkan e-handag habis/kosong.
+    </div>
+</div>
 
             <!-- VISITE Form -->
             <div class="form-card" id="visite-form" style="display: none;">
@@ -1351,85 +1462,236 @@
 
             <!-- JATUH Form -->
             <div class="form-card" id="jatuh-form" style="display: none;">
-                <h3><i class="fas fa-procedures"></i> Kepatuhan Upaya Pencegahan Risiko Jatuh</h3>
-                <div class="form-section">
-                    <div class="form-section-title">Pasien Rawat Inap Berisiko Tinggi Jatuh</div>
-                    <table class="form-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Tanggal</th>
-                                <th>Nama Pasien</th>
-                                <th>No. RM</th>
-                                <th>Ruangan</th>
-                                <th>Skor Risiko Jatuh</th>
-                                <th> Risiko</th>
-                                <th>Intervensi</th>
-                                <th>Evaluasi</th>
-                                <th>Kepatuhan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><input type="date" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="number" /></td>
-                                <td><select><option>Ya</option><option>Tidak</option></select></td>
-                                <td><select><option>Ya</option><option>Tidak</option></select></td>
-                                <td><select><option>Ya</option><option>Tidak</option></select></td>
-                                <td><select><option>Patuh</option><option>Tidak Patuh</option></select></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="formula-box">
-                    <div class="formula-text">
-                        Formula: Jumlah pasien rawat inap berisiko tinggi jatuh yang mendapatkan ketiga upaya (identifikasi, intervensi, evaluasi) / Jumlah pasien rawat inap berisiko tinggi jatuh × 100%
-                    </div>
-                </div>
-            </div>
+    <h3><i class="fas fa-procedures"></i> Kepatuhan Upaya Pencegahan Risiko Jatuh</h3>
+    <div class="form-section">
+        <div class="form-section-title">Pasien Rawat Inap Berisiko Tinggi Jatuh</div>
+        <table class="form-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">No (D)</th>
+                    <th rowspan="2">Nama Pasien</th>
+                    <th rowspan="2">No. RM</th>
+                    <th colspan="3">Upaya pencegahan risiko tinggi pasien jatuh</th>
+                    <th colspan="2">Pasien yang mendapat ketiga upaya pencegahan risiko jatuh</th>
+                </tr>
+                <tr>
+                    <th>Assessment awal risiko jatuh</th>
+                    <th>Assessment ulang risiko jatuh</th>
+                    <th>Intervensi pencegahan risiko jatuh</th>
+                    <th>Ya (N)</th>
+                    <th>Tidak</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" placeholder="Nama Pasien" /></td>
+                    <td><input type="text" placeholder="No. RM" /></td>
+                    <td><select><option>Ya</option><option>Tidak</option></select></td>
+                    <td><select><option>Ya</option><option>Tidak</option></select></td>
+                    <td><select><option>Ya</option><option>Tidak</option></select></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><input type="text" /></td>
+                    <td><input type="text" /></td>
+                    <td><select><option>Ya</option><option>Tidak</option></select></td>
+                    <td><select><option>Ya</option><option>Tidak</option></select></td>
+                    <td><select><option>Ya</option><option>Tidak</option></select></td>
+                    <td><input type="checkbox" /></td>
+                    <td><input type="checkbox" /></td>
+                </tr>
+                <tr>
+                    <td colspan="3">TOTAL</td>
+                    <td><input type="number" readonly /></td>
+                    <td><input type="number" readonly /></td>
+                    <td><input type="number" readonly /></td>
+                    <td><input type="number" readonly /></td>
+                    <td><input type="number" readonly /></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="formula-box">
+        <div class="formula-text">
+            Formula: (Jumlah pasien yang mendapat ketiga upaya pencegahan risiko jatuh (Ya) / Jumlah pasien berisiko tinggi jatuh yang diobservasi) × 100%
+        </div>
+    </div>
+</div>
 
             <!-- CP (Clinical Pathway) Form -->
-            <div class="form-card" id="cp-form" style="display: none;">
-                <h3><i class="fas fa-clipboard-list"></i> Kepatuhan Terhadap Clinical Pathway</h3>
-                <div class="form-section">
-                    <div class="form-section-title">Data Kepatuhan Clinical Pathway</div>
-                    <table class="form-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Tanggal</th>
-                                <th>Nama Pasien</th>
-                                <th>No. RM</th>
-                                <th>Diagnosa</th>
-                                <th>Clinical Pathway</th>
-                                <th>Kesesuaian</th>
-                                <th>Keterangan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><input type="date" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="text" /></td>
-                                <td><select><option>Ya</option><option>Tidak</option></select></td>
-                                <td><select><option>Sesuai</option><option>Tidak Sesuai</option></select></td>
-                                <td><input type="text" /></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="formula-box">
-                    <div class="formula-text">
-                        Formula: (Jumlah pasien dengan clinical pathway yang sesuai standar / Jumlah pasien yang diobservasi) × 100%
-                    </div>
-                </div>
-            </div>
+           <!-- ====== FORM KEPAKUHAN CLINICAL PATHWAY ====== -->
+<div class="form-card" id="cp-form" style="display:none;">
+  <h3><i class="fas fa-clipboard-list"></i> Kepatuhan Terhadap Clinical Pathway (Medis)</h3>
+
+  <!-- ===== HEADER INFORMASI ===== -->
+  <div class="form-section">
+    <div class="form-header">
+      <div class="form-field">
+        <label>Bulan:</label>
+        <input type="month" />
+      </div>
+      <div class="form-field">
+        <label>Ruangan:</label>
+        <input type="text" />
+      </div>
+      <div class="form-field">
+        <label>Judul CP:</label>
+        <input type="text" />
+      </div>
+    </div>
+
+    <!-- ===== TABEL DATA ===== -->
+    <table class="form-table">
+      <thead>
+        <!-- Baris 1: grup besar -->
+        <tr>
+          <th rowspan="2">No</th>
+          <th rowspan="2">No. MR</th>
+
+          <!-- Asesmen Klinis sekarang colspan 3 -->
+          <th colspan="3">Asesmen Klinis (3 item)</th>
+
+          <!-- Tiga grup di bawah Kepatuhan CP (D) -->
+          <th colspan="3">Pemeriksaan Fisik (...)</th>
+          <th colspan="3">Pemeriksaan Penunjang (...)</th>
+          <th colspan="3">Obat‑Obatan (...)</th>
+
+          <th rowspan="2">Total</th>
+          <th rowspan="2">Varian</th>
+          <th rowspan="2">Ket</th>
+        </tr>
+        <!-- Baris 2: P N C -->
+        <tr>
+          <!-- Asesmen Klinis -->
+          <th>P</th><th>N</th><th>C</th>
+          <!-- Pemeriksaan Fisik -->
+          <th>P</th><th>N</th><th>C</th>
+          <!-- Pemeriksaan Penunjang -->
+          <th>P</th><th>N</th><th>C</th>
+          <!-- Obat‑Obatan -->
+          <th>P</th><th>N</th><th>C</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <!-- ===== BARIS DATA PASIEN ===== -->
+        <tr>
+          <td>1</td>
+          <td><input type="text" placeholder="No. MR" /></td>
+
+          <!-- Asesmen Klinis -->
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+
+          <!-- Pemeriksaan Fisik -->
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+
+          <!-- Pemeriksaan Penunjang -->
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+
+          <!-- Obat‑Obatan -->
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+
+          <td><input type="number" /></td>
+          <td><input type="text" /></td>
+          <td><input type="text" /></td>
+        </tr>
+
+        <tr>
+          <td>2</td>
+          <td><input type="text" /></td>
+
+          <!-- Asesmen Klinis -->
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+
+          <!-- Pemeriksaan Fisik -->
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+
+          <!-- Pemeriksaan Penunjang -->
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+
+          <!-- Obat‑Obatan -->
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+          <td><input type="number" /></td>
+
+          <td><input type="number" /></td>
+          <td><input type="text" /></td>
+          <td><input type="text" /></td>
+        </tr>
+
+        <!-- ===== BARIS TOTAL ===== -->
+        <tr>
+          <td colspan="2">TOTAL</td>
+
+          <!-- Asesmen Klinis -->
+          <td><input type="number" readonly /></td>
+          <td><input type="number" readonly /></td>
+          <td><input type="number" readonly /></td>
+
+          <!-- Pemeriksaan Fisik -->
+          <td><input type="number" readonly /></td>
+          <td><input type="number" readonly /></td>
+          <td><input type="number" readonly /></td>
+
+          <!-- Pemeriksaan Penunjang -->
+          <td><input type="number" readonly /></td>
+          <td><input type="number" readonly /></td>
+          <td><input type="number" readonly /></td>
+
+          <!-- Obat‑Obatan -->
+          <td><input type="number" readonly /></td>
+          <td><input type="number" readonly /></td>
+          <td><input type="number" readonly /></td>
+
+          <td><input type="number" readonly /></td>
+          <td></td>
+          <td></td>
+        </tr>
+
+        <!-- ===== BARIS RATA‑RATA ===== -->
+        <tr>
+          <td colspan="14" style="text-align:right;">Rata‑Rata (Kepatuhan):</td>
+          <td colspan="3"><input type="text" readonly /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== FORMULA ===== -->
+  <div class="formula-box">
+    <div class="formula-text">
+      Formula: (Total item yang sesuai dengan CP / Total item yang diobservasi) × 100%
+    </div>
+  </div>
+
+  <!-- ===== STYLE ===== -->
+  <style>
+    .form-header {display:flex;gap:20px;margin-bottom:15px;flex-wrap:wrap;}
+    .form-field {display:flex;align-items:center;gap:5px;}
+    .form-field label {font-weight:bold;}
+    .form-table th, .form-table td {text-align:center;vertical-align:middle;}
+    .form-table input[type="number"],
+    .form-table input[type="text"] {width:50px;text-align:center;padding:5px;}
+  </style>
+</div>
+
 
             <!-- KEPUASAN Form -->
             <div class="form-card" id="kepuasan-form" style="display: none;">
@@ -1441,8 +1703,8 @@
                             <tr>
                                 <th>No</th>
                                 <th>Tanggal</th>
-                                <th>Nama Pasien</th>
-                                <th>No. RM</th>
+                                <th>Unit Kerja</th>
+                                <th>Nilai IKM</th>
                                 <th>Jenis Pelayanan</th>
                                 <th>Nilai Kepuasan (1-5)</th>
                                 <th>Komentar</th>
@@ -1481,66 +1743,65 @@
             </div>
 
             <!-- KRK Form -->
-            <div class="form-card" id="krk-form" style="display: none;">
-                <h3><i class="fas fa-exclamation-triangle"></i> Kecepatan Waktu Tanggap Komplain (KRK)</h3>
-                <div class="form-section">
-                    <table class="form-table">
-                        <thead>
-                            <tr>
-                                <th>No (D)</th>
-                                <th>Tgl</th>
-                                <th>Isi Komplain</th>
-                                <th>Kategori Komplain</th>
-                                <th>Pelaporan Komplain</th>
-                                <th>Grading Komplain</th>
-                                <th>Waktu tanggap komplain (hari)</th>
-                                <th>Penyelesaian komplain sesuai grading</th>
-                                <th>Ket.</th>
-                            </tr>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th>Lisan</th>
-                                <th>Tulisan</th>
-                                <th>Media Masa</th>
-                                <th>Merah (max 1x24 jam)</th>
-                                <th>Kuning (max 3 hari)</th>
-                                <th>Hijau (max 7 hari)</th>
-                                <th>Ya (N)</th>
-                                <th>Tidak</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><input type="date" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="text" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="text" /></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div style="text-align: center; margin: 10px 0;">
-                        <strong>Total: N/D × 100%</strong>
-                    </div>
-                </div>
-                <div class="formula-box">
-                    <div class="formula-text">
-                        Formula: (Jumlah komplain yang ditanggapi sesuai grading waktu / Jumlah total komplain) × 100% ≥ 80%
-                    </div>
-                </div>
-            </div>
+          <div class="form-card" id="krk-form">
+    <h3><i class="fas fa-exclamation-triangle"></i> Kecepatan Waktu Tanggap Komplain (KRK)</h3>
+    <div class="form-section">
+        <table class="form-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">No (D)</th>
+                    <th rowspan="2">Tgl</th>
+                    <th rowspan="2">Isi Komplain</th>
+                    <th rowspan="2">Kategori Komplain</th>
+                    <th colspan="3">Pelaporan Komplain</th>
+                    <th colspan="3">Grading Komplain</th>
+                    <th rowspan="2">Waktu tanggap komplain (hari)</th>
+                    <th colspan="2">Penyelesaian komplain sesuai grading</th>
+                    <th rowspan="2">Ket.</th>
+                </tr>
+                <tr>
+                    <th>Lisan</th>
+                    <th>Tulisan</th>
+                    <th>Media Masa</th>
+                    <th>Merah (max 1x24 jam)</th>
+                    <th>Kuning (max 3 hari)</th>
+                    <th>Hijau (max 7 hari)</th>
+                    <th>Ya (N)</th>
+                    <th>Tidak</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="14" style="text-align: left;"><strong>Total</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align: center; margin: 10px 0;">
+            <strong>Total: N/D × 100%</strong>
+        </div>
+    </div>
+    <div class="formula-box">
+        <div class="formula-text">
+            Formula: (Jumlah komplain yang ditanggapi sesuai grading waktu / Jumlah total komplain) × 100% ≥ 80%
+        </div>
+    </div>
+</div>
 
             <!-- POE (Penundaan Operasi Elektif) Form -->
             <div class="form-card" id="poe-form" style="display: none;">
@@ -1574,9 +1835,9 @@
                                 <th></th>
                                 <th></th>
                                 <th></th>
-                                <th>>1 jam (N)</th>
-                                <th>≤ 1 jam</th>
+                                <th>>1 jam (N)≤ 1 jam</th>
                                 <th></th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -1591,9 +1852,9 @@
                                 <td><input type="text" /></td>
                                 <td><input type="time" /></td>
                                 <td><input type="time" /></td>
-                                <td><input type="checkbox" /></td>
-                                <td><input type="checkbox" /></td>
                                 <td><input type="text" /></td>
+                                <td><input type="text" /></td>
+                                
                             </tr>
                         </tbody>
                     </table>
@@ -1617,6 +1878,7 @@
                                 <th>Nama Pasien</th>
                                 <th>No. RM</th>
                                 <th>Diagnosa Kategori</th>
+                                <th>Jam Tiba di IGD</th>
                                 <th>Jam Diputuskan Operasi</th>
                                 <th>Jam Mulai Insisi</th>
                                 <th>Waktu Tanggap Operasi SC</th>
@@ -1634,6 +1896,7 @@
                                     <option>Kategori II</option>
                                     <option>Kategori III</option>
                                 </select></td>
+                                <td><input type="time" /></td>
                                 <td><input type="time" /></td>
                                 <td><input type="time" /></td>
                                 <td><input type="number" /></td>

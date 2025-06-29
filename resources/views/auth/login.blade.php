@@ -153,17 +153,19 @@
                 </form>
                 
                 <!-- Additional Links -->
-                @if (Route::has('register'))
-                <div class="mt-6 text-center">
-                    <p class="text-black/70 text-sm">
-                        Belum punya akun? 
-                        <a href="{{ route('register') }}" class="text-black hover:text-black/80 font-medium transition-colors">
-                            Daftar Akun
-                        </a>
-                    </p>
-                </div>
-                @endif
-            </div>
+<!-- Additional Links -->
+<div class="mt-6 text-center">
+    <div class="flex items-center justify-center space-x-2">
+        <p class="text-black/70 text-sm">
+            Belum punya akun?
+        </p>
+        <a href="{{ route('register') }}" 
+           class="btn-hover inline-flex items-center px-3 py-1.5 bg-[#0CC0DF] text-white text-xs font-semibold rounded-full shadow-md hover:shadow-lg transition-all duration-300">
+            <i class="fas fa-user-plus mr-1"></i>
+            Daftar
+        </a>
+    </div>
+</div>
             
             <!-- Footer -->
             <div class="text-center mt-8">
