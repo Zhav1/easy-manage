@@ -14,7 +14,7 @@
     <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />        
 </head>
-<body class="min-h-full">
+<body class="min-h-full   bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     <script>
     window.authToken = "{{ session('token') }}";
     </script>
@@ -22,7 +22,7 @@
     @include('components.sidebar-navbar')
     
     <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
-        <div class="p-6 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-white-800/80">
+        <div class="p-6 rounded-xl shadow-lg  bg-white backdrop-blur-sm dark:border-gray-700 dark:bg-white-800/80">
             <!-- Header -->
             <div class="text-center mb-6">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
@@ -40,7 +40,7 @@
                     <div class="md:w-1/4 p-4 flex justify-center">
                         <div class="relative">
                             <img class="h-32 w-32 rounded-full object-cover border-4 border-green-500" 
-                                 src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="Profile Photo">
+                                 src="images/foto-formal.png" alt="Profile Photo">
                             <div class="absolute bottom-0 right-0 bg-green-500 rounded-full p-1 border-2 border-white">
                                 <i class="fas fa-check text-white text-xs"></i>
                             </div>

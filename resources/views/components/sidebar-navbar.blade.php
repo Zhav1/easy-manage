@@ -1,51 +1,80 @@
+<!-- resources/views/components/sidebar-navbar.blade.php -->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 text-base">
-    <div class="px-3 py-3 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between">
-        <div class="flex items-center justify-start rtl:justify-end">
-            <div class="text-xl font-bold text-[#0CC0DF]">EasyManage</div>
+  <div class="px-3 py-3 lg:px-5 lg:pl-3">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center justify-start rtl:justify-end">
+        <div class="text-xl font-bold text-[#0CC0DF]">EasyManage</div>
+      </div>
+      <div class="space-x-4 hidden md:flex text-sm gap-8 ml-20">
+        @php $current = Request::path(); @endphp
+        @if(Str::contains($current, 'dinas'))
+          <a href="/dinas" class="text-black font-semibold"><i class="fas fa-calendar-check mr-1 text-blue-500"></i>Jadwal Dinas</a>
+        @elseif(Str::contains($current, 'manajemen-logistik'))
+          <a href="/manajemen-logistik" class="text-black font-semibold"><i class="fas fa-boxes mr-1 text-yellow-500"></i>Manajemen Logistik</a>
+        @elseif(Str::contains($current, 'pengendalian-dan-pencegahan-infeksi'))
+          <a href="/pengendalian-dan-pencegahan-infeksi" class="text-black font-semibold"><i class="fas fa-shield-virus mr-1 text-blue-500"></i>PPI</a>
+        @elseif(Str::contains($current, 'kinerja-staff'))
+          <a href="/kinerja-staff" class="text-black font-semibold"><i class="fas fa-chart-line mr-1 text-green-500"></i>Kinerja Staff</a>
+        @elseif(Str::contains($current, 'tna'))
+          <a href="/tna" class="text-black font-semibold"><i class="fas fa-book mr-1 text-purple-500"></i>TNA</a>
+        @elseif(Str::contains($current, 'indikator-mutu'))
+          <a href="/indikator-mutu" class="text-black font-semibold"><i class="fas fa-bullseye mr-1 text-indigo-500"></i>Indikator Mutu</a>
+        @elseif(Str::contains($current, 'schedule'))
+          <a href="/schedule" class="text-black font-semibold"><i class="fas fa-calendar-alt mr-1 text-pink-500"></i>Schedule</a>
+        @elseif(Str::contains($current, 'laporan'))
+          <a href="/laporan" class="text-black font-semibold"><i class="fas fa-file-alt mr-1 text-red-500"></i>Laporan</a>
+        @elseif(Str::contains($current, 'notifikasi'))
+          <a href="/notifikasi" class="text-black font-semibold"><i class="fas fa-bell mr-1 text-orange-500"></i>Notifikasi</a>
+        @else
+          <a href="/" class="text-black font-semibold"><i class="fas fa-home mr-1 text-green-500"></i>Dashboard</a>
+        @endif
+      </div>
+      <div class="flex items-center gap-4 ms-3">
+        <!-- Tanggal Realtime -->
+        <div class="text-sm text-gray-600 font-medium">
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const now = new Date();
+              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              document.getElementById("realtime-date").innerText = now.toLocaleDateString('id-ID', options);
+            });
+          </script>
+          <span id="realtime-date"></span>
         </div>
-        <div class="space-x-4 hidden md:flex text-sm gap-8">
-            <a href="/" class="text-gray-700 hover:text-green-600"><i class="fa fa-home mr-1"></i>Dashboard</a>
-            <a href="/dinas" class="text-gray-700 hover:text-green-600"><i class="fa fa-calendar-check mr-1"></i>Jadwal Dinas</a>
-            <a href="/manajemen-logistik" class="text-gray-700 hover:text-yellow-600"><i class="fa fa-boxes mr-1"></i>Logistik</a>
-            <a href="/pengendalian-dan-pencegahan-infeksi" class="text-gray-700 hover:text-blue-600"><i class="fa fa-shield-virus mr-1"></i>PPI</a>
-        </div>
-<div class="flex items-center ms-3">
-    <div>
-        <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300" 
-                aria-expanded="false" data-dropdown-toggle="dropdown-user">
+        <!-- Foto Profil -->
+        <div>
+          <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300" aria-expanded="false" data-dropdown-toggle="dropdown-user">
             <span class="sr-only">Open user menu</span>
             <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
-        </button>
-    </div>
-    
-    <!-- Dropdown menu -->
-    <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow" id="dropdown-user">
-        <div class="px-4 py-3" role="none">
+          </button>
+        </div>
+        <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow" id="dropdown-user">
+          <div class="px-4 py-3" role="none">
             <p class="text-sm text-gray-900" role="none">Neil Sims</p>
             <p class="text-sm font-medium text-gray-900 truncate" role="none">neil.sims@flowbite.com</p>
-        </div>
-        <ul class="py-1" role="none">
+          </div>
+          <ul class="py-1" role="none">
             <li>
-                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Lihat Profile</a>
+              <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Lihat Profile</a>
             </li>
             <li>
-                <a href="settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+              <a href="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
             </li>
             <li>
-                <form action="{{ route('logout') }}" method="POST" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <form action="{{ route('logout') }}" method="POST" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 @csrf
-                    <button type="submit" class="w-full block text-left text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</button>
-                </form>
+                <button type="submit" class="w-full block text-left text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</button>
+              </form>
             </li>
-        </ul>
-    </div>
-</div>
+          </ul>
         </div>
+      </div>
     </div>
-    </nav>
-   
-    <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 " aria-label="Sidebar">
+  </div>
+</nav>
+
+
+   <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 " aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white ">
         <ul class="space-y-2 font-medium">
             <li>

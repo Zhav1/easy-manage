@@ -18,6 +18,13 @@
     </script>
       <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <style>
+        .tab-content {
+    display: none;
+}
+
+.tab-content:not(.hidden) {
+    display: block;
+}
         .active-tab {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -41,11 +48,11 @@
         }
     </style>
 </head>
-<body class="min-h-full bg-gradient-to-br from-slate-50 to-blue-50">
+<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
      @include('components.sidebar-navbar')
     
     <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
-        <div class="p-6 border border-gray-200 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
+        <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-lg  backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
             <!-- Enhanced Header with Animation -->
             <div class="text-center mb-10">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
@@ -1220,69 +1227,91 @@
             section.classList.toggle('hidden');
             arrow.classList.toggle('rotate-180');
         }
-        
         // Switch tab function - improved version
-        function switchTab(section, tabId, event) {
-            if (event) event.preventDefault();
-            
-            // Hide all tab contents in this section
-            document.querySelectorAll(`.tab-content.${section}-tab`).forEach(tab => {
-                tab.classList.add('hidden');
-            });
-            
-            // Remove active class from all tab buttons in this section
-            document.querySelectorAll(`button[onclick*="switchTab('${section}'"]`).forEach(tab => {
-                tab.classList.remove(
-                    'border-blue-500', 'text-blue-600',
-                    'border-green-500', 'text-green-600',
-                    'border-red-500', 'text-red-600',
-                    'active-tab'
-                );
-                tab.classList.add('border-transparent', 'text-gray-500');
-            });
-            
-            // Show selected tab content
-            document.getElementById(tabId).classList.remove('hidden');
-            
-            // Add active class to selected tab button
-            const activeTab = document.getElementById(`${tabId}-tab`);
-            activeTab.classList.add('active-tab');
-            
-            // Set appropriate border and text color based on section
-            if (section === 'insersi') {
-                activeTab.classList.add('border-blue-500', 'text-blue-600');
-            } else if (section === 'maintenance') {
-                activeTab.classList.add('border-green-500', 'text-green-600');
-            } else if (section === 'infeksi') {
-                activeTab.classList.add('border-red-500', 'text-red-600');
-            }
-            
-            activeTab.classList.remove('border-transparent', 'text-gray-500');
+function switchTab(section, tabId, event) {
+    if (event) event.preventDefault();
+    
+    console.log(`Switching to tab: ${tabId}`); // Debugging
+    
+    // Hide all tab contents in this section
+    document.querySelectorAll(`.tab-content.${section}-tab`).forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Remove active class from all tab buttons in this section
+    document.querySelectorAll(`button[onclick*="switchTab('${section}'"]`).forEach(tab => {
+        tab.classList.remove(
+            'border-blue-500', 'text-blue-600',
+            'border-green-500', 'text-green-600',
+            'border-red-500', 'text-red-600',
+            'active-tab'
+        );
+        tab.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show selected tab content
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.remove('hidden');
+    } else {
+        console.error(`Tab with id ${tabId} not found`);
+    }
+    
+    // Add active class to selected tab button
+    const activeTab = event?.currentTarget || document.getElementById(`${tabId}-tab`);
+    if (activeTab) {
+        activeTab.classList.add('active-tab');
+        
+        // Set appropriate border and text color based on section
+        if (section === 'insersi') {
+            activeTab.classList.add('border-blue-500', 'text-blue-600');
+        } else if (section === 'maintenance') {
+            activeTab.classList.add('border-green-500', 'text-green-600');
+        } else if (section === 'infeksi') {
+            activeTab.classList.add('border-red-500', 'text-red-600');
         }
         
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+}
+        
         // Initialize first tab as active
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set tab pertama sebagai aktif untuk setiap section
-            const initialTabs = [
-                {section: 'insersi', tabId: 'insersi-form'},
-                {section: 'maintenance', tabId: 'maintenance-form'},
-                {section: 'infeksi', tabId: 'infeksi-form'}
-            ];
+   document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tabs
+    const initialTabs = [
+        {section: 'insersi', tabId: 'insersi-form'},
+        {section: 'maintenance', tabId: 'maintenance-form'},
+        {section: 'infeksi', tabId: 'infeksi-form'}
+    ];
+    
+    initialTabs.forEach(tab => {
+        const activeTab = document.getElementById(`${tab.tabId}-tab`);
+        if (activeTab) {
+            const colors = {
+                'insersi': ['border-blue-500', 'text-blue-600'],
+                'maintenance': ['border-green-500', 'text-green-600'],
+                'infeksi': ['border-red-500', 'text-red-600']
+            };
             
-            initialTabs.forEach(tab => {
-                const activeTab = document.getElementById(`${tab.tabId}-tab`);
-                if (activeTab) {
-                    if (tab.section === 'insersi') {
-                        activeTab.classList.add('border-blue-500', 'text-blue-600');
-                    } else if (tab.section === 'maintenance') {
-                        activeTab.classList.add('border-green-500', 'text-green-600');
-                    } else if (tab.section === 'infeksi') {
-                        activeTab.classList.add('border-red-500', 'text-red-600');
-                    }
-                    activeTab.classList.remove('border-transparent', 'text-gray-500');
-                }
+            activeTab.classList.add(...colors[tab.section]);
+            activeTab.classList.remove('border-transparent', 'text-gray-500');
+            
+            // Add event listener
+            activeTab.addEventListener('click', function(e) {
+                switchTab(tab.section, tab.tabId, e);
             });
+        }
+    });
+    
+    // Add event listeners to all tab buttons
+    document.querySelectorAll('[data-section]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const section = this.getAttribute('data-section');
+            const tabId = this.getAttribute('data-tab-target');
+            switchTab(section, tabId, e);
         });
+    });
+});
     </script>
 </body>
 </html>

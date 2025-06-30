@@ -8,7 +8,6 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
   <style>
     .card-hover {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -22,8 +21,12 @@
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
     }
     .performance-badge {
       display: inline-flex;
@@ -34,39 +37,9 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      background-color: #e0f2ff;
+      color: #1e40af;
     }
-    .badge-excellent {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    }
-    .badge-good {
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      color: white;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-    .badge-warning {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: white;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-    }
-    .badge-danger {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    }
-    .status-indicator {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 8px;
-    }
-    .status-excellent { background: linear-gradient(135deg, #10b981, #059669); }
-    .status-good { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-    .status-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
-    .status-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
-    
     .animated-button {
       position: relative;
       overflow: hidden;
@@ -89,7 +62,6 @@
     .animated-button:hover::before {
       left: 100%;
     }
-    
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -103,15 +75,16 @@
     .animate-fade-in-up {
       animation: fadeInUp 0.6s ease-out;
     }
-    
-    .table-row:hover {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
-      transform: scale(1.01);
+    .table-row {
       transition: all 0.3s ease;
+    }
+    .table-row:hover {
+      background-color: #ffffff;
+      transform: scale(1.01);
     }
   </style>
 </head>
-<body class="min-h-full bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-800">
+<body class="bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 text-gray-800">
   @include('components.sidebar-navbar')
   <div class="p-4">
     <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
@@ -124,17 +97,17 @@
             <p class="text-gray-600 text-lg">Lihat dan catat penilaian kinerja staf Anda berdasarkan indikator yang tersedia.</p>
           </div>
           <div class="flex space-x-4">
-            <button class="animated-button bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-2xl font-semibold">
-              <i class="fas fa-plus mr-2"></i>Tambah Penilaian
+            <button class="animated-button bg-white border border-blue-500 text-blue-500 px-6 py-3 rounded-2xl font-semibold">
+              <i class="fas fa-plus mr-2 text-blue-500"></i>Tambah Penilaian
             </button>
-            <button class="animated-button bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-2xl font-semibold">
-              <i class="fas fa-download mr-2"></i>Export
+            <button class="animated-button bg-white border border-blue-500 text-blue-500 px-6 py-3 rounded-2xl font-semibold">
+              <i class="fas fa-download mr-2 text-blue-500"></i>Export
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Statistics Cards -->
+<!-- Statistics Cards -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
   <div class="bg-white rounded-2xl p-6 text-gray-700 shadow-lg hover:shadow-xl transition">
     <div class="flex items-center justify-between">
@@ -185,345 +158,92 @@
   </div>
 </div>
 
+
       <!-- Tabel Kinerja Staf -->
-      <div class="card-hover bg-white rounded-3xl shadow-xl p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
+      <div class="card-hover bg-white rounded-3xl shadow-xl p-8 animate-fade-in-up">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-800">
-            <i class="fas fa-users mr-3 text-green-500"></i>Rekapitulasi Penilaian Staf
+            <i class="fas fa-users mr-3 text-blue-500"></i>Rekapitulasi Penilaian Staf
           </h2>
           <div class="flex items-center space-x-4">
             <div class="relative">
-              <input type="text" placeholder="Cari staff..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-              <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+              <input type="text" placeholder="Cari staff..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <i class="fas fa-search absolute left-3 top-3 text-blue-500"></i>
             </div>
-            <select class="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <select class="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               <option>Semua Status</option>
-              <option>Excellent</option>
+              <option>Teladan</option>
               <option>Good</option>
-              <option>Need Mentoring</option>
-              <option>Need Improvement</option>
+              <option>Perlu Pendampingan</option>
+              <option>Perlu Perbaikan</option>
             </select>
           </div>
         </div>
-        
+
         <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
+          <table class="min-w-full text-sm bg-white text-black rounded-xl">
             <thead>
-              <tr class="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700">
-                <th class="px-6 py-4 text-left font-semibold rounded-tl-xl">
-                  <div class="flex items-center space-x-2">
-                    <span>Nama</span>
-                  </div>
-                </th>
-                <th class="px-6 py-4 text-left font-semibold">
-                  <div class="flex items-center space-x-2">
-                    
-                    <span>Kedisiplinan</span>
-                  </div>
-                </th>
-                <th class="px-6 py-4 text-left font-semibold">
-                  <div class="flex items-center space-x-2">
-                   
-                    <span>Komunikasi</span>
-                  </div>
-                </th>
-                <th class="px-6 py-4 text-left font-semibold">
-                  <div class="flex items-center space-x-2">
-                    
-                    <span>Komplain</span>
-                  </div>
-                </th>
-                <th class="px-6 py-4 text-left font-semibold">
-                  <div class="flex items-center space-x-2">
-                    
-                    <span>Kepatuhan</span>
-                  </div>
-                </th>
-                <th class="px-6 py-4 text-left font-semibold">
-                  <div class="flex items-center space-x-2">
-                    
-                    <span>Target Kerja</span>
-                  </div>
-                </th>
-                <th class="px-6 py-4 text-left font-semibold">
-                  <div class="flex items-center space-x-2">
-                    
-                    <span>Status</span>
-                  </div>
-                </th>
-                <th class="px-6 py-4 text-left font-semibold rounded-tr-xl">
-                  <div class="flex items-center space-x-2">
-                    
-                    <span>Aksi</span>
-                  </div>
-                </th>
+              <tr class="bg-gray-100 text-black">
+                <th class="px-6 py-4 text-left font-semibold">Nama</th>
+                <th class="px-6 py-4 text-left font-semibold">Kedisiplinan</th>
+                <th class="px-6 py-4 text-left font-semibold">Komunikasi</th>
+                <th class="px-6 py-4 text-left font-semibold">Komplain</th>
+                <th class="px-6 py-4 text-left font-semibold">Kepatuhan</th>
+                <th class="px-6 py-4 text-left font-semibold">Target Kerja</th>
+                <th class="px-6 py-4 text-left font-semibold">Status</th>
+                <th class="px-6 py-4 text-left font-semibold">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
+              <!-- Contoh baris -->
               <tr class="table-row">
                 <td class="px-6 py-4">
                   <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">Y</div>
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">Y</div>
                     <div>
-                      <p class="font-semibold text-gray-800">Yanti</p>
+                      <p class="font-semibold text-black">Yanti</p>
                       <p class="text-xs text-gray-500">Staff ID: 001</p>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
+                    <span class="status-indicator" style="background:#10b981"></span>
                     <span class="text-green-700 font-medium">Tepat Waktu</span>
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-good"></span>
-                    <span class="text-blue-700 font-medium">Baik</span>
-                  </div>
+                  <span class="text-blue-600 font-medium">Baik</span>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Tidak Ada</span>
-                  </div>
+                  <span class="text-green-600 font-medium">Tidak Ada</span>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Sangat Patuh</span>
-                  </div>
+                  <span class="text-green-700 font-medium">Sangat Patuh</span>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Tercapai</span>
-                  </div>
+                  <span class="text-green-700 font-medium">Tercapai</span>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="performance-badge badge-good">Good Performance</span>
+                  <span class="performance-badge">Good Performance</span>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex space-x-2">
-                    <button class="animated-button bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-pen mr-1"></i>Edit
+                    <button class="animated-button bg-white border border-blue-500 text-blue-500 px-4 py-2 rounded-lg text-xs font-semibold">
+                      <i class="fas fa-pen mr-1 text-blue-500"></i>Edit
                     </button>
-                    <button class="animated-button bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-eye mr-1"></i>Detail
+                    <button class="animated-button bg-white border border-blue-500 text-blue-500 px-4 py-2 rounded-lg text-xs font-semibold">
+                      <i class="fas fa-eye mr-1 text-blue-500"></i>Detail
                     </button>
                   </div>
                 </td>
               </tr>
-              
-              <tr class="table-row">
-                <td class="px-6 py-4">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold">B</div>
-                    <div>
-                      <p class="font-semibold text-gray-800">Budi</p>
-                      <p class="text-xs text-gray-500">Staff ID: 002</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-danger"></span>
-                    <span class="text-red-700 font-medium">Sering Telat</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-warning"></span>
-                    <span class="text-orange-700 font-medium">Cukup</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-warning"></span>
-                    <span class="text-orange-700 font-medium">1 Komplain</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-warning"></span>
-                    <span class="text-orange-700 font-medium">Perlu Pendampingan</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-danger"></span>
-                    <span class="text-red-700 font-medium">Belum Tercapai</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="performance-badge badge-danger">Perlu Perbaikan</span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex space-x-2">
-                    <button class="animated-button bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-pen mr-1"></i>Edit
-                    </button>
-                    <button class="animated-button bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-eye mr-1"></i>Detail
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr class="table-row">
-                <td class="px-6 py-4">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
-                    <div>
-                      <p class="font-semibold text-gray-800">Siti</p>
-                      <p class="text-xs text-gray-500">Staff ID: 003</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Tepat Waktu</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Sangat Baik</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Tidak Ada</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-good"></span>
-                    <span class="text-blue-700 font-medium">Patuh</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Tercapai</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="performance-badge badge-excellent">Rajin & Inisiatif</span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex space-x-2">
-                    <button class="animated-button bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-pen mr-1"></i>Edit
-                    </button>
-                    <button class="animated-button bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-eye mr-1"></i>Detail
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr class="table-row">
-                <td class="px-6 py-4">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold">R</div>
-                    <div>
-                      <p class="font-semibold text-gray-800">Rina</p>
-                      <p class="text-xs text-gray-500">Staff ID: 004</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-warning"></span>
-                    <span class="text-orange-700 font-medium">Kadang Terlambat</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-warning"></span>
-                    <span class="text-orange-700 font-medium">Cukup</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-danger"></span>
-                    <span class="text-red-700 font-medium">2 Komplain</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-warning"></span>
-                    <span class="text-orange-700 font-medium">Sedang</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-warning"></span>
-                    <span class="text-orange-700 font-medium">Progres</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="performance-badge badge-warning">Perlu Pendampingan</span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex space-x-2">
-                    <button class="animated-button bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-pen mr-1"></i>Edit
-                    </button>
-                    <button class="animated-button bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-eye mr-1"></i>Detail
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr class="table-row">
-                <td class="px-6 py-4">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">A</div>
-                    <div>
-                      <p class="font-semibold text-gray-800">Anton</p>
-                      <p class="text-xs text-gray-500">Staff ID: 005</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Tepat Waktu</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-good"></span>
-                    <span class="text-blue-700 font-medium">Baik</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Tidak Ada</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Sangat Patuh</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <span class="status-indicator status-excellent"></span>
-                    <span class="text-green-700 font-medium">Tercapai</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="performance-badge badge-excellent">Teladan</span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex space-x-2">
-                    <button class="animated-button bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-                      <i class="fas fa-pen mr-1"></i>Edit
+              <!-- Tambah baris lainnya di sini sesuai data -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

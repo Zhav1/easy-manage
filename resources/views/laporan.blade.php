@@ -46,7 +46,7 @@
     }
   </style>
 </head>
-<body class="min-h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-800">
+<body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 text-gray-800">
   @include('components.sidebar-navbar')
   <div class="p-4 text-black">
     <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
@@ -54,7 +54,7 @@
       <div class="glass-effect rounded-2xl p-8 mb-8 shadow-lg">
         <div class="flex items-center gap-6">
           <div class="relative">
-            <img src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" 
+            <img src="images/foto-formal.png" 
                  alt="Foto Profil" 
                  class="w-24 h-24 rounded-full border-4 border-white shadow-xl ring-4 ring-green-100" />
             <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
