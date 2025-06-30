@@ -10,6 +10,18 @@
       background-color: rgba(255, 255, 255, 0.75);
       border: 1px solid rgba(209, 213, 219, 0.3);
     }
+        /* Chrome, Safari, Opera */
+::-webkit-scrollbar {
+  width: 0px;          /* hilang sama sekali */
+  background: transparent;
+}
+
+/* Firefox */
+html, body {
+  scrollbar-width: none;      /* hilang di Firefox */
+  -ms-overflow-style: none;   /* hilang di Edge lama/IE */
+}
+
     .card-hover {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }

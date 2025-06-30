@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-white w-screen">
+<html lang="en" class="h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 overflow-x-hidden  ">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,21 @@
     <script src={{ asset('js/dashboard.js') }}></script>
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>
+   <style>
+    /* Chrome, Safari, Opera */
+::-webkit-scrollbar {
+  width: 0px;          /* hilang sama sekali */
+  background: transparent;
+}
+
+/* Firefox */
+html, body {
+  scrollbar-width: none;      /* hilang di Firefox */
+  -ms-overflow-style: none;   /* hilang di Edge lama/IE */
+}
+
+   </style>
+   <script>
         if (localStorage.getItem('color-theme') === 'dark') {
             document.documentElement.classList.add('dark');
         } else {

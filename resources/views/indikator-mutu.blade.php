@@ -15,6 +15,17 @@
             padding: 0;
             box-sizing: border-box;
         }
+/* Chrome, Safari, Opera */
+::-webkit-scrollbar {
+  width: 0px;          /* hilang sama sekali */
+  background: transparent;
+}
+
+/* Firefox */
+html, body {
+  scrollbar-width: none;      /* hilang di Firefox */
+  -ms-overflow-style: none;   /* hilang di Edge lama/IE */
+}
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

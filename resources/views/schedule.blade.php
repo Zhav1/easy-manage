@@ -15,6 +15,20 @@
   <script>
     window.authToken = "{{ session('token') }}";
   </script>
+  <style>
+        /* Chrome, Safari, Opera */
+::-webkit-scrollbar {
+  width: 0px;          /* hilang sama sekali */
+  background: transparent;
+}
+
+/* Firefox */
+html, body {
+  scrollbar-width: none;      /* hilang di Firefox */
+  -ms-overflow-style: none;   /* hilang di Edge lama/IE */
+}
+
+  </style>
   @include('components.sidebar-navbar')
   <div class="p-4">
     <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
