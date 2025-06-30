@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </head>
-<body class="bg-gray-50">
+<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
      @include('components.sidebar-navbar')
     <div class="container mx-auto p-4 pt-20 pl-60 pr-5 ">
         <!-- Header -->

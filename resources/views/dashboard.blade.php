@@ -56,7 +56,8 @@
         }
     </script>
 </head>
-<body class="min-h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-800">
+<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100
+    text-gray-800">
     @include('components.sidebar-navbar')
     
     <div class="p-4 sm:ml-64 text-black">
@@ -66,7 +67,7 @@
             <div class="glass-effect rounded-2xl p-8 mb-8 shadow-lg">
                 <div class="flex items-center gap-6">
                     <div class="relative">
-                        <img src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" 
+                        <img src="{{ Auth::user()->photo_url ?? 'https://flowbite.com/docs/images/people/profile-picture-5.jpg' }}" 
                              alt="Foto Profil" 
                              class="w-24 h-24 rounded-full border-4 border-white shadow-xl ring-4 ring-green-100" />
                         <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
@@ -76,11 +77,17 @@
                     
                     <div>
                         <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-2">
-                            Selamat Pagi, Abidzar!
+                            Selamat @php
+                                $hour = date('H');
+                                if ($hour < 11) echo 'Pagi';
+                                elseif ($hour < 15) echo 'Siang';
+                                elseif ($hour < 19) echo 'Sore';
+                                else echo 'Malam';
+                            @endphp, {{ Auth::user()->name }}!
                         </h1>
                         <p class="text-gray-600 flex items-center gap-2">
                             <i class="fas fa-calendar-alt text-blue-500"></i>
-                            Senin, 23 Juni 2025
+                            {{ now()->translatedFormat('l, d F Y') }}
                         </p>
                         <p class="text-sm text-gray-500 mt-1">Semoga hari Anda produktif dan menyenangkan</p>
                     </div>

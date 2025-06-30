@@ -11,7 +11,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </head>
-<body class="min-h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 text-gray-800">
+<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
   <script>
     window.authToken = "{{ session('token') }}";
   </script>

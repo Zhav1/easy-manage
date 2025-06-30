@@ -18,11 +18,11 @@
         }
     </script>
 </head>
-<body class="min-h-full bg-gradient-to-br from-slate-50 to-blue-50">
+<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     @include('components.sidebar-navbar')
 
     <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
-        <div class="p-6 border border-gray-200 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
+        <div class="p-6 border border-gray-200 rounded-xl shadow-lg  backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
             <!-- Header -->
             <div class="text-center mb-10">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">

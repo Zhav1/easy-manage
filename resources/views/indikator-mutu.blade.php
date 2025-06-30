@@ -608,7 +608,7 @@
 }
     </style>
     </head>
-    <body>
+    <body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
      @include('components.sidebar-navbar')
     <div class="p-4 pt-20 pl-60 pr-5" >
         <!-- Header -->

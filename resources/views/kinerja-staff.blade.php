@@ -84,7 +84,7 @@
     }
   </style>
 </head>
-<body class="min-h-full bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-800">
+<body class="bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 text-gray-800">
   @include('components.sidebar-navbar')
   <div class="p-4">
     <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
