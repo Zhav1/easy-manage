@@ -171,7 +171,7 @@
                             </div>
                         </div>
                         
-                        <a href="#" class="inline-flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <a href="/dinas" class="inline-flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl">
                             <i class="fas fa-calendar-alt mr-2"></i>
                             Lihat Jadwal
                         </a>
@@ -247,7 +247,7 @@
                             </div>
                         </div>
                         
-                        <a href="#" class="inline-flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <a href="/pengendalian-dan-pencegahan-infeksi" class="inline-flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
                             <i class="fas fa-chart-bar mr-2"></i>
                             Lihat Monitoring
                         </a>
