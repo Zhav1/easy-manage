@@ -126,7 +126,7 @@ body {
         }
     </style>
 </head>
-<body class="h-full border-gray-200">
+<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
      @include('components.sidebar-navbar')
      {{-- <!-- Header dengan efek floating -->
 <div class="floating mt-16">
