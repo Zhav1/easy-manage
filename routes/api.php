@@ -9,9 +9,8 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserDataController;
 use App\Http\Controllers\PrivateScheduleController;
+use App\Http\Controllers\QualityInspectionController;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
-
-
 
 Route::middleware('auth:sanctum')->post('/token', function (Request $request) {
     $token = $request->user()->createToken('api-token')->plainTextToken;
@@ -33,6 +32,10 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function() {
     //user data
     Route::get('/user/info', [UserDataController::class, 'index']);
 
+    //Quality Inspection / Indikator Mutu
+    Route::get('/quality-inspection/{formType}/current', [QualityInspectionController::class, 'getCurrentWeekForm']);
+    Route::post('/quality-inspection/{formType}', [QualityInspectionController::class, 'submitForm']);
+    Route::get('/quality-inspection/{formType}/history', [QualityInspectionController::class, 'getFormHistory']);
     
     // Staff
     Route::get('/staff', [StaffController::class, 'index']);

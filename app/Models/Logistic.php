@@ -10,7 +10,7 @@ class Logistic extends Model
     use HasFactory;
 
     protected $fillable = [
-        'unit',
+        'department_id',
         'category',
         'item_name',
         'brand',
@@ -29,4 +29,9 @@ class Logistic extends Model
         'created_at',
         'updated_at'
     ];
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 }

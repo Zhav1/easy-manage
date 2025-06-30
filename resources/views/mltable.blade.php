@@ -68,7 +68,7 @@
                         @foreach($logistics as $item)
                         <tr class="border-b border-gray-200 hover:bg-gray-50">
                             <td class="px-4 py-3 whitespace-nowrap text-gray-900">{{ $loop->iteration }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-gray-900">{{ $item->unit ?? '-' }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-gray-900">{{ $item->department->name ?? '-' }}</td>
                             <td class="px-4 py-3 whitespace-nowrap text-gray-900">{{ $item->category ?? '-' }}</td>
                             <td class="px-4 py-3 whitespace-nowrap text-gray-900">{{ $item->item_name ?? '-' }}</td>
                             <td class="px-4 py-3 whitespace-nowrap text-gray-900">{{ $item->brand ?? '-' }}</td>

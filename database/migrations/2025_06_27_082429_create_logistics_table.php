@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('logistics', function (Blueprint $table) {
             $table->id();
-            $table->string('unit');
+            $table->foreignId('department_id')->nullable()->constrained()->onDelete('set null'); // NEW
             $table->string('category');
             $table->string('item_name');
             $table->string('brand')->nullable();

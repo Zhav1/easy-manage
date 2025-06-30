@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Logistic;
+use App\Models\Department;
 use Illuminate\Http\Request;
 
 class LogisticController extends Controller
@@ -24,7 +25,7 @@ class LogisticController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'unit' => 'required|string',
+            'department_id' => 'required|string',
             'category' => 'required|string',
             'item_name' => 'required|string',
             'brand' => 'nullable|string',

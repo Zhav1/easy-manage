@@ -161,7 +161,7 @@
                 <!-- Kolom 1 -->
                 <div class="space-y-4">
                     <!-- Unit/Bagian -->
-                    <div>
+                    {{-- <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                             Unit/Bagian
                             <span class="text-red-500 ml-1">*</span>
@@ -175,7 +175,8 @@
                             <option value="Laboratorium">Laboratorium</option>
                             <option value="Radiologi">Radiologi</option>
                         </select>
-                    </div>
+                    </div> --}}
+                    <input type="hidden" name="department_id" value="{{ auth()->user()->department_id }}">
                     
                     <!-- Kategori -->
                     <div>
@@ -345,19 +346,13 @@
             }
         });
 
-        // Tampilkan field kalibrasi untuk alat medis
+        // Tampilkan field kalibrasi
         document.getElementById('category').addEventListener('change', function() {
             const calibrationField = document.getElementById('calibrationField');
             const expiryField = document.getElementById('expiryField');
             const selectedCategory = this.value;
-            
-            if (selectedCategory === 'Alat Medis') {
-                calibrationField?.classList.remove('hidden');
-                expiryField?.classList.remove('hidden');
-            } else {
-                calibrationField?.classList.add('hidden');
-                expiryField?.classList.add('hidden');
-            }
+            calibrationField?.classList.remove('hidden');
+            expiryField?.classList.remove('hidden');
         });
 
         // Add fade-in animation for elements
