@@ -89,7 +89,7 @@
                             <i class="fas fa-calendar-alt text-blue-500"></i>
                             {{ now()->translatedFormat('l, d F Y') }}
                         </p>
-                        <p class="text-sm text-gray-500 mt-1">Semoga hari Anda produktif dan menyenangkan</p>
+                        <p class="text-sm text-gray-500 mt-1">Semoga hari Anda produktif dan menyenangkan.</p>
                     </div>
                 </div>
             </div>
