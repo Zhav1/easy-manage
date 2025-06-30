@@ -67,7 +67,7 @@
             <div class="glass-effect rounded-2xl p-8 mb-8 shadow-lg">
                 <div class="flex items-center gap-6">
                     <div class="relative">
-                        <img src="{{ Auth::user()->photo_url ?? 'https://flowbite.com/docs/images/people/profile-picture-5.jpg' }}" 
+                        <img src="{{ Auth::user()->photo_url ?? 'images/foto-formal.png' }}" 
                              alt="Foto Profil" 
                              class="w-24 h-24 rounded-full border-4 border-white shadow-xl ring-4 ring-green-100" />
                         <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
