@@ -44,7 +44,7 @@ class FortifyServiceProvider extends ServiceProvider
                     // Pass token to view using session flash or query string
                     session(['token' => $token]);
 
-                    return redirect()->intended('/?token=' . $token);
+                    return redirect()->intended('/dashboard');
 
                 }
             };
