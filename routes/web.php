@@ -3,7 +3,6 @@
 use App\Http\Controllers\LogisticController;
 use Illuminate\Support\Facades\Route;
 
-<<<<<<< HEAD
 Route::get('/', function () {
     return view('landing-page');
 });
@@ -14,15 +13,6 @@ Route::get('/dashboard', function () {
 Route::get('/notifikasi', function () {
     return view('notifikasi');
 });
-=======
-Route::middleware(['auth', 'web', 'verified',])->group(function () {
-    Route::get('/', function () {
-        return view('dashboard');
-    });
-    Route::get('/notifikasi', function () {
-        return view('notifikasi');
-    });
->>>>>>> 516bac34c7db537f25d204a0072010c997716c6d
 
     // Resource Route untuk CRUD lengkap
     Route::resource('logistics', LogisticController::class)->except(['create']);
