@@ -23,6 +23,10 @@ class Staff extends Model
     {
         return $this->belongsTo(Department::class);
     }
+    public function hospital()
+    {
+        return $this->belongsTo(Hospital::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -32,8 +36,20 @@ class Staff extends Model
     {
         return $this->hasMany(Schedule::class);
     }
+<<<<<<< HEAD
     public function tnaRecords()
     {
         return $this->hasMany(TnaRecord::class);
+=======
+
+    public function performanceEvaluations()
+    {
+        return $this->hasMany(PerformanceEvaluation::class);
+    }
+
+    public function trainingNeeds()
+    {
+        return $this->hasMany(TrainingNeed::class);
+>>>>>>> e45d446e3f936884ee07c33057ad864c3cd2c908
     }
 }

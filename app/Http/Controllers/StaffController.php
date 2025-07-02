@@ -28,11 +28,12 @@ class StaffController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'position_id' => 'required|exists:positions,id',
-                'user_id' => 'required|exists:users,id',
                 'department_id' => 'required|exists:departments,id',
                 'hospital_id' => 'required|exists:hospitals,id',
                 'status' => 'required|in:Aktif,Tidak Aktif,Cuti'
             ]);
+
+            $validated['user_id'] = auth()->id();
 
             $staff = Staff::create($validated);
 

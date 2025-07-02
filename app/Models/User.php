@@ -20,8 +20,8 @@ class User extends Authenticatable
         'id_pegawai',
         'email',
         'password',
-        'position', // Tambahkan ini
-        'profile_photo_path' // Tambahkan ini untuk custom photo path
+        'position', 
+        'profile_photo_path'
     ];
 
     protected $hidden = [
@@ -63,7 +63,6 @@ class User extends Authenticatable
         return $this->hasMany(PrivateSchedule::class);
     }
 
-    // Custom method untuk mendapatkan jabatan lengkap
     public function getFullPositionAttribute()
     {
         return $this->position . (($this->department) ? ' ' . $this->department->name : '');

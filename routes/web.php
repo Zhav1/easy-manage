@@ -3,6 +3,9 @@
 use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StaffController;
+
+
 
 Route::get('/', function () {
     return view('landing-page');
@@ -15,6 +18,8 @@ Route::middleware(['auth', 'web', 'verified',])->group(function () {
         return view('notifikasi');
     });
 
+
+// Tambahkan ini dalam group middleware
     // Resource Route untuk CRUD lengkap
     Route::resource('logistics', LogisticController::class)->except(['create']);
 

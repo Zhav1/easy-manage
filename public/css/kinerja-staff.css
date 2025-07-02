@@ -1,0 +1,86 @@
+/* General layout and animations */
+.card-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+.glass-effect {
+    backdrop-filter: blur(20px) saturate(180%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Status Indicator for individual ratings (Kedisiplinan, etc.) */
+.status-indicator {
+    width: 8px; /* Corrected to 8px from 0.5rem for consistency with your provided CSS */
+    height: 8px; /* Corrected to 8px from 0.5rem */
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px; /* Corrected to 8px from 0.5rem */
+}
+
+/* Performance Badge for overall status (Excellent Performance, etc.) */
+.performance-badge {
+    display: inline-flex; /* Use flex to align items if you add an icon or text */
+    align-items: center; /* Center items vertically */
+    padding: 6px 12px; /* Adjusted padding for better visual */
+    border-radius: 20px; /* Fully rounded corners like pills */
+    font-size: 0.75rem;
+    font-weight: 600; /* font-semibold */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: white; /* Default text color for badges, will be overridden by JS for specific colors */
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slight shadow for depth */
+}
+
+/* Animated Buttons */
+.animated-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+.animated-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+.animated-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: all 0.6s;
+}
+.animated-button:hover::before {
+    left: 100%;
+}
+
+/* Fade In Up Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Table Row Hover Effect */
+.table-row {
+    transition: all 0.3s ease;
+}
+.table-row:hover {
+    background-color: #ffffff; /* Brighter white on hover */
+    transform: scale(1.01);
+}

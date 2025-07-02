@@ -1,0 +1,77 @@
+.card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        .glass-effect {
+            backdrop-filter: blur(20px) saturate(180%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border: 1px solid rgba(243, 99, 99, 0.2);
+        }
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        html, body {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        /* Custom styles for the tables to match the reference */
+        .management-table, .tna-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .management-table th, .tna-table th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            color: #000;
+            background-color: #f9fcfe;
+        }
+        .management-table td, .tna-table td {
+            padding: 1rem 1.5rem;
+        }
+        .management-table tbody tr:hover, .tna-table tbody tr:hover {
+            background-color: #f3f4f6;
+        }
+        .management-table th:first-child, .tna-table th:first-child {
+            border-top-left-radius: 0.75rem;
+        }
+        .management-table th:last-child, .tna-table th:last-child {
+            border-top-right-radius: 0.75rem;
+        }
+        .btn-green-tna {
+            background: linear-gradient(to right, #10b981, #059669); /* Green gradient */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .btn-green-tna:hover {
+            background: linear-gradient(to right, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .btn-blue-tna {
+            background: linear-gradient(to right, #3b82f6, #2563eb); /* Blue gradient */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .btn-blue-tna:hover {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
