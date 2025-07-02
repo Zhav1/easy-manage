@@ -19,7 +19,7 @@
     .glass-effect {
       backdrop-filter: blur(20px) saturate(180%);
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(243, 99, 99, 0.2);
     }
     ::-webkit-scrollbar {
   width: 0px;          /* hilang sama sekali */

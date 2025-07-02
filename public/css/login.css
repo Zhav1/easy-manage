@@ -4,12 +4,7 @@
             font-family: 'Inter', sans-serif;
         }
         
-        .gradient-bg {
-            background: linear-gradient(135deg,rgb(1, 74, 24) 0%,rgb(31, 240, 251) 100%);
-            min-height: 100vh;
-            position: relative;
-            overflow: hidden;
-        }
+        
         
         .gradient-bg::before {
             content: '';
