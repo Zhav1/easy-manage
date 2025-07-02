@@ -10,6 +10,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg,rgb(1, 74, 24) 0%,rgb(183, 201, 202) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
     <div class="gradient-bg flex items-center justify-center min-h-screen p-4">
         <!-- Floating Health Elements -->
         <div class="floating-health-elements">

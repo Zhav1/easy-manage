@@ -138,17 +138,11 @@ html, body {
             <section aria-labelledby="welcome-heading" class="glass-effect rounded-2xl p-6 sm:p-8 mb-8 shadow-lg">
                 <div class="flex flex-col sm:flex-row items-center gap-6">
                     <div class="relative">
-                        <img 
-                            src="{{ Auth::user()->photo_url ?? 'https://flowbite.com/docs/images/people/profile-picture-5.jpg' }}" 
-                            alt="Profile picture of {{ Auth::user()->name }}" 
-                            class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-xl ring-4 ring-green-100" 
-                            width="96"
-                            height="96"
-                            loading="lazy"
-                        />
-                        <div class="absolute -bottom-2 -right-2 w-7 h-7 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
-                            <span class="sr-only">Verified</span>
-                            <i class="fas fa-check text-white text-xs" aria-hidden="true"></i>
+                        <img src="{{ Auth::user()->photo_url ?? 'images/foto-formal.png' }}" 
+                             alt="Foto Profil" 
+                             class="w-24 h-24 rounded-full border-4 border-white shadow-xl ring-4 ring-green-100" />
+                        <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+                            <i class="fas fa-check text-white text-xs"></i>
                         </div>
                     </div>
                     
@@ -170,7 +164,7 @@ html, body {
                                 {{ now()->translatedFormat('l, d F Y') }}
                             </time>
                         </p>
-                        <p class="text-sm text-gray-500 mt-1">Semoga hari Anda produktif dan menyenangkan</p>
+                        <p class="text-sm text-gray-500 mt-1">Semoga hari Anda produktif dan menyenangkan.</p>
                     </div>
                 </div>
             </section>

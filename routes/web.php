@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LogisticController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'web', 'verified',])->group(function () {
@@ -16,6 +17,8 @@ Route::get('/notifikasi', function () {
 Route::resource('logistics', LogisticController::class)->except(['create']);
 
 // Route khusus untuk tampilan edit (jika ingin menggunakan editml.blade.php)
+Route::get('/profile/edit',  [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 
 Route::get('/logout-other-browser-sessions-form', function () {
     return view('logout-other-browser-sessions-form.');
@@ -75,6 +78,13 @@ Route::get('/manajemen-logistik', function () {
     Route::get('/landing', function () {
         return view('landing-page');
     });
+    
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+
     Route::get('/schedule', function () {
         return view('schedule');
     });

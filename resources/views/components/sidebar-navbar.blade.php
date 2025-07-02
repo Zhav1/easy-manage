@@ -5,7 +5,7 @@
       <div class="flex items-center justify-start rtl:justify-end">
         <div class="text-xl font-bold text-[#0CC0DF]">EasyManage</div>
       </div>
-      <div class="space-x-4 hidden md:flex text-sm gap-8">
+      <div class="space-x-4 hidden md:flex text-sm gap-8 ml-20">
         @php $current = Request::path(); @endphp
         @if(Str::contains($current, 'dinas'))
           <a href="/dinas" class="text-black font-semibold"><i class="fas fa-calendar-check mr-1 text-blue-500"></i>Jadwal Dinas</a>
@@ -29,7 +29,19 @@
           <a href="/" class="text-black font-semibold"><i class="fas fa-home mr-1 text-green-500"></i>Dashboard</a>
         @endif
       </div>
-      <div class="flex items-center ms-3">
+      <div class="flex items-center gap-4 ms-3">
+        <!-- Tanggal Realtime -->
+        <div class="text-sm text-gray-600 font-medium">
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const now = new Date();
+              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              document.getElementById("realtime-date").innerText = now.toLocaleDateString('id-ID', options);
+            });
+          </script>
+          <span id="realtime-date"></span>
+        </div>
+        <!-- Foto Profil -->
         <div>
           <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300" aria-expanded="false" data-dropdown-toggle="dropdown-user">
             <span class="sr-only">Open user menu</span>
@@ -60,6 +72,7 @@
     </div>
   </div>
 </nav>
+
 
    <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 " aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white ">

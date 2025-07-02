@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,19 +11,8 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens;
+    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable;
 
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory;
-    use HasProfilePhoto;
-    use Notifiable;
-    use TwoFactorAuthenticatable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'hospital_id',
@@ -32,13 +20,10 @@ class User extends Authenticatable
         'id_pegawai',
         'email',
         'password',
+        'position', // Tambahkan ini
+        'profile_photo_path' // Tambahkan ini untuk custom photo path
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -46,20 +31,10 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
     protected $appends = [
         'profile_photo_url',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -68,9 +43,11 @@ class User extends Authenticatable
         ];
     }
 
-    public function hospital() {
+    public function hospital()
+    {
         return $this->belongsTo(Hospital::class);
     }
+
     public function department()
     {
         return $this->belongsTo(Department::class);
@@ -78,7 +55,12 @@ class User extends Authenticatable
 
     public function privateSchedules()
     {
-        return $this->hasMany(\App\Models\PrivateSchedule::class);
+        return $this->hasMany(PrivateSchedule::class);
     }
 
+    // Custom method untuk mendapatkan jabatan lengkap
+    public function getFullPositionAttribute()
+    {
+        return $this->position . (($this->department) ? ' ' . $this->department->name : '');
+    }
 }
