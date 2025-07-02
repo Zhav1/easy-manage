@@ -8,24 +8,24 @@ Route::get('/', function () {
     return view('landing-page');
 });
 Route::middleware(['auth', 'web', 'verified',])->group(function () {
-Route::get('/dashboard', function () {
-    return view('dashboard');
-});
-Route::get('/notifikasi', function () {
-    return view('notifikasi');
-});
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    });
+    Route::get('/notifikasi', function () {
+        return view('notifikasi');
+    });
 
     // Resource Route untuk CRUD lengkap
     Route::resource('logistics', LogisticController::class)->except(['create']);
 
     // Route khusus untuk tampilan edit (jika ingin menggunakan editml.blade.php)
-
     Route::get('/logout-other-browser-sessions-form', function () {
         return view('logout-other-browser-sessions-form.');
     });
-    Route::get('/profile', function () {
-        return view('profile');
-    });
+    // Corrected Profile Routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit'); // THIS IS THE FIX
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    
     Route::get('/dinas', function () {
         return view('jadwal-dinas');
     });
@@ -53,9 +53,6 @@ Route::get('/notifikasi', function () {
     });
     Route::get('/logout-other-browser-sessions-form', function () {
         return view('logout-other-browser-sessions-form.');
-    });
-    Route::get('/profile', function () {
-        return view('profile');
     });
     Route::get('/dinas', function () {
         return view('jadwal-dinas');

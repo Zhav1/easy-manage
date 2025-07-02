@@ -32,7 +32,7 @@
             <div class="md:flex">
                 <div class="md:w-1/4 p-6 flex justify-center">
                     <img class="h-40 w-40 rounded-full object-cover border-4 border-green-500"
-                         src="{{ $user->photo_path ? asset('storage/'.$user->photo_path) : asset('images/foto-formal.png') }}"
+                         src="{{ $user->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : asset('images/foto-formal.png') }}"
                          alt="Foto Profil">
                 </div>
                 <div class="md:w-3/4 p-6">
