@@ -10,6 +10,8 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserDataController;
 use App\Http\Controllers\PrivateScheduleController;
 use App\Http\Controllers\QualityInspectionController;
+use App\Http\Controllers\PerformanceEvaluationController;
+use App\Http\Controllers\TrainingNeedController;    
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 Route::middleware('auth:sanctum')->post('/token', function (Request $request) {
@@ -55,5 +57,11 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function() {
     Route::get('/private-schedules/{id}', [PrivateScheduleController::class, 'show']);
     Route::put('/private-schedules/{id}', [PrivateScheduleController::class, 'update']);
     Route::delete('/private-schedules/{id}', [PrivateScheduleController::class, 'destroy']);
+
+    //Performance Evaluations
+    Route::apiResource('performance-evaluations', PerformanceEvaluationController::class); 
+
+    //Training Needs
+    Route::apiResource('training-needs', TrainingNeedController::class);
 
 });

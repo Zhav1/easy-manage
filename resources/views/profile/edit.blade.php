@@ -59,7 +59,7 @@
                     <div class="mt-6">
                         <div class="bg-gray-50 p-4 rounded-lg inline-block">
                             <p class="text-gray-500 text-sm">Total Staff</p>
-                            <p class="text-2xl font-bold">{{  Auth::user()->staff->count() }}</p> {{-- contoh statis --}}
+                            <p class="text-2xl font-bold">{{  Auth::user()->staff->count() }}</p> 
                         </div>
                     </div>
                 </div>

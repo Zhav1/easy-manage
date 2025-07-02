@@ -133,14 +133,14 @@ html, body {
     @include('components.sidebar-navbar')
     
     <div class="sm:ml-64 mt-10 h-full overflow-hidden">
-        <main class="h-[calc(100vh-4rem)] overflow-y-auto scrollable-content px-4 sm:px-6 py-8" aria-label="Main content">
+        <main class="h-[calc(100vh-4rem)] overflow-y-auto scrollable-content px-4 sm:px-6 py-8 mt-14" aria-label="Main content">
             <!-- Welcome Section -->
             <section aria-labelledby="welcome-heading" class="glass-effect rounded-2xl p-6 sm:p-8 mb-8 shadow-lg">
                 <div class="flex flex-col sm:flex-row items-center gap-6">
                     <div class="relative">
-                        <img src="{{ Auth::user()->photo_url ?? 'images/foto-formal.png' }}" 
-                             alt="Foto Profil" 
-                             class="w-24 h-24 rounded-full border-4 border-white shadow-xl ring-4 ring-green-100" />
+                        <img class="w-24 h-24 rounded-full border-4 border-white shadow-xl ring-4 ring-green-100"
+                         src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('images/foto-formal.png') }}"
+                         alt="Foto Profil"> 
                         <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>

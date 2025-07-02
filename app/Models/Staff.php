@@ -23,6 +23,10 @@ class Staff extends Model
     {
         return $this->belongsTo(Department::class);
     }
+    public function hospital()
+    {
+        return $this->belongsTo(Hospital::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -31,5 +35,15 @@ class Staff extends Model
     public function schedules()
     {
         return $this->hasMany(Schedule::class);
+    }
+
+    public function performanceEvaluations()
+    {
+        return $this->hasMany(PerformanceEvaluation::class);
+    }
+
+    public function trainingNeeds()
+    {
+        return $this->hasMany(TrainingNeed::class);
     }
 }
