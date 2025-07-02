@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-white w-screen">
+<html lang="en" class="h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,15 +14,15 @@
     <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />        
 </head>
-<body class="min-h-full   bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+<body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     <script>
     window.authToken = "{{ session('token') }}";
     </script>
 
     @include('components.sidebar-navbar')
     
-    <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
-        <div class="p-6 rounded-xl shadow-lg  bg-white backdrop-blur-sm dark:border-gray-700 dark:bg-white-800/80">
+    <div class=" pt-20 pl-60 pr-5 animate-fadeIn">
+        <div class="p-6 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-white-800/80">
             <!-- Header -->
             <div class="text-center mb-6">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">

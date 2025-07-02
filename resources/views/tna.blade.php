@@ -21,6 +21,16 @@
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
       border: 1px solid rgba(243, 99, 99, 0.2);
     }
+    ::-webkit-scrollbar {
+  width: 0px;          /* hilang sama sekali */
+  background: transparent;
+}
+
+/* Firefox */
+html, body {
+  scrollbar-width: none;      /* hilang di Firefox */
+  -ms-overflow-style: none;   /* hilang di Edge lama/IE */
+}
   </style>
 </head>
 <body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 text-gray-800">

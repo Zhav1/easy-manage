@@ -8,14 +8,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </head>
-<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
-     @include('components.sidebar-navbar')
-    <div class="container mx-auto p-4 pt-20 pl-60 pr-5 ">
+<body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+    @include('components.sidebar-navbar')
+    <div class="container mx-auto p-4 pt-20 pl-60 pr-5">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-8 animate-fadeIn ">
+        <div class="flex justify-between items-center mb-8 animate-fadeIn">
             <h1 class="text-3xl font-bold text-gray-800">Profil Kepala Ruangan</h1>
             <div class="flex items-center space-x-4">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                <button onclick="openSettingsModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
                     <i class="fas fa-cog mr-2"></i>Pengaturan
                 </button>
             </div>
@@ -26,19 +26,25 @@
             <div class="md:flex">
                 <div class="md:w-1/4 p-6 flex justify-center">
                     <div class="relative">
-                        <img class="h-40 w-40 rounded-full object-cover border-4 border-green-500" 
-                             src="images/foto-formal.png" alt="Profile Photo">
-                       
+                       <img id="profile-photo"
+     class="h-40 w-40 rounded-full object-cover border-4 border-green-500"
+     src="{{ $user->profile_photo_url }}"
+     alt="Foto Profil">
+
                     </div>
                 </div>
                 <div class="md:w-3/4 p-6">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Dr. Ahmad Budiman, S.Kep, Ns</h2>
-                            <p class="text-gray-600 mb-2">Kepala Ruangan Rawat Inap</p>
-                            <div class="flex items-center text-gray-600 mb-4">
+                            <h2 id="profile-name" class="text-2xl font-bold text-gray-800">Dr. Ahmad Budiman, S.Kep, Ns</h2>
+                            <p id="profile-position" class="text-gray-600 mb-2">Kepala Ruangan</p>
+                            <div class="flex items-center text-gray-600 mb-2">
                                 <i class="fas fa-hospital mr-2"></i>
-                                <span>RS Adam Malik Medan</span>
+                                <span id="profile-hospital">RSUP H. Adam Malik</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-door-open mr-2"></i>
+                                <span id="profile-department">IGD (Instalasi Gawat Darurat)</span>
                             </div>
                         </div>
                         <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -46,16 +52,11 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-500 text-sm">Total Ruangan</p>
-                            <p class="text-2xl font-bold">1</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="mt-6">
+                        <div class="bg-gray-50 p-4 rounded-lg inline-block">
                             <p class="text-gray-500 text-sm">Total Staff</p>
-                            <p class="text-2xl font-bold">15</p>
+                            <p class="text-2xl font-bold">{{ auth::user()->staff->count() }}</p>
                         </div>
-                        
                     </div>
                 </div>
             </div>
@@ -63,128 +64,185 @@
 
         <!-- Ruangan Sections -->
         <div class="space-y-6">
-            <!-- Rawat Inap Section -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden animate-fadeIn">
-                <div class="p-6 cursor-pointer" onclick="toggleSection('rawat-inap')">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-xl font-semibold text-gray-800">
-                            <i class="fas fa-procedures mr-2 text-blue-600"></i>
-                            Ruangan Rawat Inap
-                        </h3>
-                        <i id="arrow-rawat-inap" class="fas fa-chevron-down text-gray-500 transition-transform duration-200"></i>
-                    </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800">
+                        <i class="fas fa-procedures mr-2 text-blue-600"></i>
+                        Ruangan <span id="display-department">IGD (Instalasi Gawat Darurat)</span>
+                    </h3>
                 </div>
                 
-                <div id="rawat-inap" class="px-6 pb-6 hidden">
+                <div class="px-6 pb-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- Staff Kasur -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="font-medium text-gray-800">Staff Kasur</h4>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">10 Orang</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Suster A</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Shift Pagi</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Suster B</span>
-                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Shift Sore</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Suster C</span>
-                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Shift Malam</span>
-                                </div>
-                                <button class="text-blue-600 text-sm mt-2 flex items-center">
-                                    <i class="fas fa-plus-circle mr-1"></i> Edit
-                                </button>
-                            </div>
-                        </div>
+                       
                         
                         <!-- Staff Kebidanan -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="font-medium text-gray-800">Staff Kebidanan</h4>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">15 Orang</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Bidan X</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Shift Pagi</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Bidan Y</span>
-                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Shift Sore</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Bidan Z</span>
-                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Shift Malam</span>
-                                </div>
-                                <button class="text-blue-600 text-sm mt-2 flex items-center">
-                                    <i class="fas fa-plus-circle mr-1"></i> Edit
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Staff Administrasi -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="font-medium text-gray-800">Staff Administrasi</h4>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">5 Orang</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Admin 1</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Full Time</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Admin 2</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Full Time</span>
-                                </div>
-                                <button class="text-blue-600 text-sm mt-2 flex items-center">
-                                    <i class="fas fa-plus-circle mr-1"></i> Edit
-                                </button>
-                            </div>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Profil</h3>
+                <div class="mt-2 px-7 py-3">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-name">
+                            Nama
+                        </label>
+                        <input id="edit-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" value="Dr. Ahmad Budiman, S.Kep, Ns">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-position">
+                            Jabatan
+                        </label>
+                        <input id="edit-position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" value="Kepala Ruangan">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-hospital">
+                            Rumah Sakit
+                        </label>
+                        <select id="edit-hospital" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <option value="RSUP H. Adam Malik">RSUP H. Adam Malik</option>
+                            <option value="RSU dr. Pirngadi Medan">RSU dr. Pirngadi Medan</option>
+                            <option value="RSUD Deli Serdang">RSUD Deli Serdang</option>
+                            <option value="RS Bhayangkara TK II Medan">RS Bhayangkara TK II Medan</option>
+                            <option value="RS Haji Medan">RS Haji Medan</option>
+                            <option value="RS Royal Prima Medan">RS Royal Prima Medan</option>
+                            <option value="RS Siloam Medan">RS Siloam Medan</option>
+                            <option value="RS Universitas Sumatera Utara">RS Universitas Sumatera Utara</option>
+                            <option value="RS Mitra Sejati">RS Mitra Sejati</option>
+                            <option value="RS Bunda Thamrin">RS Bunda Thamrin</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-department">
+                            Ruangan
+                        </label>
+                        <select id="edit-department" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <option value="IGD (Instalasi Gawat Darurat)">IGD (Instalasi Gawat Darurat)</option>
+                            <option value="ICU (Intensive Care Unit)">ICU (Intensive Care Unit)</option>
+                            <option value="NICU (Neonatal ICU)">NICU (Neonatal ICU)</option>
+                            <option value="PICU (Pediatric ICU)">PICU (Pediatric ICU)</option>
+                            <option value="OK (Operasi)">OK (Operasi)</option>
+                            <option value="Ruang VIP">Ruang VIP</option>
+                            <option value="Ruang Kelas 1">Ruang Kelas 1</option>
+                            <option value="Ruang Kelas 2">Ruang Kelas 2</option>
+                            <option value="Ruang Kelas 3">Ruang Kelas 3</option>
+                            <option value="Ruang Isolasi">Ruang Isolasi</option>
+                            <option value="Ruang Persalinan">Ruang Persalinan</option>
+                            <option value="Ruang Perawatan">Ruang Perawatan</option>
+                            <option value="Rawat Jalan">Rawat Jalan</option>
+                            <option value="Laboratorium">Laboratorium</option>
+                            <option value="Radiologi">Radiologi</option>
+                            <option value="Fisioterapi">Fisioterapi</option>
+                            <option value="Hemodialisa">Hemodialisa</option>
+                            <option value="Kamar Mayat">Kamar Mayat</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-photo">
+                            Foto Profil
+                        </label>
+                        <input id="edit-photo" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="file" accept="image/*">
+                    </div>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="saveProfileChanges()" class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Simpan Perubahan
+                    </button>
+                    <button onclick="closeSettingsModal()" class="ml-3 px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Toggle section visibility
-        function toggleSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            const arrow = document.getElementById('arrow-' + sectionId);
+        // Function to open settings modal
+        function openSettingsModal() {
+            // Set current values in the form
+            document.getElementById('edit-name').value = document.getElementById('profile-name').textContent;
+            document.getElementById('edit-position').value = document.getElementById('profile-position').textContent;
+            document.getElementById('edit-hospital').value = document.getElementById('profile-hospital').textContent;
+            document.getElementById('edit-department').value = document.getElementById('profile-department').textContent;
             
-            if (section.classList.contains('hidden')) {
-                section.classList.remove('hidden');
-                arrow.classList.add('rotate-180');
-            } else {
-                section.classList.add('hidden');
-                arrow.classList.remove('rotate-180');
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        // Function to close settings modal
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        // Function to save profile changes
+        function saveProfileChanges() {
+            // Get values from form
+            const newName = document.getElementById('edit-name').value;
+            const newPosition = document.getElementById('edit-position').value;
+            const newHospital = document.getElementById('edit-hospital').value;
+            const newDepartment = document.getElementById('edit-department').value;
+            const photoFile = document.getElementById('edit-photo').files[0];
+            
+            // Update profile information
+            document.getElementById('profile-name').textContent = newName;
+            document.getElementById('profile-position').textContent = newPosition;
+            document.getElementById('profile-hospital').textContent = newHospital;
+            document.getElementById('profile-department').textContent = newDepartment;
+            document.getElementById('display-department').textContent = newDepartment;
+            
+            // Update photo if a new one was selected
+            if (photoFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-photo').src = e.target.result;
+                    
+                    // In a real application, you would upload the photo to your server here
+                    // and update the database with the new photo path
+                };
+                reader.readAsDataURL(photoFile);
             }
-        }
-
-        // Modal functions
-        function openAddItemModal() {
-            document.getElementById('addItemModal').classList.remove('hidden');
-            document.getElementById('addItemModal').classList.add('flex');
-        }
-
-        function closeAddItemModal() {
-            document.getElementById('addItemModal').classList.add('hidden');
-            document.getElementById('addItemModal').classList.remove('flex');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('addItemModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAddItemModal();
+            
+            // In a real application, you would send this data to your server
+            // to update the database. Example:
+            /*
+            const formData = new FormData();
+            formData.append('name', newName);
+            formData.append('position', newPosition);
+            formData.append('hospital', newHospital);
+            formData.append('department', newDepartment);
+            if (photoFile) {
+                formData.append('photo', photoFile);
             }
-        });
+            
+            fetch('/api/update-profile', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Profile updated successfully');
+                    closeSettingsModal();
+                } else {
+                    alert('Error updating profile');
+                }
+            });
+            */
+            
+            closeSettingsModal();
+        }
 
-        // Add fade-in animation for elements
+        // Initialize with current values when page loads
         document.addEventListener('DOMContentLoaded', function() {
             const elements = document.querySelectorAll('.animate-fadeIn');
             elements.forEach((el, index) => {
@@ -216,11 +274,6 @@
 
         .animate-fadeIn {
             animation: fadeIn 0.6s ease-out forwards;
-        }
-
-        .rotate-180 {
-            transform: rotate(180deg);
-            transition: transform 0.2s ease;
         }
     </style>
 </body>

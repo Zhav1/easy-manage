@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-white w-screen">
+<html lang="en" class="h-full bg-white w-full overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +20,17 @@
     <style>
         .tab-content {
     display: none;
+}
+/* Chrome, Safari, Opera */
+::-webkit-scrollbar {
+  width: 0px;          /* hilang sama sekali */
+  background: transparent;
+}
+
+/* Firefox */
+html, body {
+  scrollbar-width: none;      /* hilang di Firefox */
+  -ms-overflow-style: none;   /* hilang di Edge lama/IE */
 }
 
 .tab-content:not(.hidden) {
@@ -48,7 +59,8 @@
         }
     </style>
 </head>
-<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+<body class="min-h-full w-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 overflow-x-hidden">
+
      @include('components.sidebar-navbar')
     
     <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
