@@ -55,7 +55,7 @@
                     <div class="mt-6">
                         <div class="bg-gray-50 p-4 rounded-lg inline-block">
                             <p class="text-gray-500 text-sm">Total Staff</p>
-                            <p class="text-2xl font-bold">15</p>
+                            <p class="text-2xl font-bold">{{ auth::user()->staff->count() }}</p>
                         </div>
                     </div>
                 </div>
@@ -75,66 +75,10 @@
                 <div class="px-6 pb-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- Staff Kasur -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="font-medium text-gray-800">Staff Kasur</h4>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">10 Orang</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Suster A</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Shift Pagi</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Suster B</span>
-                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Shift Sore</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Suster C</span>
-                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Shift Malam</span>
-                                </div>
-                            </div>
-                        </div>
+                       
                         
                         <!-- Staff Kebidanan -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="font-medium text-gray-800">Staff Kebidanan</h4>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">15 Orang</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Bidan X</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Shift Pagi</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Bidan Y</span>
-                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Shift Sore</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Bidan Z</span>
-                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Shift Malam</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Staff Administrasi -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="font-medium text-gray-800">Staff Administrasi</h4>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">5 Orang</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Admin 1</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Full Time</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Admin 2</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Full Time</span>
-                                </div>
-                            </div>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
