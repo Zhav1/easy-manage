@@ -20,8 +20,6 @@ use App\Models\User;
 use Laravel\Fortify\Contracts\LoginResponse;
 
 
-
-
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
