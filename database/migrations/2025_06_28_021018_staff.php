@@ -15,6 +15,7 @@ return new class extends Migration
         $table->id();
         $table->string('name');
         $table->foreignId('position_id')->constrained();
+        $table->foreignId('user_id')->constrained();
         $table->foreignId('department_id')->constrained();
         $table->foreignId('hospital_id')->constrained();
         $table->enum('status', ['Aktif', 'Tidak Aktif', 'Cuti'])->default('Aktif');

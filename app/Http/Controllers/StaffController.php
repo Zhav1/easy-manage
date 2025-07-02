@@ -15,6 +15,7 @@ class StaffController extends Controller
 
         $staff = Staff::where('department_id', $user->department_id)
                         ->where('hospital_id', $user->hospital_id)
+                        ->where('user_id', $user->id)
                         ->get();
 
         return response()->json($staff);
@@ -27,6 +28,7 @@ class StaffController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'position_id' => 'required|exists:positions,id',
+                'user_id' => 'required|exists:users,id',
                 'department_id' => 'required|exists:departments,id',
                 'hospital_id' => 'required|exists:hospitals,id',
                 'status' => 'required|in:Aktif,Tidak Aktif,Cuti'
@@ -53,6 +55,7 @@ class StaffController extends Controller
         $request->validate([
             'name' => 'sometimes|string|max:255',
             'position_id' => 'sometimes|exists:positions,id',
+            'user_id' => 'sometimes|exists:users,id',
             'department_id' => 'sometimes|exists:departments,id',
             'hospital_id' => 'sometimes|exists:hospitals,id',
             'status' => 'sometimes|in:Aktif,Tidak Aktif,Cuti'

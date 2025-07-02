@@ -15,7 +15,7 @@
 <script src="{{ asset('js/indikator-mutu.js') }}"></script>
 </head>
 
-<body>
+<body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     <script>
         // This token is used for Bearer token authentication.
         // For strict HTTPOnly cookie usage with Laravel Sanctum,
@@ -25,10 +25,15 @@
         window.authToken = "{{ session('token') }}";
     </script>
     @include('components.sidebar-navbar')
-    <div class="p-4 pt-20 pl-60 pr-5" >
-    <div class="header">
-        <h1 style="color:black"><i class="fas fa-chart-line mr-3 text-green-500"></i>Dashboard Indikator Mutu</h1>
-        <p style="color:gray">Sistem Monitoring Kualitas Pelayanan Rumah Sakit</p>
+    <div class="p-4">
+        <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
+            <div class="rounded-3xl p-8 mb-8 shadow-xl bg-white">
+                <h1 class="text-4xl font-bold text-black mb-3">
+                    <i class="fas fa-chart-line mr-3 text-green-500"></i>Indikator Mutu
+                </h1>
+                <p class="text-gray-600 text-lg">Sistem Monitoring Kualitas Pelayanan Rumah Sakit</p>
+            </div>
+        </main>
     </div>
 
     <div class="indicator-table-container overflow-x-auto">

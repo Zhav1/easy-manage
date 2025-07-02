@@ -246,6 +246,7 @@ async function handleStaffFormSubmit() {
         id: document.getElementById('staffId').value,
         name: document.getElementById('staffFullName').value,
         position_id: document.getElementById('staffPosition').value,
+        user_id: document.getElementById('userId').value,
         department_id: document.getElementById('staffDepartment').value,
         hospital_id: document.getElementById('staffHospital').value,
         status: document.getElementById('staffStatus').value
