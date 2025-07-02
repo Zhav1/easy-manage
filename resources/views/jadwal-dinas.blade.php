@@ -190,7 +190,7 @@
             </div>
             <form id="staffForm">
                 <input type="hidden" id="staffId">
-                <input type="hidden" id="userId" value="{{ auth()->user()->id }}">
+                <input type="hidden" id="userId" name="user_id" value="{{ auth()->user()->id }}">
                 <input type="hidden" id="staffDepartment" value="{{ auth()->user()->department_id }}">
                 <input type="hidden" id="staffHospital" value="{{ auth()->user()->hospital_id }}">
                 <div class="mb-3">
