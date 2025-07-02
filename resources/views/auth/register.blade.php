@@ -1,225 +1,139 @@
-<x-guest-layout>
-    <link rel="stylesheet" href={{ asset('css/register.css') }}>
-    <script src={{ asset('js/register.js') }}></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyManage - Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg,#E1F6E9 0%,#E1F6E9);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
 
-    <div class="gradient-bg flex items-center justify-center min-h-screen p-4">
-        <!-- Floating Health Elements -->
-        <div class="floating-health-elements">
-            <i class="health-element fas fa-syringe"></i>
-            <i class="health-element fas fa-stethoscope"></i>
-            <i class="health-element fas fa-pills"></i>
-            <i class="health-element fas fa-hospital"></i>
-            <i class="health-element fas fa-heartbeat"></i>
-            <i class="health-element fas fa-band-aid"></i>
-            <i class="health-element fas fa-flask"></i>
-            <i class="health-element fas fa-microscope"></i>
-            <i class="health-element fas fa-user-md"></i>
-            <i class="health-element fas fa-ambulance"></i>
-            <i class="health-element fas fa-thermometer"></i>
-            <i class="health-element fas fa-briefcase-medical"></i>
-        </div>
-        
-        <!-- Registration Card -->
-        <div class="w-full max-w-md">
-            <div class="bg-white rounded-3xl card-shadow p-8">
-                <!-- Logo Section -->
-                <div class="text-center mb-8">
-                    <div class="logo-glow mb-4">
-                        <img
-                            src="{{ asset('images/Logo Easy Manage.png') }}"   
-                            alt="EasyManage Logo"
-                            class="w-24 h-24 mx-auto transparent-bg object-contain"       
-                        >
-                    </div>
-                    <h1 class="text-3xl font-bold text-[#0CC0DF] mb-2">EasyManage</h1>
-                    <p class="text-black/80 text-sm">Daftar Akun Baru</p>
-                </div>
-                
-                <!-- Validation Errors -->
-                <x-validation-errors class="mb-4 p-4 bg-red-500/20 border border-red-400/50 rounded-lg text-red-200" />
-                
-                <form method="POST" action="{{ route('register') }}" class="space-y-6">
-                    @csrf
-                    
-                    <!-- Name Field -->
-                    <div class="space-y-2">
-                        <label for="name" class="block text-sm font-medium text-gray-800">Nama Lengkap</label>
-                        <div class="relative flex items-center">
-                            <i class="fas fa-user text-gray-400 mr-2"></i>
-                            <x-input id="name" 
-                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                    type="text" 
-                                    name="name" 
-                                    :value="old('name')" 
-                                    required 
-                                    autofocus 
-                                    autocomplete="name" 
-                                    placeholder="Masukkan nama lengkap" />
-                        </div>
-                    </div>
-                    
-                    <!-- Room Field -->
-                    <div class="space-y-2">
-                        <label for="department_id" class="block text-sm font-medium text-gray-800">Ruangan</label>
-                        <div class="relative flex items-center">
-                            <i class="fas fa-door-open text-gray-400 mr-2"></i>
-                            <select id="department_id" name="department_id" required
-                                class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl">
-                                <option value="" disabled selected>Pilih Ruangan</option>
-                                @foreach($departments as $dept)
-                                    <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
-                                        {{ $dept->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+        .health-element {
+            color: #065f46;
+            position: fixed;
+            z-index: 1;
+            opacity: 0.6;
+            pointer-events: none;
+            animation: float 30s linear infinite;
+        }
 
-                    <!-- Hospital Selection -->
-                    <div class="space-y-2">
-                        <label for="hospital_id" class="block text-sm font-medium text-gray-800">Rumah Sakit</label>
-                        <select id="hospital_id" name="hospital_id" required
-                            class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800">
-                            <option value="" disabled selected>Pilih Rumah Sakit</option>
-                            @foreach($hospitals as $hospital)
-                                <option value="{{ $hospital->id }}">{{ $hospital->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
 
-                    <!-- Employee ID -->
-                    <div class="space-y-2">
-                        <label for="id_pegawai" class="block text-sm font-medium text-gray-800">ID Pegawai</label>
-                        <div class="relative flex items-center">
-                            <i class="fas fa-id-card text-gray-400 mr-2"></i>
-                            <x-input id="id_pegawai" 
-                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                    type="text" 
-                                    name="id_pegawai" 
-                                    :value="old('id_pegawai')" 
-                                    required 
-                                    autocomplete="off" 
-                                    placeholder="Masukkan ID pegawai" />
-                        </div>
-                    </div>
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+        }
 
-                    <!-- Email Field -->
-                    <div class="space-y-2">
-                        <label for="email" class="block text-sm font-medium text-gray-800">Email</label>
-                        <div class="relative flex items-center">
-                            <i class="fas fa-envelope text-gray-400 mr-2"></i>
-                            <x-input id="email" 
-                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                    type="email" 
-                                    name="email" 
-                                    :value="old('email')" 
-                                    required 
-                                    autocomplete="username" 
-                                    placeholder="Masukkan alamat email" />
-                        </div>
-                    </div>
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(12, 192, 223, 0.2);
+        }
 
-                    <!-- Password Field -->
-                    <div class="space-y-2">
-                        <label for="password" class="block text-sm font-medium text-gray-800">Password</label>
-                        <div class="relative flex items-center">
-                            <i class="fas fa-lock text-gray-400 mr-2"></i>
-                            <x-input id="password" 
-                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                    type="password" 
-                                    name="password" 
-                                    required 
-                                    autocomplete="new-password" 
-                                    placeholder="Masukkan password" />
-                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword('password')">
-                                <i id="passwordToggle" class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors"></i>
-                            </button>
-                        </div>
-                    </div>
+        .logo-glow:hover {
+            filter: drop-shadow(0 0 8px rgba(12, 192, 223, 0.4));
+        }
 
-                    <!-- Confirm Password Field -->
-                    <div class="space-y-2">
-                        <label for="password_confirmation" class="block text-sm font-medium text-gray-800">Konfirmasi Password</label>
-                        <div class="relative flex items-center">
-                            <i class="fas fa-lock text-gray-400 mr-2"></i>
-                            <x-input id="password_confirmation" 
-                                    class="input-focus block w-full pl-3 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                    type="password" 
-                                    name="password_confirmation" 
-                                    required 
-                                    autocomplete="new-password" 
-                                    placeholder="Konfirmasi password" />
-                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword('password_confirmation')">
-                                <i id="passwordConfirmationToggle" class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Terms and Conditions -->
-                    @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
-                        <div class="flex items-start space-x-3">
-                            <x-checkbox name="terms" id="terms" required 
-                                       class="w-4 h-4 text-green-600 bg-gray-50 border-gray-300 rounded focus:ring-green-500 focus:ring-2" />
-                            <label for="terms" class="text-sm text-gray-800">
-                                <div class="flex flex-wrap">
-                                    {!! __('Saya menyetujui :terms_of_service dan :privacy_policy', [
-                                            'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="text-[#0CC0DF] hover:text-[#0CC0DF]/80 underline">'.__('Syarat & Ketentuan').'</a>',
-                                            'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="text-[#0CC0DF] hover:text-[#0CC0DF]/80 underline">'.__('Kebijakan Privasi').'</a>',
-                                    ]) !!}
-                                </div>
-                            </label>
-                        </div>
-                    @endif
-
-                    <!-- Register Button -->
-<div class="pt-4 space-y-3"> <!-- Reduced space between elements -->
-    <!-- Register Button - Centered and compact -->
-    <div class="text-center">
-        <x-button class="btn-hover w-full flex items-center justify-center max-w-xs mx-auto py-3 px-4 bg-[#0CC0DF] text-white font-semibold rounded-xl shadow-lg hover:scale-[1.02] transform transition-all duration-300 text-center">
-            <span class="flex items-center justify-center space-x-2">
-                <i class="fas fa-user-plus"></i>
-                <span class="font-bold">Daftar Sekarang</span>
-            </span>
-        </x-button>
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10vw, -10vh) rotate(10deg); }
+            50% { transform: translate(5vw, -20vh) rotate(20deg); }
+            75% { transform: translate(-5vw, -30vh) rotate(10deg); }
+            100% { transform: translate(0, -40vh) rotate(0deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="gradient-bg flex items-center justify-center min-h-screen p-4">
+    <!-- Floating Health Elements -->
+    <div class="floating-health-elements fixed inset-0 pointer-events-none">
+        <i class="health-element fas fa-heartbeat" style="left:10%; top:80%; font-size:28px; animation-delay:0s;"></i>
+        <i class="health-element fas fa-stethoscope" style="left:25%; top:70%; font-size:24px; animation-delay:2s;"></i>
+        <i class="health-element fas fa-pills" style="left:40%; top:60%; font-size:32px; animation-delay:4s;"></i>
+        <i class="health-element fas fa-hospital" style="left:60%; top:75%; font-size:36px; animation-delay:1s;"></i>
+        <i class="health-element fas fa-syringe" style="left:75%; top:65%; font-size:22px; animation-delay:3s;"></i>
+        <i class="health-element fas fa-user-md" style="left:85%; top:55%; font-size:30px; animation-delay:5s;"></i>
+        <i class="health-element fas fa-ambulance" style="left:15%; top:55%; font-size:26px; animation-delay:6s;"></i>
+        <i class="health-element fas fa-microscope" style="left:50%; top:80%; font-size:34px; animation-delay:7s;"></i>
     </div>
 
-    <!-- Login Link - Compact and stylish -->
-    <div class="text-center pt-1"> <!-- Reduced top padding -->
-        <p class="text-gray-600 text-sm mb-1"> <!-- Smaller margin -->
-            Sudah punya akun? 
-        </p>
-        <a href="{{ route('login') }}" 
-           id = "login-link" class="inline-block w-full max-w-xs mx-auto py-2 px-4 bg-white border-2 border-[#0CC0DF] text-[#0CC0DF] hover:bg-[#0CC0DF]/5 font-medium rounded-xl transition-all duration-200 hover:shadow-md">
-           <span class="font-semibold">Masuk Disini</span> 
-        </a>
+    <!-- Register Card -->
+    <div class="w-full max-w-md z-10">
+        <div class="bg-white rounded-3xl card-shadow p-8">
+            <!-- Logo Section -->
+            <div class="text-center mb-8">
+                <div class="logo-glow mb-4">
+                    <img src="{{ asset('images/Logo Easy Manage.png') }}" alt="EasyManage Logo" class="w-24 h-24 mx-auto object-contain">
+                </div>
+                <h1 class="text-3xl font-bold text-[#0CC0DF] mb-2">EasyManage</h1>
+                <p class="text-black/80 text-sm">Daftar Akun Baru</p>
+            </div>
+
+            <x-validation-errors class="mb-4 p-4 bg-red-500/20 border border-red-400/50 rounded-lg text-red-200" />
+
+            <form method="POST" action="{{ route('register') }}" class="space-y-5">
+                @csrf
+
+                <input type="text" name="name" value="{{ old('name') }}" placeholder="Nama Lengkap" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+
+                <select name="department_id" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800">
+                    <option value="">Pilih Ruangan</option>
+                    @foreach($departments as $dept)
+                        <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
+                    @endforeach
+                </select>
+
+                <select name="hospital_id" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800">
+                    <option value="">Pilih Rumah Sakit</option>
+                    @foreach($hospitals as $hospital)
+                        <option value="{{ $hospital->id }}" {{ old('hospital_id') == $hospital->id ? 'selected' : '' }}>{{ $hospital->name }}</option>
+                    @endforeach
+                </select>
+
+                <input type="text" name="id_pegawai" value="{{ old('id_pegawai') }}" placeholder="ID Pegawai" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+
+                <input type="password" name="password" placeholder="Password" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+
+                <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+
+                @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
+                    <div class="flex items-start space-x-3 text-sm text-gray-700">
+                        <input type="checkbox" name="terms" required class="w-4 h-4 text-green-600 bg-gray-50 border-gray-300 rounded focus:ring-green-500 focus:ring-2">
+                        <label for="terms" class="leading-snug">
+                            {!! __('Saya menyetujui :terms_of_service dan :privacy_policy', [
+                                'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="text-[#0CC0DF] underline">Syarat & Ketentuan</a>',
+                                'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="text-[#0CC0DF] underline">Kebijakan Privasi</a>',
+                            ]) !!}
+                        </label>
+                    </div>
+                @endif
+
+                <button type="submit" class="btn-hover w-full py-3 bg-[#0CC0DF] text-white font-semibold rounded-xl shadow-md hover:scale-[1.02] transform transition duration-300">
+                    <i class="fas fa-user-plus mr-2"></i> Daftar Sekarang
+                </button>
+
+                <div class="text-center pt-3">
+                    <p class="text-sm text-gray-600">Sudah punya akun?</p>
+                    <a href="{{ route('login') }}" class="mt-2 inline-block w-full max-w-xs mx-auto py-2 px-4 bg-white border-2 border-[#0CC0DF] text-[#0CC0DF] font-medium rounded-xl hover:bg-[#0CC0DF]/5 transition duration-200 hover:shadow-md">
+                        <span class="font-semibold">Masuk Disini</span>
+                    </a>
+                </div>
+            </form>
+
+            <div class="text-center mt-8">
+                <p class="text-black/60 text-xs">© 2024 EasyManage. Semua hak dilindungi.</p>
+            </div>
+        </div>
     </div>
 </div>
-                </form>
-                
-                <!-- Login Link -->
-            </div>
-            <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const loginBtn = document.querySelector('a[href="{{ route('login') }}"]');
-    
-    if (loginBtn) {
-        loginBtn.addEventListener('click', function(e) {
-            console.log('Login link clicked - redirecting to:', this.href);
-            // Jika console log muncul tapi tidak redirect, ada masalah lain
-        });
-    }
-});
-</script>
-            <!-- Footer -->
-            <div class="text-center mt-8">
-                <p class="text-black/60 text-xs">
-                    © 2024 EasyManage. Semua hak dilindungi.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        
-    </script>
-</x-guest-layout>
+</body>
+</html>

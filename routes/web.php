@@ -3,13 +3,16 @@
 use App\Http\Controllers\LogisticController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return view('landing-page');
+});
 Route::middleware(['auth', 'web', 'verified',])->group(function () {
-    Route::get('/', function () {
-        return view('dashboard');
-    });
-    Route::get('/notifikasi', function () {
-        return view('notifikasi');
-    });
+Route::get('/dashboard', function () {
+    return view('dashboard');
+});
+Route::get('/notifikasi', function () {
+    return view('notifikasi');
+});
 
     // Resource Route untuk CRUD lengkap
     Route::resource('logistics', LogisticController::class)->except(['create']);
@@ -44,9 +47,6 @@ Route::middleware(['auth', 'web', 'verified',])->group(function () {
         return view('manajemenlogistik');
     });
 
-    Route::get('/', function () {
-        return view('dashboard');
-    });
     Route::get('/notifikasi', function () {
         return view('notifikasi');
     });
@@ -70,9 +70,6 @@ Route::middleware(['auth', 'web', 'verified',])->group(function () {
     });
     Route::get('/manajemen-logistik', function () {
         return view('manajemenlogistik');
-    });
-    Route::get('/landing', function () {
-        return view('landing-page');
     });
     Route::get('/schedule', function () {
         return view('schedule');

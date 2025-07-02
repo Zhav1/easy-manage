@@ -54,172 +54,244 @@
         </table>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number">13</div>
-            <div class="stat-label">Total Indikator</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">8</div>
-            <div class="stat-label">Selesai</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">3</div>
-            <div class="stat-label">Dalam Proses</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">2</div>
-            <div class="stat-label">Belum Dimulai</div>
-        </div>
-    </div>
+{{-- <!-- Navigation Tabs -->
+<div class="navigation-tabs">
+    <button class="nav-tab active" onclick="showSection('list')">LIST</button>
+    <button class="nav-tab" onclick="showSection('hand-hygiene')">Hand Hygiene</button>
+    <button class="nav-tab" onclick="showSection('apd')">APD</button>
+    <button class="nav-tab" onclick="showSection('identifikasi')">Identifikasi</button>
+    <button class="nav-tab" onclick="showSection('wtri')">WTRI</button>
+    <button class="nav-tab" onclick="showSection('kritis-lab')">Kritis Lab</button>
+    <button class="nav-tab" onclick="showSection('fornas')">FORNAS</button>
+    <button class="nav-tab" onclick="showSection('visite')">VISITE</button>
+    <button class="nav-tab" onclick="showSection('jatuh')">JATUH</button>
+    <button class="nav-tab" onclick="showSection('cp')">CP</button>
+    <button class="nav-tab" onclick="showSection('kepuasan')">Kepuasan</button>
+    <button class="nav-tab" onclick="showSection('krk')">KRK</button>
+    <button class="nav-tab" onclick="showSection('poe')">POE</button>
+    <button class="nav-tab" onclick="showSection('sc')">SC</button>
+</div> --}}
 
-    <div class="main-grid">
-        <div class="indicators-section">
-            <h2><i class="fas fa-tasks"></i> Daftar Indikator Mutu</h2>
-            {{-- This section will be populated dynamically by JavaScript based on 'indicators' array --}}
-            {{-- This is a placeholder for initial render, JS will update statuses --}}
-            <div class="indicator-item completed" id="indicator-hand-hygiene">
-                <div class="indicator-title">Kepatuhan Kebersihan Tangan (≥80%)</div>
-                <div class="unit-badge">PPI</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('hand-hygiene')">Lihat Detail</button>
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">13</div>
+                <div class="stat-label">Total Indikator</div>
             </div>
-            <div class="indicator-item completed" id="indicator-identifikasi">
-                <div class="indicator-title">Kepatuhan Identifikasi pasien (≥80%)</div>
-                <div class="unit-badge">PPI</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('identifikasi')">Lihat Detail</button>
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Selesai</div>
             </div>
-            <div class="indicator-item completed" id="indicator-apd">
-                <div class="indicator-title">Kepatuhan Penggunaan Alat Pelindung Diri (100%)</div>
-                <div class="unit-badge">YANMED</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('apd')">Lihat Detail</button>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Dalam Proses</div>
             </div>
-            <div class="indicator-item in-progress" id="indicator-sc">
-                <div class="indicator-title">Waktu tanggap seksio sesarea emergency (≥30%)</div>
-                <div class="unit-badge">IBS</div>
-                <div class="status-badge status-progress">Dalam Proses</div>
-                <button class="action-btn" onclick="openForm('sc')">Input Data</button>
-            </div>
-            <div class="indicator-item completed" id="indicator-wtri">
-                <div class="indicator-title">Waktu tunggu rawat jalan (≥80%)</div>
-                <div class="unit-badge">YANMED</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('wtri')">Lihat Detail</button>
-            </div>
-            <div class="indicator-item pending" id="indicator-poe">
-                <div class="indicator-title">Penundaan operasi elektif (<5%) </div>
-                <div class="unit-badge">IBS</div>
-                <div class="status-badge status-pending">Belum Dimulai</div>
-                <button class="action-btn" onclick="openForm('poe')">Mulai Input</button>
-            </div>
-            <div class="indicator-item completed" id="indicator-visite">
-                <div class="indicator-title">Kepatuhan waktu visite dokter (≥80%)</div>
-                <div class="unit-badge">YANMED/SIRS</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('visite')">Lihat Detail</button>
-            </div>
-            <div class="indicator-item completed" id="indicator-kritis-lab">
-                <div class="indicator-title">Kepatuhan hasil kritis laboratorium (≥80%)</div>
-                <div class="unit-badge">PK</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('kritis-lab')">Lihat Detail</button>
-            </div>
-            <div class="indicator-item completed" id="indicator-fornas">
-                <div class="indicator-title">Kepatuhan penggunaan Formularium (≥80%)</div>
-                <div class="unit-badge">FARMASI</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('fornas')">Lihat Detail</button>
-            </div>
-            <div class="indicator-item in-progress" id="indicator-cp">
-                <div class="indicator-title">Kepatuhan terhadap clinical pathway (≥80%)</div>
-                <div class="unit-badge">KOMITE</div>
-                <div class="status-badge status-progress">Dalam Proses</div>
-                <button class="action-btn" onclick="openForm('cp')">Input Data</button>
-            </div>
-            <div class="indicator-item completed" id="indicator-jatuh">
-                <div class="indicator-title">Kepatuhan upaya pencegahan risiko pasien jatuh (100%)</div>
-                <div class="unit-badge">YANMED</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('jatuh')">Lihat Detail</button>
-            </div>
-            <div class="indicator-item completed" id="indicator-krk">
-                <div class="indicator-title">Kecepatan waktu tanggap terhadap komplain (≥80%)</div>
-                <div class="unit-badge">ADMISI</div>
-                <div class="status-badge status-completed">Selesai</div>
-                <button class="action-btn" onclick="openForm('krk')">Lihat Detail</button>
-            </div>
-            <div class="indicator-item pending" id="indicator-kepuasan">
-                <div class="indicator-title">Kepuasan pasien (≥76.61%)</div>
-                <div class="unit-badge">ADMISI</div>
-                <div class="status-badge status-pending">Belum Dimulai</div>
-                <button class="action-btn" onclick="openForm('kepuasan')">Mulai Input</button>
+            <div class="stat-card">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Belum Dimulai</div>
             </div>
         </div>
 
-        <div class="sidebar">
-            <div class="legend-card">
-                <h3><i class="fas fa-info-circle"></i> Kategori Indikator</h3>
-                <div class="legend-item">
-                    <div class="legend-color kebersihan"></div>
-                    <span>Kebersihan Tangan</span>
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Indicators Section -->
+            <div class="indicators-section">
+                <h2><i class="fas fa-tasks"></i> Daftar Indikator Mutu</h2>
+                
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Kepatuhan Kebersihan Tangan (≥80%)</div>
+                    <div class="unit-badge">PPI</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('kebersihan')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color apd"></div>
-                    <span>APD</span>
+
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Kepatuhan Identifikasi pasien (≥80%)</div>
+                    <div class="unit-badge">PPI</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('identifikasi')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color identifikasi"></div>
-                    <span>Identifikasi</span>
+
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Kepatuhan Penggunaan Alat Pelindung Diri (100%)</div>
+                    <div class="unit-badge">YANMED</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('apd')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color seksio"></div>
-                    <span>Seksio</span>
+
+                <div class="indicator-item in-progress">
+                    <div class="indicator-title">Waktu tanggap seksio sesarea emergency (≥30%)</div>
+                    <div class="unit-badge">IBS</div>
+                    <div class="status-badge status-progress">Saat Kam</div>
+                    <div class="status-badge status-progress">Dalam Proses</div>
+                    <div class="status-badge status-progress">Belum Ada</div>
+                    <div class="status-badge status-progress">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('seksio')">Input Data</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color wtri"></div>
-                    <span>WTRI</span>
+
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Waktu tunggu rawat jalan (≥80%)</div>
+                    <div class="unit-badge">YANMED</div>
+                    <div class="status-badge status-completed">Bulan X</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('wtri')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color poe"></div>
-                    <span>POE</span>
+
+                <div class="indicator-item pending">
+                    <div class="indicator-title">Penundaan operasi elektif (<5%) </div>
+                    <div class="unit-badge">IBS</div>
+                    <div class="status-badge status-pending">Saat Kam</div>
+                    <div class="status-badge status-pending">Belum Dimulai</div>
+                    <div class="status-badge status-pending">Belum Ada</div>
+                    <div class="status-badge status-pending">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('operasi')">Mulai Input</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color visite"></div>
-                    <span>Visite</span>
+
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Kepatuhan waktu visite dokter (≥80%)</div>
+                    <div class="unit-badge">YANMED/SIRS</div>
+                    <div class="status-badge status-completed">Persiapan</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('visite')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color kritis"></div>
-                    <span>Kritis Lab</span>
+
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Kepatuhan hasil kritis laboratorium (≥80%)</div>
+                    <div class="unit-badge">PK</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('kritis')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color fornas"></div>
-                    <span>FORNAS</span>
+
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Kepatuhan penggunaan Formularium (≥80%)</div>
+                    <div class="unit-badge">FARMASI</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('fornas')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color cp"></div>
-                    <span>CP</span>
+
+                <div class="indicator-item in-progress">
+                    <div class="indicator-title">Kepatuhan terhadap clinical pathway (≥80%)</div>
+                    <div class="unit-badge">KOMITE</div>
+                    <div class="status-badge status-progress">Lengkap</div>
+                    <div class="status-badge status-progress">MD berbeda</div>
+                    <div class="status-badge status-progress">Belum Ada</div>
+                    <div class="status-badge status-progress">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('cp')">Input Data</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color sc"></div>
-                    <span>SC</span>
+
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Kepatuhan upaya pencegahan risiko pasien jatuh (100%)</div>
+                    <div class="unit-badge">YANMED</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('risiko')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color risiko"></div>
-                    <span>Risiko Jatuh</span>
+
+                <div class="indicator-item completed">
+                    <div class="indicator-title">Kecepatan waktu tanggap terhadap komplain (≥80%)</div>
+                    <div class="unit-badge">ADMISI</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Selesai</div>
+                    <div class="status-badge status-completed">✓</div>
+                    <div class="status-badge status-completed">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('komplain')">Lihat Detail</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color krk"></div>
-                    <span>KRK</span>
+
+                <div class="indicator-item pending">
+                    <div class="indicator-title">Kepuasan pasien (≥76.61%)</div>
+                    <div class="unit-badge">ADMISI</div>
+                    <div class="status-badge status-pending">✓</div>
+                    <div class="status-badge status-pending">Belum Dimulai</div>
+                    <div class="status-badge status-pending">Belum Ada</div>
+                    <div class="status-badge status-pending">Tidak Ada</div>
+                    <button class="action-btn" onclick="openForm('kepuasan')">Mulai Input</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color kepuasan"></div>
-                    <span>Kepuasan Pasien</span>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="legend-card">
+                    <h3><i class="fas fa-info-circle"></i> Kategori Indikator</h3>
+                    <div class="legend-item">
+                        <div class="legend-color kebersihan"></div>
+                        <span>Kebersihan Tangan</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color apd"></div>
+                        <span>APD</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color identifikasi"></div>
+                        <span>Identifikasi</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color seksio"></div>
+                        <span>Seksio</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color wtri"></div>
+                        <span>WTRI</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color poe"></div>
+                        <span>POE</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color visite"></div>
+                        <span>Visite</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color kritis"></div>
+                        <span>Kritis Lab</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color fornas"></div>
+                        <span>FORNAS</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cp"></div>
+                        <span>CP</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color sc"></div>
+                        <span>SC</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color risiko"></div>
+                        <span>Risiko Jatuh</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color krk"></div>
+                        <span>KRK</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color kepuasan"></div>
+                        <span>Kepuasan Pasien</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
     <div class="data-forms" style="display: none;">
         <div class="form-card overflow-x-auto" id="kebersihan-form" style="display: none;">
