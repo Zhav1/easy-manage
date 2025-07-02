@@ -171,16 +171,6 @@
                                 </svg>
                             </span>
                         </button>
-                        
-                        <button class="group px-8 py-4 bg-white text-green-700 font-semibold rounded-full border-2 border-green-200 hover:border-green-400 hover:text-green-800 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
-                            <span class="flex items-center justify-center">
-                                <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                                </svg>
-                                Lihat Demo
-                            </span>
-                        </button>
                     </div>
 
                     <!-- Stats -->
@@ -356,9 +346,6 @@
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <button class="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
                     Mulai Sekarang!
-                </button>
-                <button class="px-8 py-4 bg-white text-green-600 font-semibold rounded-full border-2 border-green-500 hover:bg-green-50 transition-all duration-300 transform hover:scale-105">
-                    Konsultasi Gratis
                 </button>
             </div>
         </div>

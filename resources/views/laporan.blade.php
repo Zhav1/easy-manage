@@ -85,7 +85,7 @@
       <div class="bg-white rounded-2xl shadow mb-8">
         <div class="flex border-b overflow-x-auto">
           <button onclick="showTab('catatan')" class="tab-btn px-6 py-4 font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">
-            <i class="fas fa-calendar-check mr-2"></i>Catatan Harian
+            <i class="fas fa-calendar-check mr-2"></i>Schedule
           </button>
           <button onclick="showTab('jadwal')" class="tab-btn px-6 py-4 font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
             <i class="fas fa-clock mr-2"></i>Jadwal Dinas

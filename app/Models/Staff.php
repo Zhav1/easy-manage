@@ -32,4 +32,8 @@ class Staff extends Model
     {
         return $this->hasMany(Schedule::class);
     }
+    public function tnaRecords()
+    {
+        return $this->hasMany(TnaRecord::class);
+    }
 }
