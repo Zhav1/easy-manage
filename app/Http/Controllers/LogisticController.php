@@ -8,20 +8,38 @@ use Illuminate\Http\Request;
 
 class LogisticController extends Controller
 {
-    // Menampilkan semua data
+    public function dashboard()
+    {
+        $user = auth()->user();
+        
+        if (!$user->department_id) {
+            return redirect()->back()->with('error', 'Anda belum terdaftar di departemen manapun');
+        }
+        
+        $totalStock = Logistic::where('department_id', $user->department_id)->sum('stock');
+        $limitedStock = Logistic::where('department_id', $user->department_id)
+            ->where('stock', '<', 10)
+            ->where('stock', '>=', 5)
+            ->count();
+        $lowStock = Logistic::where('department_id', $user->department_id)
+            ->where('stock', '<', 5)
+            ->count();
+        
+        return view('manajemenlogistik', compact('totalStock', 'limitedStock', 'lowStock'));
+    }
+
+    // ... method lainnya tetap sama seperti sebelumnya
     public function index()
     {
         $logistics = Logistic::all();
         return view('mltable', compact('logistics'));
     }
 
-    // Menampilkan form tambah data (CREATE)
     public function create()
     {
-        return view('logistics.create'); // Buat view create.blade.php
+        return view('logistics.create');
     }
 
-    // Menyimpan data baru (STORE)
     public function store(Request $request)
     {
         $request->validate([
@@ -37,7 +55,6 @@ class LogisticController extends Controller
             'unit_of_measure' => 'required|string',
         ]);
 
-        // Determine status based on stock
         $status = 'Tersedia';
         if ($request->stock < 5) {
             $status = 'Menipis';
@@ -50,18 +67,17 @@ class LogisticController extends Controller
         return redirect()->route('logistics.index')->with('success', 'Barang berhasil ditambahkan!');
     }
 
-    // Menampilkan form edit (EDIT)
-   public function edit($id)
-{
-    $logistic = Logistic::findOrFail($id);
-    return view('editml', compact('logistic'));
-}
-public function show(Logistic $logistic)
-{
-    // Tampilkan detail single item
-    return view('logistics.show', compact('logistic'));
-}
-    // Update data (UPDATE)
+    public function edit($id)
+    {
+        $logistic = Logistic::findOrFail($id);
+        return view('editml', compact('logistic'));
+    }
+
+    public function show(Logistic $logistic)
+    {
+        return view('logistics.show', compact('logistic'));
+    }
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -90,7 +106,6 @@ public function show(Logistic $logistic)
         return redirect()->route('logistics.index')->with('success', 'Data berhasil diperbarui!');
     }
 
-    // Hapus data (DELETE)
     public function destroy($id)
     {
         $logistic = Logistic::findOrFail($id);

@@ -6,6 +6,7 @@ use App\Models\Hospital;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -16,7 +17,7 @@ class ProfileController extends Controller
     {
         $user        = auth()->user();
         $hospitals   = Hospital::all();
-        $departments = Department::all();         // list dropdown Ruangan
+        $departments = Department::all();
 
         return view('profile.edit', compact('user', 'hospitals', 'departments'));
     }
@@ -30,26 +31,23 @@ class ProfileController extends Controller
             'name'          => ['required', 'string', 'max:255'],
             'position'      => ['nullable', 'string', 'max:255'],
             'hospital_id'   => ['required', 'exists:hospitals,id'],
-            'department_id' => ['required', 'ex ists:departments,id'],
-            'photo' => ['nullable', 'image', 'max:2048'],   // nama input file di view
+            'department_id' => ['required', 'exists:departments,id'], // typo sebelumnya "ex ists"
+            'photo'         => ['nullable', 'image', 'max:2048'],
         ]);
 
         $user = auth()->user();
 
-        // ------------ Upload Foto (opsional) ------------
+        // Upload Foto (opsional)
         if ($request->file('photo')) {
-
-            // hapus file lama jika ada
             if ($user->profile_photo_path && Storage::disk('public')->exists($user->profile_photo_path)) {
                 Storage::disk('public')->delete($user->profile_photo_path);
             }
 
-            // simpan file baru
             $path = $request->file('photo')->store('profile-photos', 'public');
             $user->profile_photo_path = $path;
         }
 
-        // ------------ Update kolom lainnya ------------
+        // Update kolom lain
         $user->update([
             'name'          => $request->name,
             'position'      => $request->position,
@@ -59,4 +57,24 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
+
+    /**
+     * Hapus akun user.
+     */public function destroy()
+{
+    $user = Auth::user();
+
+    // Hapus semua staff milik user ini (jika relasinya benar)
+    $user->staff()->delete(); // <--- ini penting
+
+    if ($user->profile_photo_path && Storage::disk('public')->exists($user->profile_photo_path)) {
+        Storage::disk('public')->delete($user->profile_photo_path);
+    }
+
+    Auth::logout();
+    $user->delete();
+
+    return redirect('/')->with('success', 'Akun berhasil dihapus.');
+}
+
 }

@@ -20,7 +20,9 @@ class Logistic extends Model
         'calibration_expiry_date',
         'stock',
         'unit_of_measure',
-        'status'
+        'status',
+        'condition',
+        'notes'
     ];
 
     protected $dates = [

@@ -36,11 +36,6 @@ class Staff extends Model
     {
         return $this->hasMany(Schedule::class);
     }
-<<<<<<< HEAD
-    public function tnaRecords()
-    {
-        return $this->hasMany(TnaRecord::class);
-=======
 
     public function performanceEvaluations()
     {
@@ -50,6 +45,5 @@ class Staff extends Model
     public function trainingNeeds()
     {
         return $this->hasMany(TrainingNeed::class);
->>>>>>> e45d446e3f936884ee07c33057ad864c3cd2c908
     }
 }

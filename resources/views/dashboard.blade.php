@@ -139,7 +139,7 @@ html, body {
                 <div class="flex flex-col sm:flex-row items-center gap-6">
                     <div class="relative">
                         <img class="w-24 h-24 rounded-full border-4 border-white shadow-xl ring-4 ring-green-100"
-                         src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('images/foto-formal.png') }}"
+                         src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('images/p.png') }}"
                          alt="Foto Profil"> 
                         <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
                             <i class="fas fa-check text-white text-xs"></i>

@@ -36,8 +36,8 @@
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Foto Profil</h2>
                         <div class="flex items-center space-x-6">
                             <div class="shrink-0">
-                                <img id="previewAvatar" class="h-24 w-24 object-cover rounded-full shadow-sm" 
-                                     src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" 
+                                <img id="previewAvatar" class="h-24 w-24 object-cover rounded-full shadow-sm transparent-bg" 
+                                     src="images/p.png" 
                                      alt="Current profile photo">
                             </div>
                             <div class="flex flex-col space-y-2">
