@@ -345,7 +345,7 @@
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <button class="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    Mulai Sekarang!
+                    Mulai Sekarang?
                 </button>
             </div>
         </div>
