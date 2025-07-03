@@ -40,7 +40,7 @@
                     <div class="md:w-1/4 p-4 flex justify-center">
                         <div class="relative">
                             <img class="h-32 w-32 rounded-full object-cover border-4 border-green-500" 
-                                 src="images/foto-formal.png" alt="Profile Photo">
+                                 src="images/p.png" alt="Profile Photo">
                             <div class="absolute bottom-0 right-0 bg-green-500 rounded-full p-1 border-2 border-white">
                                 <i class="fas fa-check text-white text-xs"></i>
                             </div>

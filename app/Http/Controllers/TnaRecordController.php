@@ -2,41 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TnaRecord;
 use Illuminate\Http\Request;
 
 class TnaRecordController extends Controller
 {
-    // app/Http/Controllers/TnaController.php
-namespace App\Http\Controllers;
-
-use App\Models\Staff;
-use App\Models\TnaRecord;
-use Illuminate\Http\Request;
-
-class TnaController extends Controller
-{
-    public function index()
-    {
-        return view('tna');
-    }
-
-    public function getStaff()
-    {
-        $staff = Staff::with(['position', 'department'])
-                    ->where('status', 'Aktif')
-                    ->get();
-        return response()->json($staff);
-    }
-
-    public function getTnaData()
-    {
-        $staffWithTna = Staff::with(['position', 'department', 'tnaRecords' => function($query) {
-            $query->orderBy('created_at', 'desc');
-        }])->where('status', 'Aktif')->get();
-
-        return response()->json($staffWithTna);
-    }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -74,7 +44,4 @@ class TnaController extends Controller
         TnaRecord::findOrFail($id)->delete();
         return response()->json(null, 204);
     }
-}
-
-
 }
