@@ -166,3 +166,53 @@ body {
         html {
         scrollbar-width: none;
         }
+        /* Navbar mobile optimization */
+@media (max-width: 768px) {
+    /* Existing mobile styles... */
+
+    /* Fix navbar alignment */
+    .navbar {
+        padding: 0.5rem 1rem !important;
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .navbar-logo {
+        height: 30px !important;
+        width: auto !important;
+    }
+
+    .navbar-date-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .navbar-date {
+        margin: 0 !important;
+        white-space: nowrap;
+    }
+
+    .navbar-icons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Adjust main content padding to account for fixed navbar */
+    main {
+        padding-top: 4rem !important;
+    }
+}
+
+/* Ensure navbar stays fixed on mobile */
+@media (max-width: 768px) {
+    .navbar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+    }
+}

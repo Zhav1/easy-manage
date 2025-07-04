@@ -16,105 +16,64 @@
         }
         
         /* Mobile optimizations */
-        @media (max-width: 768px) {
-            main.pl-60.pr-5 {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
+        /* Navbar mobile optimization */
+/* Mobile optimization */
+@media (max-width: 768px) {
+    /* Adjust the main content spacing */
+    main {
+        padding-top: 1rem !important; /* Reduce top padding */
+    }
 
-            .glass-effect.rounded-3xl.p-8 {
-                padding: 1.5rem;
-            }
+    /* Header card adjustments */
+    .glass-effect {
+        margin-top: 0.5rem !important;
+        padding: 1rem !important;
+    }
 
-            .flex.items-center.justify-between {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
+    /* Stats cards grid */
+    .grid.grid-cols-2 {
+        gap: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
 
-            .flex.space-x-4 {
-                width: 100%;
-                justify-content: space-between;
-                gap: 0.5rem;
-            }
+    /* Section titles */
+    h2.text-xl {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.75rem !important;
+    }
 
-            .grid.grid-cols-1.md\:grid-cols-4.gap-6 {
-                grid-template-columns: 1fr 1fr;
-                gap: 0.75rem;
-            }
+    /* Reduce space between sections */
+    .card-hover {
+        margin-bottom: 1rem !important;
+    }
 
-            .card-hover.bg-white.rounded-3xl {
-                padding: 1.5rem;
-            }
+    /* Table adjustments */
+    table {
+        font-size: 0.8rem !important;
+    }
 
-            table.min-w-full.text-sm {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch;
-            }
+    /* Navbar fixes */
+    .navbar {
+        height: 50px !important;
+        padding: 0 1rem !important;
+    }
 
-            .flex.items-center.space-x-4 {
-                flex-direction: column;
-                gap: 0.75rem;
-                width: 100%;
-            }
+    /* Content adjustments to compensate for navbar */
+    .mt-12 {
+        margin-top: 3rem !important;
+    }
+}
 
-            #rekaptitulasiSearchInput,
-            #rekaptitulasiFilterSelect {
-                width: 100%;
-            }
-
-            .animated-button {
-                padding: 0.75rem 1rem;
-                font-size: 0.875rem;
-                width: 100%;
-            }
-
-            .performanceEvaluationModal,
-            .performanceDetailModal,
-            .staffManagementModal {
-                width: 95% !important;
-                max-width: 95% !important;
-                padding: 1rem;
-            }
-            
-            /* Adjust header sizes */
-            h1.text-4xl {
-                font-size: 1.75rem;
-            }
-            
-            h2.text-2xl {
-                font-size: 1.5rem;
-            }
-            
-            /* Card content adjustments */
-            .bg-white.rounded-2xl.p-6 {
-                padding: 1rem;
-            }
-            
-            .text-3xl {
-                font-size: 1.5rem;
-            }
-            
-            /* Modal adjustments */
-            .bg-white.rounded-lg.p-5 {
-                padding: 1rem;
-            }
-            
-            /* Button spacing */
-            .flex.space-x-4 {
-                gap: 0.5rem;
-            }
-            
-            /* Table cell padding */
-            .px-6.py-4 {
-                padding-left: 0.75rem;
-                padding-right: 0.75rem;
-                padding-top: 0.5rem;
-                padding-bottom: 0.5rem;
-            }
-        }
+/* Ensure navbar stays fixed on mobile */
+@media (max-width: 768px) {
+    .navbar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+    }
+}
         
         /* Global scrollbar hiding */
         html {
@@ -181,8 +140,8 @@
     </script>
     @include('components.sidebar-navbar')
     
-    <div class="p-4 md:p-0">
-        <main class="md:pl-60 md:pr-5 flex-1 px-4 md:px-6 py-4 md:py-8 mt-12 md:mt-0">
+    <div class="p-4 md:p-0 mt-8">
+        <main class="md:pl-60 md:pr-5 flex-1 px-4 md:px-6 py-4 md:py-8 md:mt-0">
             <!-- Header Card -->
             <div class="glass-effect rounded-3xl p-6 md:p-8 mb-6 md:mb-8 shadow-xl animate-fade-in-up">
                 <div class="flex items-center justify-between flex-col md:flex-row gap-4 md:gap-0">

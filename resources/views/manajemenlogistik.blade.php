@@ -40,7 +40,7 @@ html, body {
             <!-- Header -->
             <div class="text-center mb-10">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
-                    <h1 class="text-3xl font-bold text-green-500 tracking-wide">Manajemen Logistik</h1>
+                    <h1 class="text-3xl font-bold text-black tracking-wide">Manajemen Logistik</h1>
                 </div>
                 
                 <!-- Logo -->

@@ -6,285 +6,319 @@
     <title>Profil Kepala Ruangan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </head>
 <body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+
     @include('components.sidebar-navbar')
-    <div class="container mx-auto p-4 pt-20 pl-60 pr-5">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8 animate-fadeIn">
-            <h1 class="text-3xl font-bold text-gray-800">Profil Kepala Ruangan</h1>
-            <div class="flex items-center space-x-4">
-                <button onclick="openSettingsModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                    <i class="fas fa-cog mr-2"></i>Pengaturan
-                </button>
+
+    {{-- ALERT sukses --}}
+    @if (session('success'))
+        <div class="fixed top-20 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="container mx-auto pt-20 px-4 sm:pl-64 sm:pr-5 animate-fadeIn">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Profil Kepala Ruangan</h1>
+            <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                <label for="settings-modal" class="cursor-pointer bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg shadow-md transition-all duration-200 text-sm md:text-base w-full md:w-auto text-center">
+                    <i class="fas fa-cog mr-1 md:mr-2"></i>Pengaturan
+                </label>
             </div>
         </div>
 
-        <!-- Profile Card -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8 animate-fadeIn">
-            <div class="md:flex">
-                <div class="md:w-1/4 p-6 flex justify-center">
-                    <div class="relative">
-                       <img id="profile-photo"
-     class="h-40 w-40 rounded-full object-cover border-4 border-green-500"
-     src="{{ $user->profile_photo_url }}"
-     alt="Foto Profil">
-
+        {{-- KARTU PROFIL --}}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+            <div class="bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 h-16 md:h-24"></div>
+            <div class="relative px-4 md:px-6 pb-6">
+                <div class="flex flex-col items-center md:flex-row md:items-end -mt-12">
+                    <div class="flex-shrink-0">
+                        <img class="h-24 w-24 md:h-32 md:w-32 rounded-full object-cover border-4 border-white shadow-lg"
+                             src="{{ $user->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : asset('images/p.png') }}"
+                             alt="Foto Profil">
                     </div>
-                </div>
-                <div class="md:w-3/4 p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h2 id="profile-name" class="text-2xl font-bold text-gray-800">Dr. Ahmad Budiman, S.Kep, Ns</h2>
-                            <p id="profile-position" class="text-gray-600 mb-2">Kepala Ruangan</p>
-                            <div class="flex items-center text-gray-600 mb-2">
-                                <i class="fas fa-hospital mr-2"></i>
-                                <span id="profile-hospital">RSUP H. Adam Malik</span>
+                    <div class="mt-4 md:mt-0 md:ml-6 w-full text-center md:text-left">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-start">
+                            <div class="mb-2 md:mb-0">
+                                <h2 class="text-xl md:text-2xl font-bold text-gray-800">{{ $user->name }}</h2>
+                                <p class="text-gray-600 font-medium text-sm md:text-base">{{ $user->position }}</p>
                             </div>
-                            <div class="flex items-center text-gray-600">
-                                <i class="fas fa-door-open mr-2"></i>
-                                <span id="profile-department">IGD (Instalasi Gawat Darurat)</span>
+                            <span class="mt-2 md:mt-0 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs md:text-sm font-medium inline-flex items-center justify-center">
+                                <i class="fas fa-circle text-green-500 text-xs mr-1"></i>
+                                Aktif
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Info Detail --}}
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-id-card text-blue-600 text-sm md:text-base"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-xs md:text-sm text-gray-500">ID Pegawai</p>
+                                <p class="font-semibold text-gray-800 text-sm md:text-base">{{ Auth::user()->id }}</p>
                             </div>
                         </div>
-                        <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                            Aktif
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <div class="bg-gray-50 p-4 rounded-lg inline-block">
-                            <p class="text-gray-500 text-sm">Total Staff</p>
-                            <p class="text-2xl font-bold">{{ auth::user()->staff->count() }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Ruangan Sections -->
-        <div class="space-y-6">
-            <div class="bg-white rounded-xl shadow-md overflow-hidden animate-fadeIn">
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-800">
-                        <i class="fas fa-procedures mr-2 text-blue-600"></i>
-                        Ruangan <span id="display-department">IGD (Instalasi Gawat Darurat)</span>
-                    </h3>
-                </div>
-                
-                <div class="px-6 pb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Staff Kasur -->
-                       
-                        
-                        <!-- Staff Kebidanan -->
-                       
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-hospital text-green-600 text-sm md:text-base"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-xs md:text-sm text-gray-500">Rumah Sakit</p>
+                                <p class="font-semibold text-gray-800 text-sm md:text-base">{{ $user->hospital->name ?? '-' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-door-open text-purple-600 text-sm md:text-base"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-xs md:text-sm text-gray-500">Ruangan</p>
+                                <p class="font-semibold text-gray-800 text-sm md:text-base">{{ $user->department->name ?? '-' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-envelope text-orange-600 text-sm md:text-base"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-xs md:text-sm text-gray-500">Email</p>
+                                <p class="font-semibold text-gray-800 text-sm md:text-base break-all">{{ $user->email }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar text-indigo-600 text-sm md:text-base"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-xs md:text-sm text-gray-500">Bergabung</p>
+                                <p class="font-semibold text-gray-800 text-sm md:text-base">{{ $user->created_at->format('d M Y') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                            <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600 text-sm md:text-base"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-xs md:text-sm text-gray-500">Total Staff</p>
+                                <p class="text-xl md:text-2xl font-bold text-blue-600">{{ Auth::user()->staff->count() }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Profil</h3>
-                <div class="mt-2 px-7 py-3">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-name">
-                            Nama
-                        </label>
-                        <input id="edit-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" value="Dr. Ahmad Budiman, S.Kep, Ns">
+    {{-- MODAL PENGATURAN --}}
+    <input type="checkbox" id="settings-modal" class="hidden peer" />
+    <div class="fixed inset-0 bg-gray-600/50 hidden peer-checked:block z-50"></div>
+    <div class="fixed inset-0 flex items-center justify-center hidden peer-checked:flex z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="border-b px-4 py-3 md:px-6 md:py-4 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 class="font-semibold text-lg flex items-center">
+                    <i class="fas fa-cog mr-2 text-gray-600"></i>
+                    Pengaturan Akun
+                </h3>
+                <label for="settings-modal" class="cursor-pointer text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </label>
+            </div>
+
+            <div class="px-4 py-4 md:px-6 md:py-4 space-y-3">
+                {{-- Edit Profil --}}
+                <label for="edit-profile-modal" onclick="document.getElementById('settings-modal').checked = false;" class="w-full flex items-center p-3 text-left bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors duration-200 cursor-pointer">
+                    <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-user-edit text-purple-600 text-sm md:text-base"></i>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-position">
-                            Jabatan
-                        </label>
-                        <input id="edit-position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" value="Kepala Ruangan">
+                    <div class="ml-3 flex-1">
+                        <p class="font-medium text-gray-800 text-sm md:text-base">Edit Profil</p>
+                        <p class="text-xs md:text-sm text-gray-500">Ubah data profil Anda</p>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-hospital">
-                            Rumah Sakit
-                        </label>
-                        <select id="edit-hospital" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="RSUP H. Adam Malik">RSUP H. Adam Malik</option>
-                            <option value="RSU dr. Pirngadi Medan">RSU dr. Pirngadi Medan</option>
-                            <option value="RSUD Deli Serdang">RSUD Deli Serdang</option>
-                            <option value="RS Bhayangkara TK II Medan">RS Bhayangkara TK II Medan</option>
-                            <option value="RS Haji Medan">RS Haji Medan</option>
-                            <option value="RS Royal Prima Medan">RS Royal Prima Medan</option>
-                            <option value="RS Siloam Medan">RS Siloam Medan</option>
-                            <option value="RS Universitas Sumatera Utara">RS Universitas Sumatera Utara</option>
-                            <option value="RS Mitra Sejati">RS Mitra Sejati</option>
-                            <option value="RS Bunda Thamrin">RS Bunda Thamrin</option>
-                        </select>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </label>
+
+                {{-- Ganti Password --}}
+                <a href="{{ route('password.change') }}" class="w-full flex items-center p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                    <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-key text-blue-600 text-sm md:text-base"></i>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-department">
-                            Ruangan
-                        </label>
-                        <select id="edit-department" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="IGD (Instalasi Gawat Darurat)">IGD (Instalasi Gawat Darurat)</option>
-                            <option value="ICU (Intensive Care Unit)">ICU (Intensive Care Unit)</option>
-                            <option value="NICU (Neonatal ICU)">NICU (Neonatal ICU)</option>
-                            <option value="PICU (Pediatric ICU)">PICU (Pediatric ICU)</option>
-                            <option value="OK (Operasi)">OK (Operasi)</option>
-                            <option value="Ruang VIP">Ruang VIP</option>
-                            <option value="Ruang Kelas 1">Ruang Kelas 1</option>
-                            <option value="Ruang Kelas 2">Ruang Kelas 2</option>
-                            <option value="Ruang Kelas 3">Ruang Kelas 3</option>
-                            <option value="Ruang Isolasi">Ruang Isolasi</option>
-                            <option value="Ruang Persalinan">Ruang Persalinan</option>
-                            <option value="Ruang Perawatan">Ruang Perawatan</option>
-                            <option value="Rawat Jalan">Rawat Jalan</option>
-                            <option value="Laboratorium">Laboratorium</option>
-                            <option value="Radiologi">Radiologi</option>
-                            <option value="Fisioterapi">Fisioterapi</option>
-                            <option value="Hemodialisa">Hemodialisa</option>
-                            <option value="Kamar Mayat">Kamar Mayat</option>
-                        </select>
+                    <div class="ml-3 flex-1">
+                        <p class="font-medium text-gray-800 text-sm md:text-base">Ganti Password</p>
+                        <p class="text-xs md:text-sm text-gray-500">Ubah password untuk keamanan</p>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-photo">
-                            Foto Profil
-                        </label>
-                        <input id="edit-photo" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="file" accept="image/*">
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </a>
+
+                {{-- Logout --}}
+                <form action="{{ route('logout') }}" method="POST" class="w-full">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center p-3 text-left bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors duration-200">
+                        <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-sign-out-alt text-yellow-600 text-sm md:text-base"></i>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="font-medium text-gray-800 text-sm md:text-base">Keluar</p>
+                            <p class="text-xs md:text-sm text-gray-500">Logout dari akun</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </button>
+                </form>
+
+                {{-- Hapus Akun --}}
+                <label for="delete-modal" onclick="document.getElementById('settings-modal').checked = false;" class="w-full flex items-center p-3 text-left bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200 cursor-pointer">
+                    <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-trash text-red-600 text-sm md:text-base"></i>
                     </div>
+                    <div class="ml-3 flex-1">
+                        <p class="font-medium text-gray-800 text-sm md:text-base">Hapus Akun</p>
+                        <p class="text-xs md:text-sm text-gray-500">Hapus akun secara permanen</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL EDIT PROFIL --}}
+    <input type="checkbox" id="edit-profile-modal" class="hidden peer-edit" />
+    <div class="fixed inset-0 bg-gray-600/50 hidden peer-edit-checked:block z-50"></div>
+    <div class="fixed inset-0 flex items-start justify-center hidden peer-edit-checked:flex z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl mt-10 md:mt-24 max-h-[90vh] overflow-y-auto">
+            <div class="border-b px-4 py-3 md:px-6 md:py-4 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 class="font-semibold text-lg">Edit Profil</h3>
+                <label for="edit-profile-modal" class="cursor-pointer text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </label>
+            </div>
+
+            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="px-4 py-4 md:px-6 md:py-4 space-y-4">
+                @csrf
+                @method('PATCH')
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama</label>
+                    <input type="text" name="name" value="{{ old('name', $user->name) }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base p-2">
+                    @error('name') <p class="text-red-600 text-xs">{{ $message }}</p> @enderror
                 </div>
-                <div class="items-center px-4 py-3">
-                    <button onclick="saveProfileChanges()" class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Simpan Perubahan
-                    </button>
-                    <button onclick="closeSettingsModal()" class="ml-3 px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Rumah Sakit</label>
+                    <select name="hospital_id"
+                            class="mt-1 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base p-2">
+                        @foreach ($hospitals as $hospital)
+                            <option value="{{ $hospital->id }}"
+                                {{ $hospital->id == old('hospital_id', $user->hospital_id) ? 'selected' : '' }}>
+                                {{ $hospital->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('hospital_id') <p class="text-red-600 text-xs">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Ruangan</label>
+                    <select name="department_id"
+                            class="mt-1 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base p-2">
+                        @foreach ($departments as $department)
+                            <option value="{{ $department->id }}"
+                                {{ $department->id == old('department_id', $user->department_id) ? 'selected' : '' }}>
+                                {{ $department->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('department_id') <p class="text-red-600 text-xs">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Foto Profil (opsional)</label>
+                    <input type="file" name="photo"
+                           class="mt-1 block w-full text-gray-700 text-sm md:text-base p-2 border rounded-md">
+                    @error('photo') <p class="text-red-600 text-xs">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="pt-3 flex flex-col-reverse md:flex-row justify-end gap-2 md:space-x-3 sticky bottom-0 bg-white py-3 border-t">
+                    <label for="edit-profile-modal"
+                           class="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md text-center">
                         Batal
+                    </label>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                        Simpan
                     </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- MODAL KONFIRMASI HAPUS AKUN --}}
+    <input type="checkbox" id="delete-modal" class="hidden peer-delete" />
+    <div class="fixed inset-0 bg-gray-600/50 hidden peer-delete-checked:block z-50"></div>
+    <div class="fixed inset-0 flex items-center justify-center hidden peer-delete-checked:flex z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md">
+            <div class="px-4 py-6 md:px-6 md:py-6 text-center">
+                <div class="w-12 h-12 md:w-16 md:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl md:text-2xl"></i>
+                </div>
+                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-2">Konfirmasi Hapus Akun</h3>
+                <p class="text-xs md:text-sm text-gray-600 mb-4 md:mb-6">Apakah Anda yakin ingin menghapus akun ini? Tindakan ini tidak dapat dibatalkan.</p>
+                
+                <div class="flex flex-col md:flex-row gap-2 md:space-x-3">
+                    <label for="delete-modal" class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md cursor-pointer text-center text-sm md:text-base">
+                        Batal
+                    </label>
+                    <form action="{{ route('profile.delete') }}" method="POST" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm md:text-base">
+                            Ya, Hapus
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Function to open settings modal
-        function openSettingsModal() {
-            // Set current values in the form
-            document.getElementById('edit-name').value = document.getElementById('profile-name').textContent;
-            document.getElementById('edit-position').value = document.getElementById('profile-position').textContent;
-            document.getElementById('edit-hospital').value = document.getElementById('profile-hospital').textContent;
-            document.getElementById('edit-department').value = document.getElementById('profile-department').textContent;
-            
-            document.getElementById('settingsModal').classList.remove('hidden');
-        }
-
-        // Function to close settings modal
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
-        }
-
-        // Function to save profile changes
-        function saveProfileChanges() {
-            // Get values from form
-            const newName = document.getElementById('edit-name').value;
-            const newPosition = document.getElementById('edit-position').value;
-            const newHospital = document.getElementById('edit-hospital').value;
-            const newDepartment = document.getElementById('edit-department').value;
-            const photoFile = document.getElementById('edit-photo').files[0];
-            
-            // Update profile information
-            document.getElementById('profile-name').textContent = newName;
-            document.getElementById('profile-position').textContent = newPosition;
-            document.getElementById('profile-hospital').textContent = newHospital;
-            document.getElementById('profile-department').textContent = newDepartment;
-            document.getElementById('display-department').textContent = newDepartment;
-            
-            // Update photo if a new one was selected
-            if (photoFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profile-photo').src = e.target.result;
-                    
-                    // In a real application, you would upload the photo to your server here
-                    // and update the database with the new photo path
-                };
-                reader.readAsDataURL(photoFile);
-            }
-            
-            // In a real application, you would send this data to your server
-            // to update the database. Example:
-            /*
-            const formData = new FormData();
-            formData.append('name', newName);
-            formData.append('position', newPosition);
-            formData.append('hospital', newHospital);
-            formData.append('department', newDepartment);
-            if (photoFile) {
-                formData.append('photo', photoFile);
-            }
-            
-            fetch('/api/update-profile', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Profile updated successfully');
-                    closeSettingsModal();
-                } else {
-                    alert('Error updating profile');
-                }
-            });
-            */
-            
-            closeSettingsModal();
-        }
-
-        // Initialize with current values when page loads
+        // Handle modal toggles
         document.addEventListener('DOMContentLoaded', function() {
-            const elements = document.querySelectorAll('.animate-fadeIn');
-            elements.forEach((el, index) => {
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                }, index * 100);
+            // Auto-hide success message after 5 seconds
+            setTimeout(() => {
+                const successMessage = document.querySelector('.fixed.top-20.right-5');
+                if (successMessage) {
+                    successMessage.style.display = 'none';
+                }
+            }, 5000);
+            
+            // Close modals when clicking outside
+            document.querySelectorAll('.fixed.inset-0.bg-gray-600\\/50').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        // Handle all modal types
+                        if (this.classList.contains('peer-checked:block')) {
+                            document.getElementById('settings-modal').checked = false;
+                        } else if (this.classList.contains('peer-edit-checked:block')) {
+                            document.getElementById('edit-profile-modal').checked = false;
+                        } else if (this.classList.contains('peer-delete-checked:block')) {
+                            document.getElementById('delete-modal').checked = false;
+                        }
+                    }
+                });
             });
         });
     </script>
-
-    <style>
-        .animate-fadeIn {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-@media (max-width: 768px) {
-    .pl-60 {
-        padding-left: 1rem;
-    }
-    .pr-5 {
-        padding-right: 1rem;
-    }
-}
-
-
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fadeIn {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-    </style>
 </body>
 </html>

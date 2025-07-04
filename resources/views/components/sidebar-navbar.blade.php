@@ -29,7 +29,7 @@
           <a href="/" class="text-black font-semibold"><i class="fas fa-home mr-1 text-green-500"></i>Dashboard</a>
         @endif
       </div>
-      <div class="flex items-center gap-4 ms-3">
+      <div class="flex items-center gap-4 ms-auto pr-4">
         <!-- Tanggal Realtime -->
         <div class="text-sm text-gray-600 font-medium">
           <script>
@@ -39,7 +39,8 @@
               document.getElementById("realtime-date").innerText = now.toLocaleDateString('id-ID', options);
             });
           </script>
-          <span id="realtime-date"></span>
+          <span id="realtime-date" class="text-xs md:text-sm text-gray-600 font-medium whitespace-nowrap"></span>
+
         </div>
         <!-- Foto Profil -->
         <div>
