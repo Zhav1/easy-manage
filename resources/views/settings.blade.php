@@ -11,7 +11,19 @@
 <body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     <!-- Navbar -->
   @include('components.sidebar-navbar')
-  
+  <style>
+    @media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
+
+  </style>
     <!-- Main Content -->
     <div class="p-4 pt-20 pl-60 pr-5">
         <div>
@@ -36,8 +48,8 @@
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Foto Profil</h2>
                         <div class="flex items-center space-x-6">
                             <div class="shrink-0">
-                                <img id="previewAvatar" class="h-24 w-24 object-cover rounded-full shadow-sm" 
-                                     src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" 
+                                <img id="previewAvatar" class="h-24 w-24 object-cover rounded-full shadow-sm transparent-bg" 
+                                     src="images/p.png" 
                                      alt="Current profile photo">
                             </div>
                             <div class="flex flex-col space-y-2">

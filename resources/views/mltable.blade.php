@@ -127,7 +127,7 @@
                 <!-- Kolom 1 -->
                 <div class="space-y-4">
                     <!-- Unit/Bagian -->
-                    <div>
+                    {{-- <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                             Unit/Bagian
                             <span class="text-red-500 ml-1">*</span>
@@ -141,7 +141,8 @@
                             <option value="Laboratorium">Laboratorium</option>
                             <option value="Radiologi">Radiologi</option>
                         </select>
-                    </div>
+                    </div> --}}
+                    <input type="hidden" name="department_id" value="{{ auth()->user()->department_id }}">
                     
                     <!-- Kategori -->
                     <div>
@@ -277,6 +278,7 @@
         </form>
     </div>
 </div>
+
 <script>
 function openAddItemModal() {
     document.getElementById('addItemModal').classList.remove('hidden');
@@ -295,6 +297,20 @@ function closeAddItemModal() {
                 event.preventDefault();
             }
         }
+        
     </script>
+    <style>
+        @media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
+
+    </style>
 </body>
 </html>

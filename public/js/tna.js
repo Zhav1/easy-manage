@@ -501,3 +501,4 @@ window.exportToPdf = async function() {
     // For PDF export, you'd typically use a server-side solution or a more robust client-side library like jsPDF.
     // This is a placeholder.
 };
+
