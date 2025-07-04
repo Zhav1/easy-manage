@@ -13,6 +13,15 @@ use App\Http\Controllers\QualityInspectionController;
 use App\Http\Controllers\PerformanceEvaluationController;
 use App\Http\Controllers\TrainingNeedController;    
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use App\Http\Controllers\TnaController;
+
+
+// Training Needs
+Route::apiResource('training-needs', TrainingNeedController::class);
+
+// TNA Routes (tambahan)
+Route::get('/tna/staff', [TnaController::class, 'getStaff']);
+Route::get('/tna/records', [TnaController::class, 'getTnaData']);
 
 Route::middleware('auth:sanctum')->post('/token', function (Request $request) {
     $token = $request->user()->createToken('api-token')->plainTextToken;

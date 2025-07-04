@@ -11,7 +11,19 @@
 <body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     <!-- Navbar -->
   @include('components.sidebar-navbar')
-  
+  <style>
+    @media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
+
+  </style>
     <!-- Main Content -->
     <div class="p-4 pt-20 pl-60 pr-5">
         <div>

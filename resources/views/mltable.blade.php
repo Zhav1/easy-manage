@@ -297,6 +297,20 @@ function closeAddItemModal() {
                 event.preventDefault();
             }
         }
+        
     </script>
+    <style>
+        @media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
+
+    </style>
 </body>
 </html>

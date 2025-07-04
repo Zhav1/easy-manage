@@ -14,7 +14,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="{{ asset('js/indikator-mutu.js') }}"></script>
 </head>
+<style>
+    @media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
 
+
+
+</style>
 <body class="bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     <script>
         // This token is used for Bearer token authentication.

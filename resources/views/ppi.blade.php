@@ -26,6 +26,16 @@
   width: 0px;          /* hilang sama sekali */
   background: transparent;
 }
+@media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
 
 /* Firefox */
 html, body {

@@ -2,12 +2,48 @@
 <html lang="en" class="h-full bg-white w-screen">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> 
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>Laporan Kepala Ruangan</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    @media (max-width: 768px) {
+  .flex.items-center.gap-6 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .flex.gap-4 {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .tab-btn {
+    padding: 12px 8px;
+    font-size: 0.8rem;
+  }
+  
+  main.pl-60.pr-5 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .glass-effect.rounded-2xl.p-8 {
+    padding: 1.5rem;
+  }
+  
+  table.min-w-full.text-sm {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .grid.grid-cols-1.lg\:grid-cols-2.gap-6.mb-6,
+  .grid.grid-cols-1.md\:grid-cols-3.gap-6.mb-6 {
+    grid-template-columns: 1fr;
+  }
+}
     .card-hover {
       transition: all 0.3s ease;
     }
@@ -49,7 +85,7 @@
 <body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 text-gray-800">
   @include('components.sidebar-navbar')
   <div class="p-4 text-black">
-    <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
+    <main class="pl-4 md:pl-60 pr-4 md:pr-5 flex-1 px-2 md:px-6 py-4 md:py-8 mt-4 md:mt-8">
       <!-- Header Profil -->
       <div class="glass-effect rounded-2xl p-8 mb-8 shadow-lg">
         <div class="flex items-center gap-6">
@@ -82,6 +118,7 @@
       </div>
 
       <!-- Tab Navigation -->
+       
       <div class="bg-white rounded-2xl shadow mb-8">
         <div class="flex border-b overflow-x-auto">
           <button onclick="showTab('catatan')" class="tab-btn px-6 py-4 font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">

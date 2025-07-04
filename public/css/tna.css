@@ -75,3 +75,118 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         }
+        /* Base styles for all devices */
+.management-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.management-table th, 
+.management-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tna-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tna-table th,
+.tna-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 640px) {
+  .management-table th, 
+  .management-table td {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+  
+  .tna-table th,
+  .tna-table td {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+  
+  .btn-action-mobile {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .stats-card {
+    padding: 1rem;
+  }
+  
+  .stats-icon {
+    padding: 0.5rem;
+  }
+  
+  .modal-content {
+    padding: 1rem;
+  }
+  
+  .modal-title {
+    font-size: 1.25rem;
+  }
+}
+
+/* Tablet and small desktop styles */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .management-table th, 
+  .management-table td {
+    padding: 10px 6px;
+    font-size: 0.875rem;
+  }
+  
+  .tna-table th,
+  .tna-table td {
+    padding: 10px 6px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .management-table th, 
+  .management-table td {
+    padding: 12px 8px;
+    font-size: 1rem;
+  }
+  
+  .tna-table th,
+  .tna-table td {
+    padding: 12px 8px;
+    font-size: 1rem;
+  }
+}
+
+/* Modal responsiveness */
+@media (max-width: 640px) {
+  #staff-modal .grid-cols-2,
+  #tna-modal .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  #staff-modal .col-span-2,
+  #tna-modal .col-span-2 {
+    grid-column: span 1;
+  }
+}
+
+/* Sidebar adjustment for mobile */
+@media (max-width: 768px) {
+  main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .header-title {
+    font-size: 1.5rem;
+  }
+}

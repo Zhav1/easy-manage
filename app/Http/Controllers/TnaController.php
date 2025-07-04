@@ -8,10 +8,7 @@ use Illuminate\Http\Request;
 
 class TnaController extends Controller
 {
-    public function index()
-    {
-        return view('tna');
-    }
+   
 
     public function getStaff()
     {

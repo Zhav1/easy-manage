@@ -450,6 +450,53 @@ html, body {
         .animate-fadeIn {
             animation: fadeIn 0.6s ease-out;
         }
+        /* Responsive adjustments */
+@media (max-width: 640px) {
+    .fc-header-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .fc-toolbar-chunk {
+        margin-bottom: 0.5rem;
+    }
+    
+    .fc-today-button {
+        margin-top: 0.5rem;
+    }
+    
+    .fc-col-header-cell-cushion {
+        font-size: 0.7rem;
+        padding: 2px;
+    }
+    
+    .fc-daygrid-day-number {
+        font-size: 0.7rem;
+    }
+    
+    .fc-event-time, .fc-event-title {
+        font-size: 0.6rem;
+    }
+}
+
+/* Mobile sidebar adjustment */
+@media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
+
+@media (max-width: 640px) {
+    .staff-table th, .staff-table td {
+        padding: 6px 4px;
+        font-size: 0.75rem;
+    }
+}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </body>

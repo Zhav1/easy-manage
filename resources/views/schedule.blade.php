@@ -16,6 +16,17 @@
     window.authToken = "{{ session('token') }}";
   </script>
   <style>
+    @media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
+
         /* Chrome, Safari, Opera */
 ::-webkit-scrollbar {
   width: 0px;          /* hilang sama sekali */

@@ -132,7 +132,7 @@ html, body {
 <body class="h-full overflow-hidden  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     @include('components.sidebar-navbar')
     
-    <div class="sm:ml-64 mt-10 h-full overflow-hidden">
+    <div class="sm:ml-64  mt-3 h-full overflow-hidden">
         <main class="h-[calc(100vh-4rem)] overflow-y-auto scrollable-content px-4 sm:px-6 py-8 mt-14" aria-label="Main content">
             <!-- Welcome Section -->
             <section aria-labelledby="welcome-heading" class="glass-effect rounded-2xl p-6 sm:p-8 mb-8 shadow-lg">
@@ -345,34 +345,38 @@ html, body {
             <section aria-labelledby="quick-actions-heading" class="mt-10 glass-effect rounded-2xl p-6 shadow-lg">
                 <h3 id="quick-actions-heading" class="text-xl font-bold text-gray-900 mb-4">Aksi Cepat</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                    <button class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2" aria-hidden="true">
-                            <i class="fas fa-plus text-purple-600"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">Tambah Jadwal</span>
-                    </button>
-                    
-                    <button class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center mb-2" aria-hidden="true">
-                            <i class="fas fa-bell text-red-600"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">Notifikasi</span>
-                    </button>
-                    
-                    <button class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-2" aria-hidden="true">
-                            <i class="fas fa-file-alt text-teal-600"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">Lihat Laporan</span>
-                    </button>
-                    
-                    <button class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-2" aria-hidden="true">
-                            <i class="fas fa-cog text-indigo-600"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">Pengaturan</span>
-                    </button>
-                </div>
+    <!-- Tombol Tambah Jadwal -->
+    <a href="/dinas" class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2" aria-hidden="true">
+            <i class="fas fa-plus text-purple-600"></i>
+        </div>
+        <span class="text-sm font-medium text-gray-700">Tambah Jadwal</span>
+    </a>
+    
+    <!-- Tombol Notifikasi -->
+    <a href="/notifikasi" class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center mb-2" aria-hidden="true">
+            <i class="fas fa-bell text-red-600"></i>
+        </div>
+        <span class="text-sm font-medium text-gray-700">Notifikasi</span>
+    </a>
+    
+    <!-- Tombol Lihat Laporan -->
+    <a href="/laporan" class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-2" aria-hidden="true">
+            <i class="fas fa-file-alt text-teal-600"></i>
+        </div>
+        <span class="text-sm font-medium text-gray-700">Lihat Laporan</span>
+    </a>
+    
+    <!-- Tombol Pengaturan -->
+    <a href="/profile" class="flex flex-col items-center p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-2" aria-hidden="true">
+            <i class="fas fa-cog text-indigo-600"></i>
+        </div>
+        <span class="text-sm font-medium text-gray-700">Pengaturan</span>
+    </a>
+</div>
             </section>
         </main>
     </div>
