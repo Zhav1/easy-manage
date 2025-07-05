@@ -29,7 +29,7 @@
           <a href="/" class="text-black font-semibold"><i class="fas fa-home mr-1 text-green-500"></i>Dashboard</a>
         @endif
       </div>
-      <div class="flex items-center gap-4 ms-3">
+      <div class="flex items-center gap-4 ms-auto pr-4">
         <!-- Tanggal Realtime -->
         <div class="text-sm text-gray-600 font-medium">
           <script>
@@ -39,19 +39,20 @@
               document.getElementById("realtime-date").innerText = now.toLocaleDateString('id-ID', options);
             });
           </script>
-          <span id="realtime-date"></span>
+          <span id="realtime-date" class="text-xs md:text-sm text-gray-600 font-medium whitespace-nowrap"></span>
+
         </div>
         <!-- Foto Profil -->
         <div>
           <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300" aria-expanded="false" data-dropdown-toggle="dropdown-user">
             <span class="sr-only">Open user menu</span>
-            <img class="w-8 h-8 rounded-full bg-white" src="images/p.png" alt="user photo">
+            <img class="w-8 h-8 rounded-full bg-white" src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('images/p.png') }}" alt="user photo">
           </button>
         </div>
         <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow" id="dropdown-user">
           <div class="px-4 py-3" role="none">
-            <p class="text-sm text-gray-900" role="none">Neil Sims</p>
-            <p class="text-sm font-medium text-gray-900 truncate" role="none">neil.sims@flowbite.com</p>
+            <p class="text-sm text-gray-900" role="none">{{ Auth::user()->name }}</p>
+            <p class="text-sm font-medium text-gray-900 truncate" role="none">{{ Auth::user()->email }}</p>
           </div>
           <ul class="py-1" role="none">
             <li>
@@ -72,9 +73,19 @@
 </nav>
 
 
-   <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
+  <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
-        <ul class="space-y-2 font-medium">
+        <!-- Search Bar -->
+        <div class="relative mb-4">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+            <input type="text" id="menu-search" class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari menu...">
+        </div>
+        
+        <ul class="space-y-2 font-medium" id="menu-list">
             <li>
                 <a href="/dashboard" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 active-menu">
                     <svg class="w-3 h-3 text-gray-500 transition duration-75" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
@@ -163,6 +174,41 @@
         </ul>
     </div>
 </aside>
+
+<script>
+// Script untuk menandai menu aktif berdasarkan URL
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+    const sidebarLinks = document.querySelectorAll('#logo-sidebar a');
+    
+    sidebarLinks.forEach(link => {
+        // Hapus class active-menu dari semua link terlebih dahulu
+        link.classList.remove('bg-gray-100');
+        
+        // Cek jika href link sesuai dengan path saat ini
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('bg-gray-100');
+        }
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('menu-search');
+    const menuItems = document.querySelectorAll('#menu-list li');
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        menuItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
 
 <script>
 // Script untuk menandai menu aktif berdasarkan URL

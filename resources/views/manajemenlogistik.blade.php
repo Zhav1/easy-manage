@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <title>Manajemen Logistik RS</title>
     <script src={{ asset('js/dashboard.js') }}></script>
     @vite('resources/css/app.css')
@@ -40,7 +41,7 @@ html, body {
             <!-- Header -->
             <div class="text-center mb-10">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
-                    <h1 class="text-3xl font-bold text-green-500 tracking-wide">Manajemen Logistik</h1>
+                    <h1 class="text-3xl font-bold text-black tracking-wide">Manajemen Logistik</h1>
                 </div>
                 
                 <!-- Logo -->
@@ -450,6 +451,53 @@ html, body {
         .animate-fadeIn {
             animation: fadeIn 0.6s ease-out;
         }
+        /* Responsive adjustments */
+@media (max-width: 640px) {
+    .fc-header-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .fc-toolbar-chunk {
+        margin-bottom: 0.5rem;
+    }
+    
+    .fc-today-button {
+        margin-top: 0.5rem;
+    }
+    
+    .fc-col-header-cell-cushion {
+        font-size: 0.7rem;
+        padding: 2px;
+    }
+    
+    .fc-daygrid-day-number {
+        font-size: 0.7rem;
+    }
+    
+    .fc-event-time, .fc-event-title {
+        font-size: 0.6rem;
+    }
+}
+
+/* Mobile sidebar adjustment */
+@media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
+
+@media (max-width: 640px) {
+    .staff-table th, .staff-table td {
+        padding: 6px 4px;
+        font-size: 0.75rem;
+    }
+}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </body>
