@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {{-- Font Awesome for Icons (like the plus icon) - IMPORTANT for new form button --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     {{-- Your ppi.js script (ensure this path is correct) --}}
     <script src="{{ asset('js/ppi.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('css/ppi.css') }}">
