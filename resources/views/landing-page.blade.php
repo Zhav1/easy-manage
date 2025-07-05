@@ -157,7 +157,7 @@
                     </h1>
                     
                     <p class="text-xl text-gray-600 mb-8 leading-relaxed">
-                        Pantau ruangan rumah sakit dan jadwal staff dengan mudah dari desktop. 
+                        Pantau ruangan dan jadwal staff dengan mudah dari desktop. 
                         Tau siapa yang piket hari ini, ruangan mana yang aktif, dan kelola semua dari satu tempat.
                     </p>
                     

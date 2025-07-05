@@ -114,7 +114,7 @@
                 <x-validation-errors class="mb-4" />
 
                 <div class="mb-4 text-sm text-gray-600">
-                    {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+                    {{ __('Lupa kata sandi Anda? Tidak masalah. Beri tahu kami alamat email Anda, dan kami akan mengirimkan tautan untuk mengatur ulang kata sandi yang memungkinkan Anda memilih yang baru.') }}
                 </div>
 
                 <!-- Password Reset Form -->
