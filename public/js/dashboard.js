@@ -90,7 +90,6 @@
 
         // Shortcut Cards
         // Jadwal Dinas
-        document.getElementById('jadwal-next-shift').textContent = `Shift berikutnya: ${dashboardData.jadwal_next_shift_time}`;
         document.getElementById('jadwal-active-nurses').textContent = `Tim: ${dashboardData.jadwal_active_nurses} perawat aktif`;
         
         // Manajemen Logistik

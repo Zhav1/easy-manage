@@ -115,10 +115,6 @@
                         
                         <div class="space-y-3 mb-6">
                             <div class="flex items-center text-sm text-gray-600">
-                                <i class="fas fa-clock text-green-500 w-4 mr-3" aria-hidden="true"></i>
-                                <span>Shift berikutnya: {{ $jadwalNextShiftTime }}</span>
-                            </div>
-                            <div class="flex items-center text-sm text-gray-600">
                                 <i class="fas fa-users text-green-500 w-4 mr-3" aria-hidden="true"></i>
                                 <span>Tim: {{ $jadwalActiveNurses }} perawat aktif</span>
                             </div>
