@@ -3,6 +3,7 @@
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\DepartmentController;
+    use App\Http\Controllers\DashboardController;
     use App\Http\Controllers\PositionController;
     use App\Http\Controllers\StaffController;
     use App\Http\Controllers\ScheduleController;
@@ -14,6 +15,8 @@
     use App\Http\Controllers\PerformanceEvaluationController;
     use App\Http\Controllers\TrainingNeedController;
     use App\Http\Controllers\CvcMonitoringController;
+    use App\Http\Controllers\NotificationController;
+    
 
     Route::middleware('auth:sanctum')->post('/token', function (Request $request) {
         $token = $request->user()->createToken('api-token')->plainTextToken;
@@ -101,4 +104,13 @@
         Route::get('/reports/staff-performance', [ReportController::class, 'getStaffPerformance']);
         Route::get('/reports/tna-data', [ReportController::class, 'getTnaData']);
         Route::get('/reports/quality-indicators', [ReportController::class, 'getQualityIndicators']);
+
+        // Notifications
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+        Route::patch('/notifications/{notification}/dismiss', [NotificationController::class, 'dismiss']);
+        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+
+        //Dashboard
+        Route::get('/dashboard-data', [DashboardController::class, 'index']);
     });

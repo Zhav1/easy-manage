@@ -513,30 +513,6 @@
                                             <canvas id="microorganismChart"></canvas>
                                         </div>
                                     </div>
-
-                                    <div class="bg-white p-4 rounded-lg shadow border border-gray-200 mt-6">
-                                        <h4 class="text-sm font-semibold text-gray-500 mb-3">FAKTOR RISIKO UTAMA</h4>
-                                        <div class="space-y-4" id="riskFactorsContainer">
-                                            <div>
-                                                <div class="flex justify-between mb-1">
-                                                    <span class="text-sm font-medium text-gray-700">Durasi Kateter >7 hari</span>
-                                                    <span class="text-sm font-medium text-gray-700" id="riskFactor1Percentage">--%</span>
-                                                </div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                                    <div class="bg-red-600 h-2.5 rounded-full" id="riskFactor1ProgressBar" style="width: 0%"></div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="flex justify-between mb-1">
-                                                    <span class="text-sm font-medium text-gray-700">Kepatuhan Hand Hygiene</span>
-                                                    <span class="text-sm font-medium text-gray-700" id="riskFactor2Percentage">--%</span>
-                                                </div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                                    <div class="bg-orange-500 h-2.5 rounded-full" id="riskFactor2ProgressBar" style="width: 0%"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div id="infeksi-history" class="tab-content infeksi-tab hidden pt-4">

@@ -1327,23 +1327,23 @@ async function loadInfectionAnalytics() {
             });
         }
 
-        // Risk factors update (still placeholder data for now)
-        const riskFactorsContainer = document.getElementById('riskFactorsContainer');
-        if (riskFactorsContainer) {
-            // These percentages are static as per discussion. For dynamic, backend must provide this.
-            const riskFactor1 = 78; // Example: Durasi Kateter >7 hari
-            const riskFactor2 = 65; // Example: Kepatuhan Hand Hygiene
+        // // Risk factors update (still placeholder data for now)
+        // const riskFactorsContainer = document.getElementById('riskFactorsContainer');
+        // if (riskFactorsContainer) {
+        //     // These percentages are static as per discussion. For dynamic, backend must provide this.
+        //     const riskFactor1 = 78; // Example: Durasi Kateter >7 hari
+        //     const riskFactor2 = 65; // Example: Kepatuhan Hand Hygiene
 
-            const riskFactor1PercentageElem = document.getElementById('riskFactor1Percentage');
-            if (riskFactor1PercentageElem) riskFactor1PercentageElem.textContent = `${riskFactor1}%`;
-            const riskFactor1ProgressBarElem = document.getElementById('riskFactor1ProgressBar');
-            if (riskFactor1ProgressBarElem) riskFactor1ProgressBarElem.style.width = `${riskFactor1}%`;
+        //     const riskFactor1PercentageElem = document.getElementById('riskFactor1Percentage');
+        //     if (riskFactor1PercentageElem) riskFactor1PercentageElem.textContent = `${riskFactor1}%`;
+        //     const riskFactor1ProgressBarElem = document.getElementById('riskFactor1ProgressBar');
+        //     if (riskFactor1ProgressBarElem) riskFactor1ProgressBarElem.style.width = `${riskFactor1}%`;
 
-            const riskFactor2PercentageElem = document.getElementById('riskFactor2Percentage');
-            if (riskFactor2PercentageElem) riskFactor2PercentageElem.textContent = `${riskFactor2}%`;
-            const riskFactor2ProgressBarElem = document.getElementById('riskFactor2ProgressBar');
-            if (riskFactor2ProgressBarElem) riskFactor2ProgressBarElem.style.width = `${riskFactor2}%`;
-        }
+        //     const riskFactor2PercentageElem = document.getElementById('riskFactor2Percentage');
+        //     if (riskFactor2PercentageElem) riskFactor2PercentageElem.textContent = `${riskFactor2}%`;
+        //     const riskFactor2ProgressBarElem = document.getElementById('riskFactor2ProgressBar');
+        //     if (riskFactor2ProgressBarElem) riskFactor2ProgressBarElem.style.width = `${riskFactor2}%`;
+        // }
 
     } catch (error) {
         console.error('Error loading infection analytics:', error);

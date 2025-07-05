@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -11,9 +12,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'web', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    });
+    Route::get('/dashboard', [DashboardController::class, 'index']);
     
     Route::get('/notifikasi', function () {
         return view('notifikasi');
@@ -77,9 +76,9 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
     });
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/password/change', [PasswordChangeController::class, 'edit'])
-        ->name('password.change');
-    Route::patch('/password/change', [PasswordChangeController::class, 'update'])
-        ->name('password.update');
-});
+// Route::middleware('auth')->group(function () {
+//     Route::get('/password/change', [PasswordChangeController::class, 'edit'])
+//         ->name('password.change');
+//     Route::patch('/password/change', [PasswordChangeController::class, 'update'])
+//         ->name('password.update');
+// });

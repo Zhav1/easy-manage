@@ -27,6 +27,7 @@ use App\Models\KepuasanForm;
 use App\Models\KrkForm;
 use App\Models\PoeForm;
 use App\Models\ScForm;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -205,20 +206,116 @@ class ReportController extends Controller
      */
     public function getLogisticsSummary()
     {
-        $totalStock = Logistic::sum('quantity');
-        $lowStockItems = Logistic::whereRaw('quantity <= min_stock_level')->count();
-        $outOfStockItems = Logistic::where('quantity', 0)->count();
+        $user = Auth::user();
 
-        $recentTransactions = Logistic::orderBy('last_updated', 'desc')->take(5)->get(); // Example: last 5 updated
+        // Ensure user has department_id
+        if (!$user->department_id) {
+            return response()->json([
+                'total_stock_available' => 0,
+                'limited_stock' => 0,
+                'low_stock' => 0,
+                'categorized_items' => [],
+                'categories_overview' => [], // For counts per category
+            ]);
+        }
+
+        $departmentId = $user->department_id;
+
+        // --- Summary Counts ---
+        $totalStock = Logistic::where('department_id', $departmentId)->sum('stock');
+        $limitedStock = Logistic::where('department_id', $departmentId)
+            ->where('stock', '<', 10)
+            ->where('stock', '>=', 5)
+            ->count();
+        $lowStock = Logistic::where('department_id', $departmentId)
+            ->where('stock', '<', 5)
+            ->count();
+
+        // --- Categorized Items & Overview ---
+        $categories = ['Alat Medis', 'Alat Kesehatan', 'Linen', 'Floor Stock', 'Obat'];
+        $categorizedItems = [];
+        $categoriesOverview = [];
+
+        foreach ($categories as $category) {
+            $items = Logistic::where('department_id', $departmentId)
+                ->where('category', $category)
+                ->orderBy('item_name')
+                ->limit(5) // Limit to 5 items for the overview in the tab
+                ->get();
+
+            $count = Logistic::where('department_id', $departmentId)
+                ->where('category', $category)
+                ->count();
+
+            // Map items to a basic format if needed, or send them as is.
+            // Assuming Logistic model already casts dates correctly if present.
+            $mappedItems = $items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'item_name' => $item->item_name,
+                    'brand' => $item->brand,
+                    'stock' => $item->stock,
+                    'unit_of_measure' => $item->unit_of_measure,
+                    'status' => $item->status, // Already calculated in LogisticController, stored in DB
+                    'item_code' => $item->item_code,
+                    'maintenance_schedule' => $item->maintenance_schedule,
+                    'calibration_date' => $item->calibration_date ? Carbon::parse($item->calibration_date)->toDateString() : null,
+                    'calibration_expiry_date' => $item->calibration_expiry_date ? Carbon::parse($item->calibration_expiry_date)->toDateString() : null,
+                    'notes' => $item->notes,
+                    'last_updated' => $item->updated_at ? $item->updated_at->toDateTimeString() : null, // Assuming you have updated_at
+                    // Add department name if needed
+                    'department_name' => $item->department->name ?? null, // Assuming Logistic model has 'department' relation
+                ];
+            });
+
+            $categorizedItems[Str::slug($category)] = $mappedItems; // Use slug for frontend IDs
+            $categoriesOverview[] = [
+                'name' => $category,
+                'slug' => Str::slug($category),
+                'count' => $count,
+                // Add icons and descriptions based on your Blade logic here
+                'icon_class' => $this->getCategoryIconClass($category),
+                'description_text' => $this->getCategoryDescriptionText($category),
+            ];
+        }
 
         return response()->json([
             'total_stock_available' => $totalStock,
-            'low_stock_items' => $lowStockItems,
-            'out_of_stock_items' => $outOfStockItems,
-            'recent_transactions' => $recentTransactions,
-            // You might want to fetch a list of all items too, or provide filters.
-            'all_logistics_items' => Logistic::orderBy('item_name')->get()
+            'limited_stock' => $limitedStock,
+            'low_stock' => $lowStock,
+            'categorized_items' => $categorizedItems,
+            'categories_overview' => $categoriesOverview,
         ]);
+    }
+
+    /**
+     * Helper to get category icon class for frontend.
+     */
+    private function getCategoryIconClass(string $category): string
+    {
+        return match ($category) {
+            'Alat Medis' => 'fa-medkit',
+            'Alat Kesehatan' => 'fa-stethoscope',
+            'Linen' => 'fa-bed',
+            'Floor Stock' => 'fa-boxes',
+            'Obat' => 'fa-pills',
+            default => 'fa-question-circle', // Fallback icon
+        };
+    }
+
+    /**
+     * Helper to get category description text for frontend.
+     */
+    private function getCategoryDescriptionText(string $category): string
+    {
+        return match ($category) {
+            'Alat Medis' => 'Medical Equipment',
+            'Alat Kesehatan' => 'Health Tools',
+            'Linen' => 'Textile & Bedding',
+            'Floor Stock' => 'Floor Supplies',
+            'Obat' => 'Medicines',
+            default => '',
+        };
     }
 
     /**
@@ -370,82 +467,91 @@ class ReportController extends Controller
         return response()->json($tnaData);
     }
 
+    
+
     /**
      * Get Quality Indicator (Indikator Mutu) data by iterating through all specific form models.
      */
     public function getQualityIndicators()
     {
-        $recentInspections = [];
-        $totalEvaluations = 0;
-        $totalPassScore = 0; // Assuming a "pass" means score is within an acceptable range based on form data
-
-        $currentWeekStartDate = Carbon::now()->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
-        $oneMonthAgo = Carbon::now()->subMonth();
+        $user = Auth::user();
+        $recentInspectionsCombined = collect(); // Use a Laravel Collection for merging
 
         foreach ($this->formModels as $formType => $modelClass) {
-            $model = new $modelClass(); // Instantiate the model
+            $model = new $modelClass();
 
-            // Fetch the latest entry for each form type for recent inspections
-            $latestForm = $model::orderBy('week_start_date', 'desc')->first();
-            if ($latestForm) {
-                // Determine a 'score' and 'notes' from the 'data' JSON based on your form structure
-                // This is a *generic example* and needs to be adjusted based on the actual content
-                // of the 'data' JSON for each form type.
-                $formData = json_decode($latestForm->data, true);
-                $score = 'N/A'; // Default
-                $notes = 'No specific notes found'; // Default
+            // Fetch recent entries (e.g., last 3) for the authenticated user for each form type
+            $recentEntries = $model::where('user_id', $user->id) // Filter by user_id
+                                   ->orderBy('created_at', 'desc')
+                                   ->take(3) // Get a few recent entries per form type
+                                   ->get();
 
-                // Example: If 'data' contains an 'average_score' or 'compliance_percentage'
-                if (isset($formData['average_score'])) {
-                    $score = $formData['average_score'];
-                } elseif (isset($formData['compliance_percentage'])) {
-                    $score = $formData['compliance_percentage'];
-                } elseif (isset($formData['total_score']) && isset($formData['max_score'])) {
-                    if ($formData['max_score'] > 0) {
-                        $score = ($formData['total_score'] / $formData['max_score']) * 100;
+            $mappedEntries = $recentEntries->map(function ($entry) use ($formType) {
+                
+                $formData = $entry->data;
+                $score = 'N/A';
+                $notes = 'N/A';
+
+                if (isset($formData['compliance_percentage'])) { // Example from CVC forms, HandHygiene, APD
+                    $score = $formData['compliance_percentage'] . '%';
+                } elseif (isset($formData['overall_score'])) { // Example from PerformanceEvaluation (if relevant for a QI form)
+                    $score = $formData['overall_score'] . '%'; // Assuming this is 0-100
+                } elseif (isset($formData['totals']['compliant_count']) && isset($formData['totals']['total_observed'])) {
+                    if ($formData['totals']['total_observed'] > 0) {
+                        $score = round(($formData['totals']['compliant_count'] / $formData['totals']['total_observed']) * 100) . '%';
                     }
+                } elseif (isset($entry->compliance_percentage)) { // If compliance is stored directly on the model (like CVC forms)
+                    $score = $entry->compliance_percentage . '%';
                 }
+                // Add more 'else if' conditions for other form types as needed
 
-                // Example for notes: if 'data' contains a 'summary' or 'remarks'
-                if (isset($formData['summary'])) {
+                // Example logic to extract notes from 'data' JSON
+                if (isset($formData['notes'])) {
+                    $notes = $formData['notes'];
+                } elseif (isset($formData['keterangan'])) {
+                    $notes = $formData['keterangan'];
+                } elseif (isset($formData['summary'])) {
                     $notes = $formData['summary'];
-                } elseif (isset($formData['remarks'])) {
-                    $notes = $formData['remarks'];
                 }
+                // Add more 'else if' conditions for other form types as needed
 
-                $recentInspections[] = [
-                    'id' => $latestForm->id,
-                    'form_type' => ucwords(str_replace('-', ' ', $formType)), // Human-readable name
-                    'date' => $latestForm->week_start_date,
-                    'score' => is_numeric($score) ? round($score, 2) : $score,
-                    'notes' => $notes,
+
+                return [
+                    'id' => $entry->id,
+                    'activity_date' => $entry->week_start_date ?? $entry->created_at->toDateString(), // Use week_start_date or created_at
+                    'form_name' => ucwords(str_replace('-', ' ', $formType)), // Human-readable name
+                    'score' => $score,
+                    'notes' => Str::limit($notes, 50, '...'), // Truncate long notes for table display
+                    'submitted_at' => $entry->created_at->toDateTimeString(),
+                    'form_type_slug' => $formType, // For potential future detail links
                 ];
-
-                // Aggregate for overall pass rate
-                // For a pass rate, you'd need a consistent 'pass' condition for each form.
-                // This is a placeholder. You might need a dedicated method in each form model
-                // to calculate its 'pass' status or a numerical score.
-                if (is_numeric($score)) {
-                    $totalEvaluations++;
-                    // Example: Assume a pass if score is >= 80
-                    if ($score >= 80) {
-                        $totalPassScore++;
-                    }
-                }
-            }
+            });
+            $recentInspectionsCombined = $recentInspectionsCombined->concat($mappedEntries);
         }
 
-        // Sort recent inspections by date
-        usort($recentInspections, function($a, $b) {
-            return strtotime($b['date']) - strtotime($a['date']);
-        });
+        // Sort all combined entries by submitted_at (most recent overall) and take top 10
+        $finalRecentInspections = $recentInspectionsCombined->sortByDesc('submitted_at')->values()->take(10);
 
-        $overallPassRate = $totalEvaluations > 0 ? ($totalPassScore / $totalEvaluations) * 100 : 0;
+        // --- Calculate overall compliance rate (this is an aggregation across all forms) ---
+        // This part needs to be carefully defined based on how you want to aggregate scores across different forms.
+        // For simplicity, let's just count how many forms have some data vs. empty for now.
+        $totalFormsTracked = count($this->formModels);
+        $formsWithData = 0;
+        foreach ($this->formModels as $formType => $modelClass) {
+            $model = new $modelClass();
+            if ($model::where('user_id', $user->id)->exists()) {
+                $formsWithData++;
+            }
+        }
+        $overallProgressRate = $totalFormsTracked > 0 ? round(($formsWithData / $totalFormsTracked) * 100, 2) : 0;
+        // This 'overall_pass_rate' is a placeholder. You'll need to define what it *really* means to you.
+        // For example, it could be the average of all 'compliance_percentage' values from all submitted forms.
+
 
         return response()->json([
-            'recent_inspections' => array_slice($recentInspections, 0, 10), // Limit to top 10 recent
-            'overall_pass_rate' => round($overallPassRate, 2),
-            // Add other aggregated metrics as needed
+            'recent_inspections' => $finalRecentInspections,
+            'overall_pass_rate' => $overallProgressRate, // This is now a progress rate for filling forms
+            // You can add more aggregated stats here if needed for dashboard cards
         ]);
     }
 }

@@ -66,6 +66,21 @@
         return '#ef4444'; // Red for low (Needs Improvement)
     }
 
+    function toggleSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        const arrow = document.getElementById('arrow-' + sectionId);
+
+        if (section && arrow) { // Add null checks
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                section.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+    }
+
     function getRatingTextColor(rating) {
         if (rating >= 4) return 'text-green-700';
         if (rating >= 3) return 'text-blue-600';
@@ -343,7 +358,7 @@
     function renderHeaderStats() {
         document.getElementById('headerDate').textContent = headerStats.report_date || 'N/A';
         document.getElementById('activeStaffCount').textContent = headerStats.active_staff_count || 'N/A';
-        document.getElementById('complianceRate').textContent = `${headerStats.compliance_rate || 'N/A'}%`;
+        // document.getElementById('complianceRate').textContent = `${headerStats.compliance_rate || 'N/A'}%`;
     }
 
 
@@ -504,68 +519,140 @@
 
     function renderManajemenLogistik() {
         const logistikContent = document.getElementById('logistik');
+        const totalStock = logisticsData.total_stock_available || 0;
+        const limitedStock = logisticsData.limited_stock || 0;
+        const lowStock = logisticsData.low_stock || 0;
+        const categorizedItems = logisticsData.categorized_items || {};
+        const categoriesOverview = logisticsData.categories_overview || [];
+
+        // Clear previous content and build the entire tab from scratch
         logistikContent.innerHTML = `
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Manajemen Logistik</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold">Stok Tersedia</h3>
-                            <p class="text-2xl font-bold">${logisticsData.total_stock_available || 0}</p>
+                            <h3 class="text-lg font-semibold mb-2">Total Stok Tersedia</h3>
+                            <p class="text-3xl font-bold">${totalStock}</p>
+                            <p class="text-green-100 text-sm mt-1">Items dalam kondisi baik</p>
                         </div>
-                        <i class="fas fa-boxes text-3xl opacity-70"></i>
+                        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-check-circle text-2xl"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-6 text-white">
+
+                <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-6 text-white shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold">Stok Rendah</h3>
-                            <p class="text-2xl font-bold">${logisticsData.low_stock_items || 0}</p>
+                            <h3 class="text-lg font-semibold mb-2">Stok Terbatas</h3>
+                            <p class="text-3xl font-bold">${limitedStock}</p>
+                            <p class="text-yellow-100 text-sm mt-1">Perlu segera diisi ulang</p>
                         </div>
-                        <i class="fas fa-exclamation-triangle text-3xl opacity-70"></i>
+                        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-6 text-white">
+
+                <div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl p-6 text-white shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold">Stok Habis</h3>
-                            <p class="text-2xl font-bold">${logisticsData.out_of_stock_items || 0}</p>
+                            <h3 class="text-lg font-semibold mb-2">Stok Menipis</h3>
+                            <p class="text-3xl font-bold">${lowStock}</p>
+                            <p class="text-red-100 text-sm mt-1">Butuh perhatian urgent</p>
                         </div>
-                        <i class="fas fa-times-circle text-3xl opacity-70"></i>
+                        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-times-circle text-2xl"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-6">Daftar Item Logistik</h3>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-100 text-gray-700">
-                        <tr>
-                            <th class="px-4 py-3 text-left">Nama Item</th>
-                            <th class="px-4 py-3 text-center">Kuantitas</th>
-                            <th class="px-4 py-3 text-center">Satuan</th>
-                            <th class="px-4 py-3 text-center">Min Stok</th>
-                            <th class="px-4 py-3 text-left">Terakhir Diperbarui</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${logisticsData.all_logistics_items && logisticsData.all_logistics_items.length > 0 ? logisticsData.all_logistics_items.map(item => `
-                            <tr class="border-t hover:bg-gray-50">
-                                <td class="px-4 py-3">${item.item_name}</td>
-                                <td class="px-4 py-3 text-center">${item.quantity}</td>
-                                <td class="px-4 py-3 text-center">${item.unit || '-'}</td>
-                                <td class="px-4 py-3">${item.min_stock_level || 0}</td>
-                                <td class="px-4 py-3">${new Date(item.last_updated).toLocaleDateString('id-ID')}</td>
-                            </tr>
-                        `).join('') : `
-                            <tr>
-                                <td colspan="5" class="text-center py-4">Tidak ada data logistik.</td>
-                            </tr>
-                        `}
-                    </tbody>
-                </table>
+            <div class="space-y-6" id="logisticsCategoriesContainer">
+                ${categoriesOverview.map(category => `
+                    ${category.count > 0 ? `
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+                            <div class="p-6 cursor-pointer" onclick="toggleSection('${category.slug}')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mr-4 shadow-sm">
+                                            <i class="fas ${category.icon_class} text-blue-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-lg font-semibold text-gray-900">${category.name}</span>
+                                            <div class="text-sm text-gray-500 mt-1">${category.description_text}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">${category.count} Items</div>
+                                        <i class="fas fa-chevron-down text-gray-400 transform transition-transform duration-300" id="arrow-${category.slug}"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="${category.slug}" class="hidden border-t border-gray-100">
+                                <div class="p-4">
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Barang</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merk</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satuan</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terakhir Diperbarui</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                ${categorizedItems[category.slug].length > 0 ? categorizedItems[category.slug].map(item => `
+                                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.item_name || '-'}</td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.brand || '-'}</td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.stock || '0'}</td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.unit_of_measure || '-'}</td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                                item.status === 'Tersedia' ? 'bg-green-100 text-green-800' :
+                                                                item.status === 'Terbatas' ? 'bg-yellow-100 text-yellow-800' :
+                                                                item.status === 'Menipis' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                                                            }">
+                                                                ${item.status || '-'}
+                                                            </span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDateTime(item.last_updated)}</td>
+                                                    </tr>
+                                                `).join('') : `
+                                                    <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada item dalam kategori ini.</td></tr>
+                                                `}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    ${category.count > 5 ? `
+                                        <div class="mt-4 text-center">
+                                            <a href="/mltable?category=${category.slug}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                Lihat semua ${category.count} item <i class="fas fa-arrow-right ml-1"></i>
+                                            </a>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                `).join('')}
             </div>
         `;
+
+        // Re-attach toggleSection listener to the main container, as content is replaced
+        // This makes sure dynamically added onclicks work.
+        logistikContent.querySelectorAll('.p-6.cursor-pointer').forEach(header => {
+            header.onclick = function() {
+                // Get the section ID from the onclick attribute
+                const sectionId = this.getAttribute('onclick').match(/toggleSection\('(.+?)'\)/)[1];
+                toggleSection(sectionId);
+            };
+        });
     }
 
     function renderPpiData() {
@@ -800,42 +887,58 @@
 
     function renderIndikatorMutu() {
         const mutuContent = document.getElementById('mutu');
+        const recentInspections = qualityIndicators.recent_inspections || [];
+        const overallPassRate = qualityIndicators.overall_pass_rate || 0;
+
+        // Clear existing content and build the basic overview
         mutuContent.innerHTML = `
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Indikator Mutu</h2>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold">Rata-rata Tingkat Kepatuhan</h3>
-                            <p class="text-2xl font-bold">${qualityIndicators.overall_pass_rate || 0}%</p>
+                            <h3 class="text-lg font-semibold">Rata-rata Tingkat Kepatuhan (Global)</h3>
+                            <p class="text-2xl font-bold">${overallPassRate}%</p>
                         </div>
                         <i class="fas fa-chart-line text-3xl opacity-70"></i>
                     </div>
                 </div>
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Total Form Terisi (Unik)</h3>
+                            <p class="text-2xl font-bold">${qualityIndicators.recent_inspections.length > 0 ? new Set(qualityIndicators.recent_inspections.map(item => item.form_name)).size : 0}</p>
+                        </div>
+                        <i class="fas fa-file-alt text-3xl opacity-70"></i>
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-6">Inspeksi Mutu Terbaru</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-6">Inspeksi Mutu Terbaru (Semua Formulir)</h3>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-100 text-gray-700">
                         <tr>
-                            <th class="px-4 py-3 text-left">Tanggal</th>
-                            <th class="px-4 py-3 text-left">Jenis Form</th>
-                            <th class="px-4 py-3 text-center">Skor/Kepatuhan</th>
-                            <th class="px-4 py-3 text-left">Catatan</th>
+                            <th class="px-4 py-3 text-left">Mulai Minggu Aktivitas</th>
+                            <th class="px-4 py-3 text-left">Jenis Formulir</th>
+                            <th class="px-4 py-3 text-left">Pasien/Entitas</th> <th class="px-4 py-3 text-center">Skor/Kepatuhan</th>
+                            <th class="px-4 py-3 text-left">Catatan Ringkas</th>
+                            <th class="px-4 py-3 text-left">Waktu Input</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${qualityIndicators.recent_inspections && qualityIndicators.recent_inspections.length > 0 ? qualityIndicators.recent_inspections.map(inspection => `
+                        ${recentInspections.length > 0 ? recentInspections.map(inspection => `
                             <tr class="border-t hover:bg-gray-50">
-                                <td class="px-4 py-3">${new Date(inspection.date).toLocaleDateString('id-ID')}</td>
-                                <td class="px-4 py-3">${inspection.form_type || 'N/A'}</td>
-                                <td class="px-4 py-3 text-center">${inspection.score || 'N/A'}</td>
+                                <td class="px-4 py-3">${formatDate(inspection.activity_date)}</td>
+                                <td class="px-4 py-3">${inspection.form_name || 'N/A'}</td>
+                                <td class="px-4 py-3">${inspection.patient_name || inspection.medical_record_number || 'N/A'}</td> <td class="px-4 py-3 text-center">${inspection.score || 'N/A'}</td>
                                 <td class="px-4 py-3">${inspection.notes || 'Tidak ada'}</td>
+                                <td class="px-4 py-3">${formatDateTime(inspection.submitted_at)}</td>
                             </tr>
                         `).join('') : `
                             <tr>
-                                <td colspan="4" class="text-center py-4">Tidak ada data inspeksi mutu terbaru.</td>
+                                <td colspan="6" class="text-center py-4">Tidak ada data inspeksi mutu terbaru.</td>
                             </tr>
                         `}
                     </tbody>
