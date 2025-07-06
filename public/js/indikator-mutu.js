@@ -40,7 +40,20 @@ let indicators = [
 
 
 // --- Utility Functions ---
+// --- Global Loading Functions ---
+function showLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+    }
+}
 
+function hideLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
 /**
  * Helper function for authenticated fetch requests.
  * Includes CSRF token and Authorization header.
@@ -88,19 +101,6 @@ async function authenticatedFetch(url, options = {}) {
     return fetch(url, { ...options, headers });
 }
 
-/**
- * Shows the loading spinner.
- */
-function showLoading() {
-    document.getElementById('loading').style.display = 'flex';
-}
-
-/**
- * Hides the loading spinner.
- */
-function hideLoading() {
-    document.getElementById('loading').style.display = 'none';
-}
 
 /**
  * Displays a notification message.

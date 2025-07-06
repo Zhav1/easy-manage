@@ -76,9 +76,9 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
     });
 });
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('/password/change', [PasswordChangeController::class, 'edit'])
-//         ->name('password.change');
-//     Route::patch('/password/change', [PasswordChangeController::class, 'update'])
-//         ->name('password.update');
-// });
+Route::middleware('auth')->group(function () {
+    Route::get('/password/change', [PasswordChangeController::class, 'edit'])
+        ->name('password.change');
+    Route::patch('/password/change', [PasswordChangeController::class, 'update'])
+        ->name('password.update');
+});

@@ -151,7 +151,7 @@
                     <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
                 </label>
 
-                {{-- Ganti Password --}}
+                Ganti Password
                 <a href="{{ route('password.update') }}" class="w-full flex items-center p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
                     <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <i class="fas fa-key text-blue-600 text-sm md:text-base"></i>

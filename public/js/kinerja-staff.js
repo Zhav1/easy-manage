@@ -2,7 +2,25 @@
 let staffMembers = [];
 let performanceEvaluations = [];
 let positions = [];
-let departments = [];
+let departments = []; // Ensure departments is declared globally
+
+// --- Global Loading Functions (for HCI principle) ---
+// (These are global so they can be called from anywhere in your scripts)
+function showLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+    }
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
+// --- End Global Loading Functions ---
+
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load initial data for Kinerja Staff page
 async function loadInitialKinerjaStaffData() {
+    showLoading(); // Show loading for initial data fetch
     try {
         const token = window.authToken;
         if (!token) {
@@ -46,10 +65,13 @@ async function loadInitialKinerjaStaffData() {
         renderStaffManagementTable();
         renderPerformanceEvaluationTable();
         updateStaffDropdownForEvaluation();
+        updatePositionDropdownForStaffManagement(); // Call this to populate dropdowns in modals
         updateKinerjaStatistics();
     } catch (error) {
         console.error('Error loading initial data for Kinerja Staf:', error);
         alert('Gagal memuat data. Silakan coba lagi.');
+    } finally {
+        hideLoading(); // Always hide loading
     }
 }
 
@@ -99,6 +121,7 @@ function openAddPerformanceEvaluationModal() {
     document.getElementById('deleteEvaluationBtn').classList.add('hidden');
     document.getElementById('performanceEvaluationModal').classList.remove('hidden');
     document.getElementById('performanceEvaluationModal').classList.add('flex');
+    updateStaffDropdownForEvaluation(); // Ensure dropdown is populated when adding
 }
 
 function openEditPerformanceEvaluationModal(evaluationId) {
@@ -117,6 +140,7 @@ function openEditPerformanceEvaluationModal(evaluationId) {
     document.getElementById('deleteEvaluationBtn').classList.remove('hidden');
     document.getElementById('performanceEvaluationModal').classList.remove('hidden');
     document.getElementById('performanceEvaluationModal').classList.add('flex');
+    updateStaffDropdownForEvaluation(); // Ensure dropdown is populated when editing
 }
 
 function openDetailPerformanceEvaluationModal(evaluationId) {
@@ -192,6 +216,7 @@ function closeStaffManagementModal() {
 
 async function handlePerformanceEvaluationFormSubmit(e) {
     e.preventDefault();
+    showLoading(); // Show loading
     const formData = {
         id: document.getElementById('evaluationId').value,
         staff_id: document.getElementById('staffSelect').value,
@@ -201,6 +226,10 @@ async function handlePerformanceEvaluationFormSubmit(e) {
         kepatuhan: parseInt(document.getElementById('kepatuhan').value),
         target_kerja: parseInt(document.getElementById('targetKerja').value),
         notes: document.getElementById('notes').value,
+        // Add user, department, hospital IDs from global window.currentUser for new entries
+        user_id: window.currentUser.id,
+        department_id: window.currentUser.department_id,
+        hospital_id: window.currentUser.hospital_id
     };
 
     try {
@@ -231,16 +260,20 @@ async function handlePerformanceEvaluationFormSubmit(e) {
     } catch (error) {
         console.error('Error saving performance evaluation:', error);
         alert('Gagal menyimpan penilaian: ' + error.message);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
 async function handleStaffManagementFormSubmit(e) {
     e.preventDefault();
+    showLoading(); // Show loading
 
     // Read values from hidden inputs by their 'name' attribute for consistency
-    const userId = document.querySelector('#staffManagementForm input[name="user_id"]').value;
-    const departmentId = document.querySelector('#staffManagementForm input[name="department_id"]').value;
-    const hospitalId = document.querySelector('#staffManagementForm input[name="hospital_id"]').value;
+    // window.currentUser already provides these for a cleaner approach
+    const userId = window.currentUser.id;
+    const departmentId = window.currentUser.department_id;
+    const hospitalId = window.currentUser.hospital_id;
 
     const formData = {
         id: document.getElementById('staffManagementId').value,
@@ -280,6 +313,8 @@ async function handleStaffManagementFormSubmit(e) {
     } catch (error) {
         console.error('Error saving staff:', error);
         alert('Gagal menyimpan data staff: ' + error.message);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
@@ -288,7 +323,8 @@ async function handleStaffManagementFormSubmit(e) {
 window.deletePerformanceEvaluation = async function() {
     const evaluationId = document.getElementById('evaluationId').value;
     if (!evaluationId || !confirm('Apakah Anda yakin ingin menghapus penilaian ini?')) return;
-
+    
+    showLoading(); // Show loading
     try {
         const token = window.authToken;
         const headers = {
@@ -312,13 +348,16 @@ window.deletePerformanceEvaluation = async function() {
     } catch (error) {
         console.error('Error deleting performance evaluation:', error);
         alert('Gagal menghapus penilaian: ' + error.message);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
 window.deleteStaffManagement = async function() {
     const staffId = document.getElementById('staffManagementId').value;
     if (!staffId || !confirm('Apakah Anda yakin ingin menghapus staff ini? Semua penilaian terkait juga akan terhapus.')) return;
-
+    
+    showLoading(); // Show loading
     try {
         const token = window.authToken;
         const headers = {
@@ -342,6 +381,8 @@ window.deleteStaffManagement = async function() {
     } catch (error) {
         console.error('Error deleting staff:', error);
         alert('Gagal menghapus staff: ' + error.message);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
@@ -364,19 +405,19 @@ function renderStaffManagementTable() {
     }
 
     staffMembers.forEach((staff, index) => {
-        const position = positions.find(p => p.id === staff.position_id);
-        const department = departments.find(d => d.id === staff.department_id); // Get department
-
+        const department = departments.find(d => d.id === staff.department_id) || {};
+        const position = positions.find(p => p.id === staff.position_id) || {};
+        
         const row = document.createElement('tr');
         row.classList.add('table-row');
         row.innerHTML = `
             <td class="px-6 py-4">${index + 1}</td>
             <td class="px-6 py-4">${staff.name || '-'}</td>
-            <td class="px-6 py-4">${position ? position.name : '-'}</td>
-            <td class="px-6 py-4">${department ? department.name : '-'}</td>
+            <td class="px-6 py-4">${position.name || '-'}</td>
+            <td class="px-6 py-4">${department.name || '-'}</td>
             <td class="px-6 py-4">
                 <span class="px-2 py-1 rounded-full text-xs font-medium ${
-                    staff.status === 'Aktif' ? 'bg-green-100 text-green-800' :
+                    staff.status === 'Aktif' ? 'bg-green-100 text-green-800' : 
                     staff.status === 'Cuti' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
                 }">
                     ${staff.status || '-'}
@@ -532,8 +573,8 @@ function getPerformanceBadgeColor(status) {
     switch (status) {
         case 'Excellent Performance': return '#10b981'; // Green
         case 'Good Performance': return '#3b82f6';    // Blue
-        case 'Need Mentoring': return '#f59e0b';     // Yellow/Orange
-        case 'Need Improvement': return '#ef4444';   // Red
+        case 'Need Mentoring': return '#f59e0b';    // Yellow/Orange
+        case 'Need Improvement': return '#ef4444';  // Red
         default: return '#6b7280'; // Gray
     }
 }
