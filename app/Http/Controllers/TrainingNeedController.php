@@ -30,6 +30,7 @@ class TrainingNeedController extends Controller
             'seminar_workshop_webinar' => 'nullable|string|max:255',
             'pelatihan' => 'nullable|string|max:255',
             'pendidikan_lanjutan' => 'nullable|string|max:255',
+            'tanggal' => 'required|date_format:Y-m-d',
         ]);
 
         $trainingNeed = TrainingNeed::create($validated);

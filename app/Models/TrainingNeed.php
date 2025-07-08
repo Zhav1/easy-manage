@@ -11,6 +11,7 @@ class TrainingNeed extends Model
 
     protected $fillable = [
         'staff_id',
+        'tanggal',                    // ← tambahkan ini
         'seminar_workshop_webinar',
         'pelatihan',
         'pendidikan_lanjutan',

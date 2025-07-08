@@ -10,12 +10,28 @@ class PositionSeeder extends Seeder
     public function run()
     {
         $positions = [
-            ['name' => 'Perawat', 'description' => 'Perawat bertugas merawat pasien'],
-            ['name' => 'Dokter', 'description' => 'Dokter umum dan spesialis'],
-            ['name' => 'Bidan', 'description' => 'Membantu persalinan dan perawatan ibu-anak'],
-            ['name' => 'Apoteker', 'description' => 'Bertanggung jawab terhadap obat-obatan'],
-            ['name' => 'Admin', 'description' => 'Administrasi dan pencatatan rekam medis'],
-        ];
+    [
+        'name'        => 'Perawat Pelaksana',
+        'description' => 'Perawat bertugas merawat pasien',
+    ],
+    [
+        'name'        => 'Penanggung Jawab Shift',
+        'description' => 'Mengatur dan Membagi Tugas Tim',
+    ],
+    [
+        'name'        => 'Kepala Ruangan',
+        'description' => 'Memanajemen Segala Kepentingan Ruangan',
+    ],
+    [
+        'name'        => 'Ketua Tim',
+        'description' => 'Bertanggung jawab terhadap anggota tim',
+    ],
+    [
+        'name'        => 'Other',
+        'description' => 'Jabatan Lainnya',
+    ],
+];
+
 
         Position::insert($positions);
     }

@@ -20,16 +20,15 @@ function hideLoading() {
 }
 // --- End Global Loading Functions ---
 
-
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     loadInitialData();
-    setupEventListeners(); // Call event listener setup after initial data load
+    setupEventListeners();
 });
 
 // Load initial data from API
 async function loadInitialData() {
-    showLoading(); // Show loading before initial data fetch
+    showLoading();
     try {
         const token = window.authToken;
         if (!token) {
@@ -44,7 +43,7 @@ async function loadInitialData() {
         };
 
         const [staffResponse, tnaRecordsResponse, positionsResponse, departmentsResponse] = await Promise.all([
-            fetch('/api/v1/staff', {headers}), // Fetch from your existing /api/v1/staff endpoint
+            fetch('/api/v1/staff', {headers}),
             fetch('/api/v1/training-needs', {headers}),
             fetch('/api/v1/positions', {headers}),
             fetch('/api/v1/departments', {headers}),
@@ -55,55 +54,45 @@ async function loadInitialData() {
         positions = await positionsResponse.json();
         departments = await departmentsResponse.json();
 
-        // Populate dropdowns and render tables only after data is available
         updateTnaStaffDropdown();
-        // updateStaffPositionDropdown() is called when Staff Modal is opened now
         renderStaffTable();
         renderTnaRecordsTable();
         updateCardCounts();
 
     } catch (error) {
         console.error('Error loading initial data:', error);
-        alert('Failed to load initial data. Please try again.');
+        alert('Gagal memuat data awal. Silakan coba lagi.');
     } finally {
-        hideLoading(); // Always hide loading
+        hideLoading();
     }
 }
 
 // Setup form event listeners
 function setupEventListeners() {
-    // Add event listeners only if elements exist and are found after DOM content is loaded
-    
-    // Staff Form (in Staff Management Modal)
+    // Staff Form
     const staffForm = document.getElementById('staffForm');
     if (staffForm) {
         staffForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             await handleStaffFormSubmit();
         });
-    } else {
-        console.warn('Element #staffForm not found for event listener setup.');
     }
 
-    // TNA Form (in TNA Modal)
+    // TNA Form
     const tnaForm = document.getElementById('tnaForm');
     if (tnaForm) {
         tnaForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             await handleTnaFormSubmit();
         });
-    } else {
-        console.warn('Element #tnaForm not found for event listener setup.');
     }
 
-    // Modal close on outside click (using event delegation for reliability if modals are dynamic)
+    // Modal close on outside click
     const staffModal = document.getElementById('staffModal');
     if (staffModal) {
         staffModal.addEventListener('click', function(e) {
             if (e.target === this) closeStaffModal();
         });
-    } else {
-        console.warn('Element #staffModal not found for event listener setup.');
     }
 
     const tnaModal = document.getElementById('tnaModal');
@@ -111,40 +100,32 @@ function setupEventListeners() {
         tnaModal.addEventListener('click', function(e) {
             if (e.target === this) closeTnaModal();
         });
-    } else {
-        console.warn('Element #tnaModal not found for event listener setup.');
     }
 
-    // Buttons (add event listeners to specific IDs in main page content)
-    const addStaffModalBtn = document.getElementById('openAddStaffModalBtn'); // Corrected ID
+    // Buttons
+    const addStaffModalBtn = document.getElementById('openAddStaffModalBtn');
     if (addStaffModalBtn) {
         addStaffModalBtn.addEventListener('click', window.openAddStaffModal);
-    } else {
-        console.warn('Element #openAddStaffModalBtn not found for event listener setup.');
     }
 
-    const addTnaModalBtn = document.getElementById('openAddTnaModalBtn'); // Corrected ID
+    const addTnaModalBtn = document.getElementById('openAddTnaModalBtn');
     if (addTnaModalBtn) {
         addTnaModalBtn.addEventListener('click', window.openAddTnaModal);
-    } else {
-        console.warn('Element #openAddTnaModalBtn not found for event listener setup.');
     }
-
-    // Delete buttons now have onclick on the element directly
-    // This removes the need for window.confirmDeleteStaff / deleteTnaRecordConfirmation in setupEventListeners
-    // as they are called from the onclick attribute in HTML directly.
 }
 
-// --- Staff Modal Functions (reusing your existing staff modal structure) ---
+// --- Staff Modal Functions ---
 window.openAddStaffModal = function() {
     document.getElementById('staffModalTitle').textContent = 'Tambah Staff Baru';
     document.getElementById('staffId').value = '';
     document.getElementById('staffFullName').value = '';
-    // Ensure these are correctly populated from currentUser global variable
+    
     const userIdInput = document.getElementById('userId');
     if (userIdInput) userIdInput.value = window.currentUser.id;
+    
     const staffDepartmentInput = document.getElementById('staffDepartment');
     if (staffDepartmentInput) staffDepartmentInput.value = window.currentUser.department_id;
+    
     const staffHospitalInput = document.getElementById('staffHospital');
     if (staffHospitalInput) staffHospitalInput.value = window.currentUser.hospital_id;
 
@@ -153,7 +134,7 @@ window.openAddStaffModal = function() {
     document.getElementById('deleteStaffBtn').classList.add('hidden');
     document.getElementById('staffModal').classList.remove('hidden');
     document.getElementById('staffModal').classList.add('flex');
-    updateStaffPositionDropdown(); // Populate position dropdown when modal opens
+    updateStaffPositionDropdown();
 }
 
 window.openEditStaffModal = function(staffId) {
@@ -168,7 +149,7 @@ window.openEditStaffModal = function(staffId) {
     document.getElementById('deleteStaffBtn').classList.remove('hidden');
     document.getElementById('staffModal').classList.remove('hidden');
     document.getElementById('staffModal').classList.add('flex');
-    updateStaffPositionDropdown(); // Populate position dropdown when modal opens
+    updateStaffPositionDropdown();
 }
 
 window.closeStaffModal = function() {
@@ -181,13 +162,18 @@ window.openAddTnaModal = function() {
     document.getElementById('tnaModalTitle').textContent = 'Tambah Data TNA';
     document.getElementById('tnaId').value = '';
     document.getElementById('tnaStaffName').value = '';
+    
+    // Set tanggal default ke hari ini
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('tanggal').value = today;
+    
     document.getElementById('seminarWorkshopWebinar').value = '';
     document.getElementById('pelatihan').value = '';
     document.getElementById('pendidikanLanjutan').value = '';
     document.getElementById('deleteTnaBtn').classList.add('hidden');
     document.getElementById('tnaModal').classList.remove('hidden');
     document.getElementById('tnaModal').classList.add('flex');
-    updateTnaStaffDropdown(); // Populate staff dropdown when TNA modal opens
+    updateTnaStaffDropdown();
 }
 
 window.openEditTnaModal = function(tnaId) {
@@ -197,13 +183,18 @@ window.openEditTnaModal = function(tnaId) {
     document.getElementById('tnaModalTitle').textContent = 'Edit Data TNA';
     document.getElementById('tnaId').value = tna.id;
     document.getElementById('tnaStaffName').value = tna.staff_id;
+    
+    // Format tanggal untuk input type="date" (YYYY-MM-DD)
+    const tanggal = tna.tanggal ? new Date(tna.tanggal).toISOString().split('T')[0] : '';
+    document.getElementById('tanggal').value = tanggal;
+    
     document.getElementById('seminarWorkshopWebinar').value = tna.seminar_workshop_webinar || '';
     document.getElementById('pelatihan').value = tna.pelatihan || '';
     document.getElementById('pendidikanLanjutan').value = tna.pendidikan_lanjutan || '';
     document.getElementById('deleteTnaBtn').classList.remove('hidden');
     document.getElementById('tnaModal').classList.remove('hidden');
     document.getElementById('tnaModal').classList.add('flex');
-    updateTnaStaffDropdown(); // Populate staff dropdown when TNA modal opens
+    updateTnaStaffDropdown();
 }
 
 window.closeTnaModal = function() {
@@ -213,12 +204,12 @@ window.closeTnaModal = function() {
 
 // --- Form Handlers ---
 async function handleStaffFormSubmit() {
-    showLoading(); // Show loading
+    showLoading();
     const formData = {
         id: document.getElementById('staffId').value,
         name: document.getElementById('staffFullName').value,
         position_id: document.getElementById('staffPosition').value,
-        user_id: window.currentUser.id, // Using global window.currentUser
+        user_id: window.currentUser.id,
         department_id: window.currentUser.department_id,
         hospital_id: window.currentUser.hospital_id,
         status: document.getElementById('staffStatus').value
@@ -243,25 +234,35 @@ async function handleStaffFormSubmit() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Network response was not ok');
+            throw new Error(errorData.message || 'Gagal menyimpan data');
         }
 
-        await loadInitialData(); // Refresh data
+        await loadInitialData();
         closeStaffModal();
         alert('Data staff berhasil disimpan!');
     } catch (error) {
         console.error('Error saving staff:', error);
         alert('Gagal menyimpan data staff: ' + error.message);
     } finally {
-        hideLoading(); // Hide loading
+        hideLoading();
     }
 }
 
 async function handleTnaFormSubmit() {
-    showLoading(); // Show loading
+    showLoading();
+    
+    // Validasi tanggal
+    const tanggalInput = document.getElementById('tanggal');
+    if (!tanggalInput.value) {
+        alert('Harap isi tanggal terlebih dahulu!');
+        hideLoading();
+        return;
+    }
+
     const formData = {
         id: document.getElementById('tnaId').value,
         staff_id: document.getElementById('tnaStaffName').value,
+        tanggal: tanggalInput.value,
         seminar_workshop_webinar: document.getElementById('seminarWorkshopWebinar').value,
         pelatihan: document.getElementById('pelatihan').value,
         pendidikan_lanjutan: document.getElementById('pendidikanLanjutan').value,
@@ -286,17 +287,17 @@ async function handleTnaFormSubmit() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Network response was not ok');
+            throw new Error(errorData.message || 'Gagal menyimpan data');
         }
 
-        await loadInitialData(); // Refresh data
+        await loadInitialData();
         closeTnaModal();
         alert('Data TNA berhasil disimpan!');
     } catch (error) {
         console.error('Error saving TNA record:', error);
         alert('Gagal menyimpan data TNA: ' + error.message);
     } finally {
-        hideLoading(); // Hide loading
+        hideLoading();
     }
 }
 
@@ -305,7 +306,7 @@ window.deleteStaff = async function() {
     const staffId = document.getElementById('staffId').value;
     if (!staffId || !confirm('Apakah Anda yakin ingin menghapus staff ini? Semua data TNA terkait juga akan dihapus.')) return;
     
-    showLoading(); // Show loading
+    showLoading();
     try {
         const token = window.authToken;
         const headers = {
@@ -321,17 +322,17 @@ window.deleteStaff = async function() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Network response was not ok');
+            throw new Error(errorData.message || 'Gagal menghapus data');
         }
 
-        await loadInitialData(); // Refresh data
+        await loadInitialData();
         closeStaffModal();
         alert('Data staff berhasil dihapus!');
     } catch (error) {
         console.error('Error deleting staff:', error);
         alert('Gagal menghapus staff: ' + error.message);
     } finally {
-        hideLoading(); // Hide loading
+        hideLoading();
     }
 }
 
@@ -339,7 +340,7 @@ window.deleteTnaRecord = async function() {
     const tnaId = document.getElementById('tnaId').value;
     if (!tnaId || !confirm('Apakah Anda yakin ingin menghapus data TNA ini?')) return;
 
-    showLoading(); // Show loading
+    showLoading();
     try {
         const token = window.authToken;
         const headers = {
@@ -355,17 +356,17 @@ window.deleteTnaRecord = async function() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Network response was not ok');
+            throw new Error(errorData.message || 'Gagal menghapus data');
         }
 
-        await loadInitialData(); // Refresh data
+        await loadInitialData();
         closeTnaModal();
         alert('Data TNA berhasil dihapus!');
     } catch (error) {
         console.error('Error deleting TNA record:', error);
         alert('Gagal menghapus data TNA: ' + error.message);
     } finally {
-        hideLoading(); // Hide loading
+        hideLoading();
     }
 }
 
@@ -377,7 +378,7 @@ function renderStaffTable() {
         return;
     }
 
-    tbody.innerHTML = ''; // Clear existing rows
+    tbody.innerHTML = '';
 
     if (!staffMembers || staffMembers.length === 0) {
         const row = document.createElement('tr');
@@ -428,11 +429,11 @@ function renderTnaRecordsTable() {
         return;
     }
 
-    tbody.innerHTML = ''; // Clear existing rows
+    tbody.innerHTML = '';
 
     if (!tnaRecords || tnaRecords.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = `<td colspan="5" class="text-center py-4">Tidak ada data pendidikan & pelatihan</td>`;
+        row.innerHTML = `<td colspan="6" class="text-center py-4">Tidak ada data pendidikan & pelatihan</td>`;
         tbody.appendChild(row);
         return;
     }
@@ -440,6 +441,9 @@ function renderTnaRecordsTable() {
     tnaRecords.forEach(tna => {
         const staff = staffMembers.find(s => s.id === tna.staff_id);
         const staffName = staff ? staff.name : 'N/A';
+        
+        // Format tanggal untuk ditampilkan
+        const tanggal = tna.tanggal ? new Date(tna.tanggal).toLocaleDateString('id-ID') : '-';
 
         const row = document.createElement('tr');
         row.classList.add('hover:bg-white', 'transition-all', 'duration-300');
@@ -451,6 +455,7 @@ function renderTnaRecordsTable() {
             <td class="px-4 py-4">${tna.seminar_workshop_webinar || 'Belum Ada'}</td>
             <td class="px-4 py-4">${tna.pelatihan || 'Belum Ada'}</td>
             <td class="px-4 py-4">${tna.pendidikan_lanjutan || 'Belum Ada'}</td>
+            <td class="px-4 py-4">${tanggal}</td>
             <td class="px-4 py-4 flex flex space-x-2">
                 <button onclick="openEditTnaModal(${tna.id})" class="bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center border border-[#0CC0DF] mr-2">
                     <i class="fas fa-pen mr-1 text-[#0CC0DF]"></i>Edit
@@ -530,52 +535,56 @@ function updateCardCounts() {
 
 // Confirmation Dialogs
 window.deleteStaffConfirmation = function(staffId) {
-    if (confirm('Are you sure you want to delete this staff member? This will also delete any associated TNA records.')) {
-        document.getElementById('staffId').value = staffId; // Set ID for deletion
-        window.deleteStaff(); // Call the actual delete function
+    if (confirm('Apakah Anda yakin ingin menghapus staff ini? Data TNA terkait juga akan terhapus.')) {
+        document.getElementById('staffId').value = staffId;
+        window.deleteStaff();
     }
 };
 
 window.deleteTnaRecordConfirmation = function(tnaId) {
-    if (confirm('Are you sure you want to delete this TNA record?')) {
-        document.getElementById('tnaId').value = tnaId; // Set ID for deletion
-        window.deleteTnaRecord(); // Call the actual delete function
+    if (confirm('Apakah Anda yakin ingin menghapus data TNA ini?')) {
+        document.getElementById('tnaId').value = tnaId;
+        window.deleteTnaRecord();
     }
 };
 
 // --- Export Functions ---
 window.exportToExcel = async function() {
-    showLoading(); // Show loading for export
+    showLoading();
     try {
         const token = window.authToken;
         if (!token) {
-            alert('Authentication token missing.');
+            alert('Token autentikasi tidak ditemukan.');
             return;
         }
 
-        const response = await fetch('/api/v1/training-needs', { // Fetch all TNA data
+        const response = await fetch('/api/v1/training-needs', {
             headers: {
                 'Accept': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
         });
 
-        if (!response.ok) throw new Error('Failed to fetch TNA data for export.');
+        if (!response.ok) throw new Error('Gagal mengambil data TNA untuk export.');
 
         const data = await response.json();
 
-        // Prepare data for Excel (CSV in this basic implementation)
+        // Siapkan data untuk Excel
         const rows = [
-            ['Nama Staff', 'Seminar / Workshop / Webinar', 'Pelatihan', 'Pendidikan Lanjutan']
+            ['Nama Staff', 'Seminar/Workshop/Webinar', 'Pelatihan', 'Pendidikan Lanjutan', 'Tanggal']
         ];
+        
         data.forEach(tna => {
             const staff = staffMembers.find(s => s.id === tna.staff_id);
             const staffName = staff ? staff.name : 'N/A';
+            const tanggal = tna.tanggal ? new Date(tna.tanggal).toLocaleDateString('id-ID') : '-';
+            
             rows.push([
                 staffName,
                 tna.seminar_workshop_webinar || '',
                 tna.pelatihan || '',
-                tna.pendidikan_lanjutan || ''
+                tna.pendidikan_lanjutan || '',
+                tanggal
             ]);
         });
 
@@ -591,37 +600,32 @@ window.exportToExcel = async function() {
 
     } catch (error) {
         console.error('Error exporting to Excel:', error);
-        alert('Failed to export data to Excel.');
+        alert('Gagal export data ke Excel: ' + error.message);
     } finally {
-        hideLoading(); // Hide loading
+        hideLoading();
     }
 };
 
 window.exportToPdf = async function() {
-    showLoading(); // Show loading for export
-    alert('Export PDF functionality is not yet implemented.');
-    // For PDF export, you'd typically use a server-side solution or a more robust client-side library like jsPDF.
-    hideLoading(); // Hide loading even if just an alert
+    showLoading();
+    alert('Fitur export PDF belum tersedia.');
+    hideLoading();
 };
 
-// Mobile menu toggle function (from your Blade, made global)
+// Mobile menu toggle function
 window.toggleMobileMenu = function() {
-    const sidebar = document.querySelector('aside.fixed'); // Select by tag if no ID
+    const sidebar = document.querySelector('aside.fixed');
     if (sidebar) {
         sidebar.classList.toggle('mobile-show');
-    } else {
-        console.warn('Sidebar element not found for mobile menu toggle!');
     }
 };
 
-// Close mobile menu when clicking outside (using event delegation for robustness)
+// Close mobile menu when clicking outside
 document.addEventListener('click', function(event) {
-    const sidebar = document.querySelector('aside.fixed'); // Select sidebar
-    const mobileBtn = document.querySelector('.mobile-menu-btn'); // Select mobile menu button
+    const sidebar = document.querySelector('aside.fixed');
+    const mobileBtn = document.querySelector('.mobile-menu-btn');
 
-    // Only run if both elements exist
     if (sidebar && mobileBtn) {
-        // If the click is outside the sidebar AND outside the mobile button
         if (!sidebar.contains(event.target) && !mobileBtn.contains(event.target)) {
             sidebar.classList.remove('mobile-show');
         }
