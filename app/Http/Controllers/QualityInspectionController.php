@@ -42,7 +42,7 @@ class QualityInspectionController extends Controller
      */
     private function getCurrentWeekStartDate()
     {
-        return Carbon::now()->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+        return Carbon::now()->startOfWeek()->format('Y-m-d');
     }
 
     /**

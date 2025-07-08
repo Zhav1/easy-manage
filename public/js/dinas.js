@@ -3,6 +3,25 @@ let calendar;
 let departments = [];
 let positions = [];
 let staffMembers = [];
+let shifts = []; // Ensure shifts is declared globally
+let userInfo = {}; // Ensure userInfo is declared globally
+
+// --- Global Loading Functions (for HCI principle) ---
+function showLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+    }
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
+// --- End Global Loading Functions ---
+
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -24,9 +43,11 @@ function initializeCalendar() {
         },
         height: 'auto',
         events: async function(fetchInfo, successCallback, failureCallback) {
+            showLoading(); // Show loading for calendar events fetch
             const token = window.authToken || document.getElementById('auth_token')?.value;
             if (!token) {
                 console.error('Bearer token missing');
+                hideLoading(); // Hide loading on error
                 return failureCallback('Token is missing');
             }
 
@@ -39,13 +60,17 @@ function initializeCalendar() {
                     }
                 });
 
-                if (!response.ok) throw new Error('Failed to fetch events');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch events');
+                }
 
                 const data = await response.json();
                 successCallback(data);
             } catch (error) {
                 console.error('Error fetching events:', error);
                 failureCallback(error);
+            } finally {
+                hideLoading(); // Always hide loading
             }
         },
         eventClick: function(info) {
@@ -63,9 +88,13 @@ function initializeCalendar() {
 
 // Load initial data from API
 async function loadInitialData() {
+    showLoading(); // Show loading for initial data fetch
     try {
         const token = window.authToken || document.getElementById('auth_token')?.value;
-        if (!token) throw new Error('No authentication token found');
+        if (!token) {
+            hideLoading(); // Hide loading on error
+            throw new Error('No authentication token found');
+        }
         
         const headers = {
             'Accept': 'application/json',
@@ -95,9 +124,12 @@ async function loadInitialData() {
         updateShiftDropdown();
         renderStaffTable();
         updateTotalStaffCount();
-        } catch (error) {
-            console.error('Error loading initial data:', error);
-        }
+    } catch (error) {
+        console.error('Error loading initial data:', error);
+        // alert('Gagal memuat data awal: ' + error.message); // Provide user feedback
+    } finally {
+        hideLoading(); // Always hide loading
+    }
 }
 
 function updateShiftDropdown() {
@@ -112,6 +144,7 @@ function updateShiftDropdown() {
     shifts.forEach(shift => {
         const option = document.createElement('option');
         option.value = shift.id;
+        // Use shift.code for display, assuming it contains "Pagi", "Siang", "Malam"
         option.textContent = `${shift.code} - ${formatShiftTime(shift.code)}`;
         select.appendChild(option);
     });
@@ -185,6 +218,8 @@ window.openAddStaffModal = function() {
     document.getElementById('deleteStaffBtn').classList.add('hidden');
     document.getElementById('staffModal').classList.remove('hidden');
     document.getElementById('staffModal').classList.add('flex');
+    // Ensure position dropdown is populated when opening staff modal
+    updatePositionDropdown();
 }
 
 window.openEditStaffModal = function(staffId) {
@@ -199,6 +234,8 @@ window.openEditStaffModal = function(staffId) {
     document.getElementById('deleteStaffBtn').classList.remove('hidden');
     document.getElementById('staffModal').classList.remove('hidden');
     document.getElementById('staffModal').classList.add('flex');
+    // Ensure position dropdown is populated when opening staff modal
+    updatePositionDropdown();
 }
 
 window.closeStaffModal = function() {
@@ -217,13 +254,18 @@ function openAddScheduleModal(dateStr) {
     document.getElementById('deleteBtn').classList.add('hidden');
     document.getElementById('scheduleModal').classList.remove('hidden');
     document.getElementById('scheduleModal').classList.add('flex');
+    // Ensure staff and shift dropdowns are populated
+    updateStaffDropdown();
+    updateShiftDropdown();
 }
 
 function openEditScheduleModal(event) {
     document.getElementById('modalTitle').textContent = 'Edit Jadwal Dinas';
     document.getElementById('eventId').value = event.id;
     document.getElementById('staffName').value = event.extendedProps.staff_id;
-    document.getElementById('shiftType').value = event.extendedProps.shift;
+    // Map shift code to ID for the dropdown
+    const shift = shifts.find(s => s.code === event.extendedProps.shift);
+    document.getElementById('shiftType').value = shift ? shift.id : '';
     
     const startDate = event.start.toISOString().split('T')[0];
     const endDate = event.end ? event.end.toISOString().split('T')[0] : startDate;
@@ -233,6 +275,9 @@ function openEditScheduleModal(event) {
     document.getElementById('deleteBtn').classList.remove('hidden');
     document.getElementById('scheduleModal').classList.remove('hidden');
     document.getElementById('scheduleModal').classList.add('flex');
+    // Ensure staff and shift dropdowns are populated
+    updateStaffDropdown();
+    updateShiftDropdown();
 }
 
 window.closeScheduleModal = function() {
@@ -242,6 +287,7 @@ window.closeScheduleModal = function() {
 
 // Form Handlers
 async function handleStaffFormSubmit() {
+    showLoading(); // Show loading
     const formData = {
         id: document.getElementById('staffId').value,
         name: document.getElementById('staffFullName').value,
@@ -253,7 +299,6 @@ async function handleStaffFormSubmit() {
     };
     
     console.log('Form data with user_id:', formData);
-
     
     try {
         const token = window.authToken || document.getElementById('auth_token')?.value;
@@ -282,10 +327,13 @@ async function handleStaffFormSubmit() {
     } catch (error) {
         console.error('Error saving staff:', error);
         alert('Gagal menyimpan data staff');
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
 async function handlePositionFormSubmit() {
+    showLoading(); // Show loading
     const formData = {
         id: document.getElementById('positionId').value,
         name: document.getElementById('positionName').value,
@@ -318,10 +366,13 @@ async function handlePositionFormSubmit() {
     } catch (error) {
         console.error('Error saving position:', error);
         alert('Gagal menyimpan data jabatan');
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
 async function handleScheduleFormSubmit() {
+    showLoading(); // Show loading
     const formData = {
         id: document.getElementById('eventId').value,
         staff_id: document.getElementById('staffName').value,
@@ -355,21 +406,30 @@ async function handleScheduleFormSubmit() {
     } catch (error) {
         console.error('Error saving schedule:', error);
         alert('Gagal menyimpan jadwal dinas');
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
 // Delete Functions
 window.deleteStaff = async function() {
-     const token = window.authToken || document.getElementById('auth_token')?.value;
-        if (!token) throw new Error('No authentication token found');
+    showLoading(); // Show loading
+    const token = window.authToken || document.getElementById('auth_token')?.value;
+    if (!token) {
+        hideLoading(); // Hide loading on error
+        throw new Error('No authentication token found');
+    }
         
-        const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
     const staffId = document.getElementById('staffId').value;
-    if (!staffId || !confirm('Apakah Anda yakin ingin menghapus staff ini?')) return;
+    if (!staffId || !confirm('Apakah Anda yakin ingin menghapus staff ini?')) {
+        hideLoading(); // Hide loading if user cancels
+        return;
+    }
     
     try {
         const response = await fetch(`/api/v1/staff/${staffId}`, {
@@ -384,20 +444,29 @@ window.deleteStaff = async function() {
     } catch (error) {
         console.error('Error deleting staff:', error);
         alert('Gagal menghapus staff');
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
 window.deleteEvent = async function() {
-     const token = window.authToken || document.getElementById('auth_token')?.value;
-        if (!token) throw new Error('No authentication token found');
+    showLoading(); // Show loading
+    const token = window.authToken || document.getElementById('auth_token')?.value;
+    if (!token) {
+        hideLoading(); // Hide loading on error
+        throw new Error('No authentication token found');
+    }
         
-        const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
     const eventId = document.getElementById('eventId').value;
-    if (!eventId || !confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) return;
+    if (!eventId || !confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) {
+        hideLoading(); // Hide loading if user cancels
+        return;
+    }
     
     try {
         const response = await fetch(`/api/v1/schedules/${eventId}`, {
@@ -412,6 +481,8 @@ window.deleteEvent = async function() {
     } catch (error) {
         console.error('Error deleting schedule:', error);
         alert('Gagal menghapus jadwal');
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
@@ -468,6 +539,10 @@ function renderStaffTable() {
 
 function updateStaffDropdown() {
     const staffSelect = document.getElementById('staffName');
+    if (!staffSelect) { // Added null check for safety
+        console.warn('Element #staffName not found!');
+        return;
+    }
     staffSelect.innerHTML = '<option value="">Pilih Staff</option>';
     staffMembers.forEach(staff => {
         const option = document.createElement('option');
@@ -505,23 +580,27 @@ function updatePositionDropdown() {
 }
 
 function updateTotalStaffCount() {
-    document.getElementById('totalStaffCount').textContent = staffMembers.length;
+    const totalStaffCountElem = document.getElementById('totalStaffCount');
+    if (totalStaffCountElem) { // Added null check for safety
+        totalStaffCountElem.textContent = staffMembers.length;
+    }
 }
 
 function renderEventContent(arg) {
     const shiftBadge = document.createElement('div');
     shiftBadge.classList.add('shift-badge');
-
-    
     if (arg.event.extendedProps.shift === 'Pagi') {
         shiftBadge.classList.add('shift-pagi');
         shiftBadge.innerHTML = `${arg.event.extendedProps.staff_name} (P)`;
     } else if (arg.event.extendedProps.shift === 'Siang') {
         shiftBadge.classList.add('shift-sore');
         shiftBadge.innerHTML = `${arg.event.extendedProps.staff_name} (S)`;
-    } else {
+    } else if (arg.event.extendedProps.shift === 'Malam') { // Explicitly check Malam
         shiftBadge.classList.add('shift-malam');
         shiftBadge.innerHTML = `${arg.event.extendedProps.staff_name} (M)`;
+    } else {
+        shiftBadge.classList.add('shift-other'); // Define this class in dinas.css
+        shiftBadge.innerHTML = `${arg.event.extendedProps.staff_name} (${(arg.event.extendedProps.shift || '').charAt(0).toUpperCase()})`;
     }
     
     return { domNodes: [shiftBadge] };
@@ -530,7 +609,7 @@ function renderEventContent(arg) {
 // Confirmation Dialog
 window.confirmDeleteStaff = function(staffId) {
     if (confirm('Apakah Anda yakin ingin menghapus staff ini?')) {
-        openEditStaffModal(staffId);
-        document.getElementById('deleteStaffBtn').classList.remove('hidden');
+        document.getElementById('staffId').value = staffId; // Set ID for deletion
+        deleteStaff(); 
     }
 };

@@ -19,7 +19,7 @@
             -ms-overflow-style: none;
         }
         /* Custom styles for the tables to match the reference */
-        .management-table, .tna-table {
+        /* .management-table, .tna-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
@@ -42,7 +42,7 @@
         }
         .management-table th:last-child, .tna-table th:last-child {
             border-top-right-radius: 0.75rem;
-        }
+        } */
         .btn-green-tna {
             background: linear-gradient(to right, #10b981, #059669); /* Green gradient */
             color: white;
@@ -81,7 +81,7 @@
   border-collapse: collapse;
 }
 
-.management-table th, 
+/* .management-table th, 
 .management-table td {
   padding: 12px 8px;
   text-align: left;
@@ -98,7 +98,7 @@
   padding: 12px 8px;
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
-}
+} */
 
 /* Mobile-specific styles */
 @media (max-width: 640px) {
@@ -190,3 +190,78 @@
     font-size: 1.5rem;
   }
 }
+
+/* Mobile-specific styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+            .sidebar-transform {
+                transform: translateX(-100%);
+            }
+            .sidebar-transform.mobile-show {
+                transform: translateX(0);
+            }
+            main {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                margin-top: 4rem !important;
+            }
+            .glass-effect {
+                padding: 1.5rem !important;
+            }
+            .grid-cols-1 {
+                grid-template-columns: 1fr !important;
+            }
+            .flex-wrap {
+                flex-wrap: wrap;
+            }
+            .flex-wrap button {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            /* .management-table, .tna-table {
+                font-size: 0.875rem;
+            }
+            .management-table th, .tna-table th {
+                padding: 0.5rem !important;
+            }
+            .management-table td, .tna-table td {
+                padding: 0.5rem !important;
+                white-space: nowrap;
+            } */
+            .text-4xl {
+                font-size: 1.75rem !important;
+            }
+            .text-2xl {
+                font-size: 1.5rem !important;
+            }
+            .text-lg {
+                font-size: 1rem !important;
+            }
+            .p-8 {
+                padding: 1.5rem !important;
+            }
+            .p-6 {
+                padding: 1rem !important;
+            }
+            .mobile-menu-btn {
+                display: block !important;
+            }
+        }
+        
+        /* General mobile-friendly styles */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 50;
+        }
+        .overflow-x-auto {
+            -webkit-overflow-scrolling: touch;
+        }
+        .btn-mobile {
+            padding: 0.75rem 1rem !important;
+            font-size: 0.875rem !important;
+        }

@@ -10,6 +10,7 @@
 @vite('resources/css/app.css')
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 {{-- Add Moment.js for date calculations --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="{{ asset('js/indikator-mutu.js') }}"></script>
@@ -905,8 +906,18 @@
         <button class="cancel-btn px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 mt-4" onclick="backToList()"><i class="fas fa-times"></i> Kembali</button>
     </div>
 
-    <div class="loading-spinner" id="loading" style="display: none;">
-        <div class="spinner"></div>
+    <div id="global-loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[9999] hidden">
+        <div class="flex flex-col items-center space-y-4">
+            <div class="relative w-20 h-20">
+                <div class="absolute inset-0 border-4 border-blue-400 border-t-blue-600 rounded-full animate-spin"></div>
+                <div class="absolute inset-2 border-4 border-white border-t-white rounded-full animate-spin-reverse" style="animation-duration: 1.5s;"></div>
+                <div class="absolute inset-4 border-4 border-purple-400 border-t-purple-600 rounded-full animate-spin" style="animation-duration: 2s;"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fas fa-sync-alt text-white text-3xl animate-pulse"></i>
+                </div>
+            </div>
+            <p class="text-white text-lg font-semibold animate-pulse">Loading Data...</p>
+        </div>
     </div>
 </body>
 </html>

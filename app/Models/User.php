@@ -55,7 +55,7 @@ class User extends Authenticatable
 
     public function staff() 
     {
-        return $this->hasMany(Staff::class);
+        return $this->hasMany(Staff::class, 'user_id');
     }
 
     public function privateSchedules()

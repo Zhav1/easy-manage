@@ -1,11 +1,11 @@
 <!-- resources/views/components/sidebar-navbar.blade.php -->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 text-base">
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
-    <div class="flex items-center justify-between">
+    <div class="grid grid-cols-3 items-center justify-center">
       <div class="flex items-center justify-start rtl:justify-end">
         <div class="text-xl font-bold text-[#0CC0DF]">EasyManage</div>
       </div>
-      <div class="space-x-4 hidden md:flex text-sm gap-8 ml-20">
+      <div class="space-x-4 hidden flex md:flex justify-center text-sm gap-8">
         @php $current = Request::path(); @endphp
         @if(Str::contains($current, 'dinas'))
           <a href="/dinas" class="text-black font-semibold"><i class="fas fa-calendar-check mr-1 text-blue-500"></i>Jadwal Dinas</a>
@@ -29,7 +29,7 @@
           <a href="/" class="text-black font-semibold"><i class="fas fa-home mr-1 text-green-500"></i>Dashboard</a>
         @endif
       </div>
-      <div class="flex items-center gap-4 ms-auto pr-4">
+      <div class="flex items-center gap-4 justify-end ms-auto pr-4">
         <!-- Tanggal Realtime -->
         <div class="text-sm text-gray-600 font-medium">
           <script>
@@ -46,7 +46,7 @@
         <div>
           <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300" aria-expanded="false" data-dropdown-toggle="dropdown-user">
             <span class="sr-only">Open user menu</span>
-            <img class="w-8 h-8 rounded-full bg-white" src="images/p.png" alt="user photo">
+            <img class="w-8 h-8 rounded-full bg-white" src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('images/p.png') }}" alt="user photo">
           </button>
         </div>
         <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow" id="dropdown-user">

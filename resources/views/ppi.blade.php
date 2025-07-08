@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {{-- Font Awesome for Icons (like the plus icon) - IMPORTANT for new form button --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     {{-- Your ppi.js script (ensure this path is correct) --}}
     <script src="{{ asset('js/ppi.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('css/ppi.css') }}">
@@ -513,30 +514,6 @@
                                             <canvas id="microorganismChart"></canvas>
                                         </div>
                                     </div>
-
-                                    <div class="bg-white p-4 rounded-lg shadow border border-gray-200 mt-6">
-                                        <h4 class="text-sm font-semibold text-gray-500 mb-3">FAKTOR RISIKO UTAMA</h4>
-                                        <div class="space-y-4" id="riskFactorsContainer">
-                                            <div>
-                                                <div class="flex justify-between mb-1">
-                                                    <span class="text-sm font-medium text-gray-700">Durasi Kateter >7 hari</span>
-                                                    <span class="text-sm font-medium text-gray-700" id="riskFactor1Percentage">--%</span>
-                                                </div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                                    <div class="bg-red-600 h-2.5 rounded-full" id="riskFactor1ProgressBar" style="width: 0%"></div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="flex justify-between mb-1">
-                                                    <span class="text-sm font-medium text-gray-700">Kepatuhan Hand Hygiene</span>
-                                                    <span class="text-sm font-medium text-gray-700" id="riskFactor2Percentage">--%</span>
-                                                </div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                                    <div class="bg-orange-500 h-2.5 rounded-full" id="riskFactor2ProgressBar" style="width: 0%"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div id="infeksi-history" class="tab-content infeksi-tab hidden pt-4">
@@ -587,6 +564,19 @@
             <button class="modal-close-button" id="closePhotoModal">&times;</button>
             <div id="photoModalBody" class="w-full h-full flex justify-center items-center">
                 </div>
+        </div>
+    </div>
+    <div id="global-loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[9999] hidden">
+        <div class="flex flex-col items-center space-y-4">
+            <div class="relative w-20 h-20">
+                <div class="absolute inset-0 border-4 border-blue-400 border-t-blue-600 rounded-full animate-spin"></div>
+                <div class="absolute inset-2 border-4 border-white border-t-white rounded-full animate-spin-reverse" style="animation-duration: 1.5s;"></div>
+                <div class="absolute inset-4 border-4 border-purple-400 border-t-purple-600 rounded-full animate-spin" style="animation-duration: 2s;"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fas fa-sync-alt text-white text-3xl animate-pulse"></i>
+                </div>
+            </div>
+            <p class="text-white text-lg font-semibold animate-pulse">Loading Data...</p>
         </div>
     </div>
 </body>

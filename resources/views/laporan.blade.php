@@ -7,6 +7,9 @@
     <title>Laporan Kepala Ruangan</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/laporan.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('js/laporan.js') }}"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
@@ -41,10 +44,10 @@
                             <div class="text-xl sm:text-2xl font-bold text-green-600" id="activeStaffCount">Loading...</div>
                             <div class="text-xs sm:text-sm text-green-700">Staf Aktif</div>
                         </div>
-                        <div class="text-center p-2 sm:p-4 bg-blue-100 rounded-lg">
-                            <div class="text-xl sm:text-2xl font-bold text-blue-600" id="complianceRate">Loading...</div>
-                            <div class="text-xs sm:text-sm text-blue-700">Kepatuhan</div>
-                        </div>
+                        {{-- <div class="text-center p-4 bg-blue-100 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600" id="complianceRate">Loading...</div>
+                            <div class="text-sm text-blue-700">Kepatuhan</div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

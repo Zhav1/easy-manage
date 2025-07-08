@@ -6,6 +6,7 @@
     <title>Profil Kepala Ruangan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </head>
 <body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
 
@@ -150,8 +151,8 @@
                     <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
                 </label>
 
-                {{-- Ganti Password --}}
-                <a href="{{ route('password.change') }}" class="w-full flex items-center p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                Ganti Password
+                <a href="{{ route('password.update') }}" class="w-full flex items-center p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
                     <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <i class="fas fa-key text-blue-600 text-sm md:text-base"></i>
                     </div>

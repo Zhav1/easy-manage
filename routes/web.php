@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -9,16 +10,18 @@ use App\Http\Controllers\PasswordChangeController;
 Route::get('/', function () {
     return view('landing-page');
 });
-
+Route::put('/logistics/{id}/use', [LogisticController::class, 'useItem'])->name('logistics.use');
 Route::middleware(['auth', 'web', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    });
+    Route::get('/dashboard', [DashboardController::class, 'index']);
     
     Route::get('/notifikasi', function () {
         return view('notifikasi');
     });
+// Get initial items for dropdown
+Route::get('/logistics/get-items', [LogisticController::class, 'getItems'])->name('logistics.get-items');
 
+// Save new item to dropdown options
+Route::post('/logistics/store-item', [LogisticController::class, 'storeItem'])->name('logistics.store-item');
     // Hanya satu route untuk manajemen-logistik
     Route::get('/manajemen-logistik', [LogisticController::class, 'dashboard'])
         ->name('logistics.dashboard');

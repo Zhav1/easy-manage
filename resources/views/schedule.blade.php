@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>Schedule - Catatan Pribadi</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
   <link rel="stylesheet" href="{{ asset('css/schedule.css') }}">
   <script src={{ asset('js/schedule.js') }} defer></script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -290,5 +291,18 @@ html, body {
           </form>
       </div>
   </div>
+  <div id="global-loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[9999] hidden">
+        <div class="flex flex-col items-center space-y-4">
+            <div class="relative w-20 h-20">
+                <div class="absolute inset-0 border-4 border-blue-400 border-t-blue-600 rounded-full animate-spin"></div>
+                <div class="absolute inset-2 border-4 border-white border-t-white rounded-full animate-spin-reverse" style="animation-duration: 1.5s;"></div>
+                <div class="absolute inset-4 border-4 border-purple-400 border-t-purple-600 rounded-full animate-spin" style="animation-duration: 2s;"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fas fa-sync-alt text-white text-3xl animate-pulse"></i>
+                </div>
+            </div>
+            <p class="text-white text-lg font-semibold animate-pulse">Loading Data...</p>
+        </div>
+    </div>
 </body>
 </html>

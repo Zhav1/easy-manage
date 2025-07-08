@@ -1,3 +1,16 @@
+function showLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+    }
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
 document.addEventListener('DOMContentLoaded', () => {
     const token = window.authToken;
     if (!token) {
@@ -16,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('privateScheduleForm');
     const submitBtn = document.getElementById('submitScheduleBtn');
     const tableBody = document.getElementById('scheduleTableBody');
-    
+
 
     // Modal elements
     const modalForm = document.getElementById('modalPrivateScheduleForm');
@@ -24,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.getElementById('modalTitle');
     const deleteBtn = document.getElementById('deleteBtn');
     const modalSubmitBtn = document.getElementById('modalSubmitBtn');
-    
+
     // Initial load
     loadPrivateSchedules();
 
@@ -41,14 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleFormSubmission() {
         const data = getFormData();
-        
+
         if (!data.scheduled_at) {
             alert('Waktu tidak boleh kosong');
             return;
         }
 
         try {
-            // Show loading state
+            // Show loading before API call
+            showLoading();
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
 
@@ -66,12 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             renderScheduleRow(result);
             resetForm();
-            
+
         } catch (error) {
             console.error('Error:', error);
             alert(error.message || 'Terjadi kesalahan');
         } finally {
-            // Reset button state
+            // Hide loading and reset button state after API call
+            hideLoading();
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fas fa-save mr-3"></i>Simpan Catatan';
         }
@@ -91,20 +106,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadPrivateSchedules() {
         try {
+            // Show loading before API call
+            showLoading();
             const response = await fetch(API_BASE, { headers });
             if (!response.ok) throw new Error('Gagal mengambil data');
-            
+
             const schedules = await response.json();
             renderSchedules(schedules);
         } catch (error) {
             console.error('Error loading schedules:', error);
             renderEmptyState();
+        } finally {
+            // Hide loading after API call
+            hideLoading();
         }
     }
 
     function renderSchedules(schedules) {
         tableBody.innerHTML = '';
-        
+
         if (!schedules || schedules.length === 0) {
             renderEmptyState();
             return;
@@ -112,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Sort by date (newest first)
         schedules.sort((a, b) => new Date(b.scheduled_at) - new Date(a.scheduled_at));
-        
+
         schedules.forEach(schedule => {
             renderScheduleRow(schedule);
         });
@@ -157,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const rowDate = new Date(r.querySelector('td:first-child').textContent);
             return new Date(schedule.scheduled_at) > rowDate;
         });
-        
+
         if (insertBefore) {
             tableBody.insertBefore(row, insertBefore);
         } else {
@@ -166,10 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatDateTime(dateString) {
-        const options = { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
+        const options = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
@@ -191,15 +211,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.openEditScheduleModal = async function(id) {
         try {
+            // Show loading before API call
+            showLoading();
             const response = await fetch(`${API_BASE}/${id}`, {
                 method: 'GET',
                 headers
             });
-            
+
             if (!response.ok) throw new Error('Gagal mengambil data');
-            
+
             const schedule = await response.json();
-            
+
             // Populate modal form
             modalForm.querySelector('[name="scheduled_at"]').value = schedule.scheduled_at.slice(0, 16);
             modalForm.querySelector('[name="briefing"]').value = schedule.briefing ? '1' : '0';
@@ -208,22 +230,25 @@ document.addEventListener('DOMContentLoaded', () => {
             modalForm.querySelector('[name="handover"]').value = schedule.handover ? '1' : '0';
             modalForm.querySelector('[name="external_task"]').value = schedule.external_task || '';
             modalForm.querySelector('[name="note"]').value = schedule.note || '';
-            
+
             // Set the ID to be used in update
             modalForm.dataset.editId = id;
-            
+
             // Update UI
             modalTitle.textContent = 'Edit Jadwal Kegiatan';
             deleteBtn.classList.remove('hidden');
             deleteBtn.setAttribute('data-id', id);
-            
+
             // Show modal
             scheduleModal.classList.remove('hidden');
             scheduleModal.classList.add('flex');
-            
+
         } catch (error) {
             console.error('Error:', error);
             alert('Gagal memuat data untuk diedit');
+        } finally {
+            // Hide loading after API call
+            hideLoading();
         }
     };
 
@@ -231,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = modalForm.dataset.editId;
-        
+
         if (id) {
             await handleUpdateSchedule(id);
         }
@@ -248,8 +273,10 @@ document.addEventListener('DOMContentLoaded', () => {
             external_task: modalForm.querySelector('[name="external_task"]').value,
             note: modalForm.querySelector('[name="note"]').value
         };
-        
+
         try {
+            // Show loading before API call
+            showLoading();
             modalSubmitBtn.disabled = true;
             modalSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memperbarui...';
 
@@ -260,19 +287,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const updatedSchedule = await response.json();
-        
+
             // Remove the old row
             const oldRow = document.querySelector(`tr[data-id="${id}"]`);
             if (oldRow) {
                 oldRow.remove();
             }
-            
+
             // Add the updated row (will be added in sorted position)
             renderScheduleRow(updatedSchedule);
         } catch (error) {
             console.error('Error:', error);
             alert(error.message || 'Gagal memperbarui');
         } finally {
+            // Hide loading and reset button state after API call
+            hideLoading();
             modalSubmitBtn.disabled = false;
             modalSubmitBtn.innerHTML = '<i class="fas fa-save mr-3"></i>Simpan Catatan';
             window.closeScheduleModal();
@@ -287,26 +316,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteSchedule(id) {
         try {
+            // Show loading before API call
+            showLoading();
             const response = await fetch(`${API_BASE}/${id}`, {
                 method: 'DELETE',
                 headers
             });
-            
+
             if (!response.ok) throw new Error('Gagal menghapus data');
-            
+
             // Remove the row from table
             document.querySelector(`tr[data-id="${id}"]`)?.remove();
-            
+
             // Check if table is empty now
             if (tableBody.querySelectorAll('tr').length === 0) {
                 renderEmptyState();
             }
-            
+
             window.closeScheduleModal();
-            
+
         } catch (error) {
             console.error('Error:', error);
             alert('Gagal menghapus jadwal');
+        } finally {
+            // Hide loading after API call
+            hideLoading();
         }
     }
 

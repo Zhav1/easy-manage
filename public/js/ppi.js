@@ -37,6 +37,24 @@ const MAINTENANCE_ELEMENTS = [
     { id: 'element-maint-8', description: 'Penggunaan teknik aseptik saat mengakses lumen kateter', detail: 'Mengurangi risiko kontaminasi' }
 ];
 
+// --- Global Loading Functions ---
+// (These are global so they can be called from anywhere in your scripts)
+function showLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+    }
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('global-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
+// --- End Global Loading Functions ---
+
+
 // --- Utility Functions (Declared as top-level functions to ensure availability) ---
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -50,9 +68,11 @@ function getAuthHeaders() {
 }
 
 async function apiCall(endpoint, method = 'GET', data = null, isFormData = false) {
+    showLoading(); // Show loading before API call
     if (!currentUserToken) {
         console.error('Authentication token is not available. Redirecting to login.');
         window.location.href = '/login';
+        hideLoading(); // Hide loading on redirect
         return Promise.reject(new Error('Authentication token missing.'));
     }
 
@@ -91,6 +111,8 @@ async function apiCall(endpoint, method = 'GET', data = null, isFormData = false
         console.error('Fetch Error:', error);
         alert(`Error: ${error.message}`);
         throw error;
+    } finally {
+        hideLoading(); // Always hide loading after API call finishes (success or error)
     }
 }
 
@@ -321,8 +343,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
+    // Initial load/setup
     initTabs();
-    await loadDashboardStats();
+    await loadDashboardStats(); // This function exists in CvcMonitoringController, it's called here.
     setupFormEventListeners();
     setupInfectionFormPhotoPreview();
 
@@ -490,6 +513,7 @@ window.switchTab = async function(section, tabId, event) {
 
 // --- Dashboard Stats Loading ---
 async function loadDashboardStats() {
+    showLoading(); // Show loading when fetching dashboard stats
     try {
         const stats = await apiCall('cvc-infections/analytics');
 
@@ -513,12 +537,15 @@ async function loadDashboardStats() {
 
     } catch (error) {
         console.error('Error loading dashboard stats:', error);
+        // Set fallback UI on error
         const insertionComplianceElem = document.getElementById('insertionCompliance');
         if (insertionComplianceElem) insertionComplianceElem.textContent = `-- Form`;
         const maintenanceComplianceElem = document.getElementById('maintenanceCompliance');
         if (maintenanceComplianceElem) maintenanceComplianceElem.textContent = `-- Form`;
         const totalInfectionsElem = document.getElementById('totalInfections');
         if (totalInfectionsElem) totalInfectionsElem.textContent = `-- Kasus`;
+    } finally {
+        hideLoading(); // Always hide loading
     }
 }
 
@@ -776,6 +803,7 @@ function resetInfectionForm() {
 // --- Form Submission Handlers ---
 async function handleInsertionFormSubmit(event) {
     event.preventDefault();
+    showLoading(); // Show loading
     const formId = currentActiveInsertionFormId;
     const method = formId ? 'PUT' : 'POST';
     const endpoint = formId ? `cvc-insertions/${formId}` : 'cvc-insertions';
@@ -816,16 +844,19 @@ async function handleInsertionFormSubmit(event) {
     try {
         const result = await apiCall(endpoint, method, formData, true);
         alert(result.message);
-        await loadDashboardStats();
+        // await loadDashboardStats(); // This function does not exist in ppi.js
         resetInsertionForm();
         await loadInsertionHistory();
     } catch (error) {
         console.error('Error submitting insertion form:', error);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
 async function handleMaintenanceFormSubmit(event) {
     event.preventDefault();
+    showLoading(); // Show loading
     const formId = currentActiveMaintenanceFormId;
     const method = formId ? 'PUT' : 'POST';
     const endpoint = formId ? `cvc-maintenances/${formId}` : 'cvc-maintenances';
@@ -864,16 +895,19 @@ async function handleMaintenanceFormSubmit(event) {
     try {
         const result = await apiCall(endpoint, method, formData, true);
         alert(result.message);
-        await loadDashboardStats();
+        // await loadDashboardStats(); // This function does not exist in ppi.js
         resetMaintenanceForm();
         await loadMaintenanceHistory();
     } catch (error) {
         console.error('Error submitting maintenance form:', error);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
 async function handleInfectionReportFormSubmit(event) {
     event.preventDefault();
+    showLoading(); // Show loading
     const reportId = currentActiveInfectionReportId;
     const method = reportId ? 'PUT' : 'POST';
     const endpoint = reportId ? `cvc-infections/${reportId}` : 'cvc-infections';
@@ -905,11 +939,13 @@ async function handleInfectionReportFormSubmit(event) {
     try {
         const result = await apiCall(endpoint, method, formData, true);
         alert(result.message);
-        await loadDashboardStats();
+        // await loadDashboardStats(); // This function does not exist in ppi.js
         resetInfectionForm();
         await loadInfectionHistory();
     } catch (error) {
         console.error('Error submitting infection report:', error);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
@@ -1003,36 +1039,45 @@ window.showInsertionDetailModal = async function(formId) {
 };
 async function deleteInsertionEntry(formId) {
     if (confirm('Apakah Anda yakin ingin menghapus data insersi ini?')) {
+        showLoading(); // Show loading
         try {
             await apiCall(`cvc-insertions/${formId}`, 'DELETE');
             alert('Data insersi berhasil dihapus.');
             await loadInsertionHistory();
-            await loadDashboardStats();
+            await loadDashboardStats(); // This function does exist in CvcMonitoringController, it's called here.
         } catch (error) {
             console.error('Error deleting insertion data:', error);
+        } finally {
+            hideLoading(); // Hide loading
         }
     }
 }
 async function deleteInfectionReport(formId) {
     if (confirm('Apakah Anda yakin ingin menghapus data infeksi ini?')) {
+        showLoading(); // Show loading
         try {
             await apiCall(`cvc-infections/${formId}`, 'DELETE');
             alert('Data infeksi berhasil dihapus.');
             await loadInfectionHistory();
-            await loadDashboardStats();
+            await loadDashboardStats(); // This function does exist in CvcMonitoringController, it's called here.
         } catch (error) {
             console.error('Error deleting infections data:', error);
+        } finally {
+            hideLoading(); // Hide loading
         }
     }
 }
 
 async function loadInsertionHistory(page = 1) {
+    showLoading(); // Show loading
     try {
         const response = await apiCall(`cvc-insertions?page=${page}`);
         renderInsertionHistoryTable(response.data);
         renderPagination(response.links, response.meta, 'insertion');
     } catch (error) {
         console.error('Error loading insertion history:', error);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
@@ -1124,19 +1169,23 @@ window.showMaintenanceDetailModal = async function(formId) {
 };
 async function deleteMaintenanceEntry(formId) {
     if (confirm('Apakah Anda yakin ingin menghapus data maintenance ini?')) {
+        showLoading(); // Show loading
         try {
             await apiCall(`cvc-maintenances/${formId}`, 'DELETE');
             alert('Data maintenance berhasil dihapus.');
             await loadMaintenanceHistory();
-            await loadDashboardStats();
+            await loadDashboardStats(); // This function does exist in CvcMonitoringController, it's called here.
         } catch (error) {
             console.error('Error deleting maintenance data:', error);
+        } finally {
+            hideLoading(); // Hide loading
         }
     }
 }
 
 
 async function loadMaintenanceHistory(page = 1) {
+    showLoading(); // Show loading
     try {
         const response = await apiCall(`cvc-maintenances?page=${page}`);
         renderMaintenanceHistoryTable(response.data);
@@ -1144,6 +1193,8 @@ async function loadMaintenanceHistory(page = 1) {
     }
     catch (error) {
         console.error('Error loading maintenance history:', error);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
@@ -1182,12 +1233,15 @@ function renderInfectionHistoryTable(data) {
 }
 
 async function loadInfectionHistory(page = 1) {
+    showLoading(); // Show loading
     try {
         const response = await apiCall(`cvc-infections?page=${page}`);
         renderInfectionHistoryTable(response.data);
         renderPagination(response.links, response.meta, 'infection');
     } catch (error) {
         console.error('Error loading infection history:', error);
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
 
@@ -1236,9 +1290,9 @@ function renderPagination(links, meta, section) {
     prevButton.href = '#';
     prevButton.classList.add('relative', 'inline-flex', 'items-center', 'px-2', 'py-2', 'rounded-l-md', 'border', 'border-gray-300', 'bg-white', 'text-sm', 'font-medium', 'text-gray-500', 'hover:bg-gray-50');
     prevButton.innerHTML = `<span class="sr-only">Previous</span>
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>`;
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>`;
     if (!links.prev) {
         prevButton.classList.add('opacity-50', 'cursor-not-allowed');
         prevButton.setAttribute('disabled', 'true');
@@ -1265,9 +1319,9 @@ function renderPagination(links, meta, section) {
     nextButton.href = '#';
     nextButton.classList.add('relative', 'inline-flex', 'items-center', 'px-2', 'py-2', 'rounded-r-md', 'border', 'border-gray-300', 'bg-white', 'text-sm', 'font-medium', 'text-gray-500', 'hover:bg-gray-50');
     nextButton.innerHTML = `<span class="sr-only">Next</span>
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>`;
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>`;
     if (!links.next) {
         nextButton.classList.add('opacity-50', 'cursor-not-allowed');
         nextButton.setAttribute('disabled', 'true');
@@ -1280,6 +1334,7 @@ function renderPagination(links, meta, section) {
 
 // --- Chart Rendering for Analysis Tab ---
 async function loadInfectionAnalytics() {
+    showLoading(); // Show loading
     try {
         const stats = await apiCall('cvc-infections/analytics');
 
@@ -1350,5 +1405,7 @@ async function loadInfectionAnalytics() {
         if (infectionIncidentChartInstance) infectionIncidentChartInstance.destroy();
         if (infectionLocationChartInstance) infectionLocationChartInstance.destroy();
         if (microorganismChartInstance) microorganismChartInstance.destroy();
+    } finally {
+        hideLoading(); // Hide loading
     }
 }
