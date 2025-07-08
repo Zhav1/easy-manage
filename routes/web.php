@@ -78,6 +78,10 @@ Route::post('/logistics/store-item', [LogisticController::class, 'storeItem'])->
     Route::get('/indikator-mutu', function () {
         return view('indikator-mutu');
     });
+
+     Route::get('/tentang-kami', function () {
+        return view('tentang-kami');
+    });
 });
 
 Route::middleware('auth')->group(function () {

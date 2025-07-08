@@ -383,10 +383,20 @@
                         <li><a href="#" class="hover:text-white transition-colors">Technical Support</a></li>
                     </ul>
                 </div>
+                <div>
+    <h4 class="font-semibold mb-4">
+        <a href="{{ url('/tentang-kami') }}" class="hover:text-green-300 transition-colors">
+            Tentang kami
+        </a>
+    </h4>
+</div>
             </div>
-            <div class="pt-8 border-t border-green-700 text-center text-green-200">
-                © 2025 EasyManage. Sistem manajemen terpercaya untuk rumah sakit Indonesia.
-            </div>
+           <div class="pt-8 border-t border-green-700 text-center text-green-200 flex items-center justify-center">
+    <div class="rounded-full overflow-hidden w-10 h-10 mr-3 flex-shrink-0">
+        <img src="images/logo wahid.png" alt="EasyManage Logo" class="w-full h-full object-cover">
+    </div>
+    © 2025 EasyManage. Sistem manajemen terpercaya untuk rumah sakit Indonesia.
+</div>
         </div>
     </footer>
 </body>
