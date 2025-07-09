@@ -24,6 +24,10 @@
         padding-right: 1rem;
     }
 }
+::-webkit-scrollbar { width: 0px; background: transparent; }
+ ::-webkit-scrollbar { width: 0px; background: transparent; }
+        /* Firefox */
+        html, body { scrollbar-width: none; -ms-overflow-style: none; }
 
 
 

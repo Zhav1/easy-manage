@@ -75,7 +75,6 @@
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Jenis Alat/Logistik</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Merk</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Kode Barang</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Jadwal Pemeliharaan</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tanggal Kalibrasi</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Kadaluarsa Kalibrasi</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Stok</th>
