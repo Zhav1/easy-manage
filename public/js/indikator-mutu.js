@@ -1,7 +1,9 @@
-    // Global variables
+// Global variables
     let currentSection = 'list';
-    let formCurrentData = {}; // Stores current week's data for each form type
-    let formHistoryData = {}; // Stores history data for each form type
+    // formCurrentData will now store the aggregated data for each form type (all entries combined from all past records)
+    let formCurrentData = {};
+    // formHistoryData still stores weekly snapshots for the dedicated history view
+    let formHistoryData = {};
 
     const API_BASE_URL = '/api/v1/quality-inspection';
 
@@ -40,7 +42,6 @@
 
 
     // --- Utility Functions ---
-    // --- Global Loading Functions ---
     function showLoading() {
         const overlay = document.getElementById('global-loading-overlay');
         if (overlay) {
@@ -54,21 +55,7 @@
             overlay.classList.add('hidden');
         }
     }
-    /**
-     * Helper function for authenticated fetch requests.
-     * Includes CSRF token and Authorization header.
-     * @param {string} url - The URL to fetch.
-     * @param {object} options - Fetch options.
-     * @returns {Promise<Response>}
-     */
-
-    /**
-     * General helper to find the correct insertion index for a new data row.
-     * It will insert before the first static row, or at the very end of the tbody.
-     * @param {HTMLElement} tbody
-     * @param {string[]} excludeClasses Classes of static rows (e.g., ['total-row', 'rata-rata-row', 'nb-row'])
-     * @returns {number} The index within the tbody where a new data row should be inserted.
-     */
+    
     function getInsertionIndex(tbody, excludeClasses) {
         const rows = Array.from(tbody.children);
         for (let i = 0; i < rows.length; i++) {
@@ -80,10 +67,10 @@
                 }
             }
             if (isStatic) {
-                return i; // Found the first static row, insert before it
+                return i;
             }
         }
-        return -1; // If no static rows found, append at the very end
+        return -1;
     }
 
     async function authenticatedFetch(url, options = {}) {
@@ -91,7 +78,7 @@
         const headers = {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            ...options.headers, // Allow overriding or adding more headers
+            ...options.headers,
         };
 
         if (token) {
@@ -100,22 +87,15 @@
 
         return fetch(url, { ...options, headers });
     }
-
-
-    /**
-     * Displays a notification message.
-     * @param {string} message - The message to display.
-     * @param {'info'|'success'|'warning'|'error'} type - The type of notification.
-     */
+    
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`; // Uses CSS classes for styling
+        notification.className = `notification notification-${type}`;
         notification.innerHTML = `
             <i class="fas fa-${getNotificationIcon(type)}"></i>
             <span>${message}</span>
             <button class="close-btn" onclick="this.parentElement.remove()">×</button>
         `;
-        // Apply Tailwind-like styles directly for immediate visibility if CSS not loaded
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -129,10 +109,8 @@
             align-items: center;
             gap: 10px;
             max-width: 300px;
-            animation: slideIn 0.3s ease forwards; /* Use forwards to keep final state */
+            animation: slideIn 0.3s ease forwards;
         `;
-
-        // Add specific color for different types
         if (type === 'success') {
             notification.style.borderColor = '#4CAF50';
             notification.style.color = '#1E8449';
@@ -142,86 +120,51 @@
         } else if (type === 'warning') {
             notification.style.borderColor = '#FFC107';
             notification.style.color = '#D68910';
-        } else { // info
+        } else {
             notification.style.borderColor = '#2196F3';
             notification.style.color = '#2874A6';
         }
-
-
         document.body.appendChild(notification);
-
-        // Optional: Add keyframes directly if global CSS animations are an issue in Canvas
         const styleSheet = document.styleSheets[0] || document.head.appendChild(document.createElement('style')).sheet;
         if (!styleSheet.cssRules || !Array.from(styleSheet.cssRules).some(rule => rule.name === 'slideIn')) {
             styleSheet.insertRule(`
                 @keyframes slideIn {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
                 }
             `, styleSheet.cssRules.length);
         }
-
         setTimeout(() => {
             notification.style.animation = 'slideOut 0.3s ease forwards';
             styleSheet.insertRule(`
                 @keyframes slideOut {
-                    from {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                    to {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
                 }
             `, styleSheet.cssRules.length);
             notification.addEventListener('animationend', () => notification.remove());
-        }, 5000); // Notification disappears after 5 seconds
+        }, 5000);
     }
-
-    /**
-     * Returns the Font Awesome icon class based on notification type.
-     * @param {string} type - Notification type.
-     * @returns {string} Icon class.
-     */
+    
     function getNotificationIcon(type) {
         const icons = {
-            'info': 'info-circle',
-            'success': 'check-circle',
-            'warning': 'exclamation-triangle',
-            'error': 'times-circle'
+            'info': 'info-circle', 'success': 'check-circle',
+            'warning': 'exclamation-triangle', 'error': 'times-circle'
         };
         return icons[type] || 'info-circle';
     }
 
-    /**
-     * Checks if all required fields in a form entry are filled.
-     * @param {HTMLElement} row - The table row element.
-     * @returns {boolean} True if all required inputs in the row are filled, false otherwise.
-     */
     function isRowComplete(row) {
         let allFilled = true;
-        // Select all required inputs within this specific row
         row.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
-            // Exclude readonly inputs from the 'required check' if their value is automatically filled
-            // If it's readonly, we assume its value will be set by JS logic, so we check if it has *any* value.
             if (input.readOnly) {
-                if (input.value.trim() === '' || input.value === '0') { // '0' might be a valid, but empty-like, state for numbers
+                if (input.value.trim() === '' || input.value === '0') {
                     allFilled = false;
                 }
             } else if (input.type === 'checkbox' || input.type === 'radio') {
-                // For simplicity, for single required checkboxes, it must be checked.
                 if (input.required && !input.checked) {
                     allFilled = false;
                 }
-                // For radio buttons in a group, you'd typically check the group, not individual radios.
-                // Given your structure, a simple `input.checked` will work if they're individually required.
             } else if (input.value.trim() === '') {
                 allFilled = false;
             }
@@ -231,18 +174,8 @@
         });
         return allFilled;
     }
-
-
-    /**
-     * Determines if a form is considered "complete" based on its required fields.
-     * If some data exists but not all required fields are filled, it's "in-progress".
-     * If no data exists, it's "pending".
-     * @param {string} formType - The ID of the form.
-     * @param {object} formData - The data object for the form.
-     * @returns {boolean} True if complete, false otherwise.
-     */
+    
     function isFormComplete(formType, formData) {
-        // If no data or empty entries, it's not complete
         if (!formData || Object.keys(formData).length === 0 || (formData.entries && formData.entries.length === 0)) {
             return false;
         }
@@ -250,14 +183,12 @@
         const formElement = document.getElementById(formIdMap[formType]);
         if (!formElement) return false;
 
-        // Check if the overall month selection is made (if applicable)
-        const monthInput = formElement.querySelector('input[name$="_bulan"]'); // Check for any input named _bulan
+        const monthInput = formElement.querySelector('input[name$="_bulan"]');
         if (monthInput && monthInput.value.trim() === '') {
-            return false; // Month not selected, so form is not complete
+            return false;
         }
 
-        // For forms with 'entries', check if *all* entries are fully complete
-        const formTypesWithEntries = Object.keys(formIdMap); // All your forms use entries
+        const formTypesWithEntries = Object.keys(formIdMap);
         if (formTypesWithEntries.includes(formType)) {
             const tbody = formElement.querySelector('.form-table tbody');
             if (tbody) {
@@ -266,21 +197,16 @@
                     !row.classList.contains('rata-rata-row') &&
                     !row.classList.contains('nb-row')
                 );
-
-                // A form with entries is "complete" if ALL data rows are fully complete AND there's at least one data row.
                 if (dataRows.length === 0) {
-                    return false; // No data rows means not complete
+                    return false;
                 }
                 return dataRows.every(row => isRowComplete(row));
             }
-            return false; // If no tbody or data rows found, not complete
+            return false;
         }
-
-        // For other forms (if any, though most are now entry-based)
-        // This fallback logic might not be strictly needed if all forms use 'entries'
         let allTopLevelFieldsFilled = true;
         formElement.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
-            if (!input.closest('tr.nb-row') && !input.closest('tr.total-row') && !input.closest('tr.rata-rata-row')) { // Exclude static row fields
+            if (!input.closest('tr.nb-row') && !input.closest('tr.total-row') && !input.closest('tr.rata-rata-row')) {
                 if (input.type === 'checkbox' || input.type === 'radio') {
                     if (input.required && !input.checked) {
                         allTopLevelFieldsFilled = false;
@@ -295,15 +221,10 @@
 
 
     // --- DOM Manipulation and Section Switching ---
-
-    /**
-     * Switches the displayed section of the page.
-     * @param {string} section - The ID of the section to show ('list', 'history', or a formType like 'hand-hygiene').
-     */
+    
     function showSection(section) {
         console.log(`Attempting to show section: ${section}`);
         
-        // Update active tab
         document.querySelectorAll('.indicator-table td').forEach(tab => {
             tab.classList.remove('active', 'bg-blue-500', 'text-white');
             const onclickAttr = tab.getAttribute('onclick');
@@ -312,22 +233,17 @@
             }
         });
 
-        // Hide all sections
         document.querySelector('.main-grid').style.display = 'none';
         document.querySelector('.stats-grid').style.display = 'none';
         document.querySelector('.data-forms').style.display = 'none';
         document.getElementById('history-section').style.display = 'none';
-
-        // Hide all form cards
         document.querySelectorAll('.form-card').forEach(form => {
             form.style.display = 'none';
         });
 
-        // Show requested section
         if (section === 'list') {
             document.querySelector('.main-grid').style.display = 'grid';
             document.querySelector('.stats-grid').style.display = 'grid';
-            // Re-run status check on list view to ensure current week's status is reflected
             updateStatisticsDisplay();
         } else if (section === 'history') {
             document.getElementById('history-section').style.display = 'block';
@@ -341,13 +257,21 @@
                     document.querySelector('.data-forms').style.display = 'block';
                     form.style.display = 'block';
                     
-                    // Special handling for CP form
                     if (section === 'cp') {
                         console.log('Initializing CP form with data:', formCurrentData['cp']?.data || {});
                     }
                     
-                    // Populate the form with current data
+                    // Populate the form with all combined data
                     populateForm(form, formCurrentData[section]?.data || {}, section);
+
+                    // Set the month input value if the form has one and data exists
+                    const monthInput = form.querySelector('input[type="month"][name$="_bulan"]');
+                    if (monthInput && formCurrentData[section]?.data?.bulan) {
+                        monthInput.value = formCurrentData[section].data.bulan;
+                    } else if (monthInput) {
+                        monthInput.value = moment().format('YYYY-MM');
+                    }
+
                     form.scrollIntoView({ behavior: 'smooth' });
                 } else {
                     console.error(`Form element with ID '${formId}' not found`);
@@ -358,18 +282,11 @@
         }
         currentSection = section;
     }
-
-    /**
-     * Opens a specific form section.
-     * @param {string} formType - The ID of the form to open.
-     */
+    
     function openForm(formType) {
         showSection(formType);
     }
-
-    /**
-     * Returns to the list view.
-     */
+    
     function backToList() {
         showSection('list');
     }
@@ -379,8 +296,9 @@
 
     /**
      * Populates a form element with provided data based on its type.
+     * This now expects `data.entries` to be a comprehensive list of all entries.
      * @param {HTMLElement} formElement - The HTML element of the form.
-     * @param {object} data - The data object to populate the form with.
+     * @param {object} data - The data object containing aggregated entries and top-level fields.
      * @param {string} formType - The type of the form (e.g., 'hand-hygiene').
      */
     function populateForm(formElement, data, formType) {
@@ -389,42 +307,48 @@
         const tbody = formElement.querySelector('.form-table tbody');
         if (!tbody) return;
 
-        // Handle month input (already correctly implemented)
+        // Handle month input (for filtering displayed entries if needed)
         const monthInput = formElement.querySelector('input[type="month"][name$="_bulan"]');
         if (monthInput) {
             monthInput.value = data.bulan || moment().format('YYYY-MM');
-            // ... (event listener setup)
+            // Attach listener only once for the month filter
+            if (!monthInput.dataset.listenerAttached) {
+                monthInput.addEventListener('change', function() {
+                    filterEntriesByMonth(formElement, formType, formCurrentData[formType]?.data || { entries: [] });
+                });
+                monthInput.dataset.listenerAttached = 'true';
+            }
         }
 
-        // Preserve static rows (already correctly implemented)
+        // Preserve static rows (e.g., totals, NB)
         const rowsToPreserve = Array.from(tbody.children).filter(row =>
             row.classList.contains('total-row') ||
             row.classList.contains('rata-rata-row') ||
             row.classList.contains('nb-row')
         );
-        tbody.innerHTML = ''; // Clear all content, including any previous dynamic rows
+        tbody.innerHTML = ''; // Clear all existing rows
         rowsToPreserve.forEach(row => tbody.appendChild(row)); // Re-append preserved rows
 
-        // Populate common fields outside entries (e.g., unit_kerja for identifikasi, ruangan/judul for cp)
+        // Populate common fields outside entries (e.g., unit_kerja, ruangan, judul_cp)
         if (formType === 'identifikasi') {
-            const unitKerjaSelect = formElement.querySelector('select[name="identifikasi_unit_kerja"]');
-            if (unitKerjaSelect) {
-                unitKerjaSelect.value = data.unit_kerja || '';
+            const unitKerjaInput = formElement.querySelector('input[name="identifikasi_unit_kerja"]');
+            if (unitKerjaInput) {
+                unitKerjaInput.value = data.unit_kerja || '';
             }
-            if (data.nb) { // Handle NB checkboxes for Identifikasi
+            if (data.nb) {
                 formElement.querySelector('input[name="identifikasi_nb_verbal_visual"]').checked = data.nb.verbal_visual || false;
                 formElement.querySelector('input[name="identifikasi_nb_2_parameter"]').checked = data.nb['2_parameter'] || false;
                 formElement.querySelector('input[name="identifikasi_nb_1_parameter"]').checked = data.nb['1_parameter'] || false;
                 formElement.querySelector('input[name="identifikasi_nb_tidak_dilakukan"]').checked = data.nb.tidak_dilakukan || false;
             }
         } else if (formType === 'wtri') {
-            formElement.querySelectorAll('input[name="wtri_unit"]').forEach(radio => {
-                radio.checked = (radio.value === data.unit);
-            });
+            const unitKerjaInput = formElement.querySelector('input[name="wtrj_unit_kerja"]');
+            if (unitKerjaInput) {
+                unitKerjaInput.value = data.unit_kerja || '';
+            }
         } else if (formType === 'cp') {
             formElement.querySelector('input[name="cp_ruangan"]').value = data.ruangan || '';
             formElement.querySelector('input[name="cp_judul_cp"]').value = data.judul_cp || '';
-            // CRITICAL: Ensure inputs for totals in CP form are populated here too if they are outside dynamic rows
             if (data.totals) {
                 formElement.querySelector('input[name="cp_total_asesmen_p"]').value = data.totals.asesmen_p || 0;
                 formElement.querySelector('input[name="cp_total_asesmen_n"]').value = data.totals.asesmen_n || 0;
@@ -445,56 +369,56 @@
             }
         }
 
-        // THIS IS THE CRITICAL LOGIC BLOCK:
-        // We should ALWAYS try to populate from data.entries if it exists and is an array.
-        // If it doesn't exist, or is empty, THEN we add default empty rows.
-        if (data.entries && Array.isArray(data.entries) && data.entries.length > 0) {
-            // Sort entries to ensure ascending order for display
-            let sortedEntries = [...data.entries].sort((a, b) => (a.no || 0) - (b.no || 0));
-
-            sortedEntries.forEach((entry, index) => {
-                const newIndex = index + 1; // Ensure sequential numbering starting from 1
-                // Use a switch-case or if-else if structure to call the correct add*Row function
-                // This part is already correct in your existing code for calling the specific add*Row functions.
-                if (formType === 'hand-hygiene') {
-                    addHandHygieneRow(tbody, newIndex, entry);
-                } else if (formType === 'apd') {
-                    addApdRow(tbody, newIndex, entry);
-                } else if (formType === 'identifikasi') {
-                    addIdentifikasiRow(tbody, newIndex, entry);
-                } else if (formType === 'wtri') {
-                    addWtriRow(tbody, newIndex, entry);
-                } else if (formType === 'kritis-lab') {
-                    addKritisLabRow(tbody, newIndex, entry);
-                } else if (formType === 'fornas') {
-                    addFornasRow(tbody, newIndex, entry);
-                } else if (formType === 'visite') {
-                    addVisiteRow(tbody, newIndex, entry);
-                } else if (formType === 'jatuh') {
-                    addJatuhRow(tbody, newIndex, entry);
-                } else if (formType === 'cp') {
-                    addCpRow(tbody, newIndex, entry);
-                } else if (formType === 'kepuasan') {
-                    addKepuasanRow(tbody, newIndex, entry);
-                } else if (formType === 'krk') {
-                    addKrkRow(tbody, newIndex, entry);
-                } else if (formType === 'poe') {
-                    addPoeRow(tbody, newIndex, entry);
-                } else if (formType === 'sc') {
-                    addScRow(tbody, newIndex, entry);
+        // Populate dynamic entries from the combined list
+        const entriesToDisplay = data.entries || [];
+        
+        // Apply month filter during initial population if a month is pre-selected (e.g. from data.bulan)
+        const currentSelectedMonth = monthInput ? monthInput.value : '';
+        const filteredEntries = currentSelectedMonth 
+            ? entriesToDisplay.filter(entry => {
+                let entryDateString;
+                if (formType === 'hand-hygiene' && entry.bulan) {
+                    entryDateString = entry.bulan;
+                } else if (entry.tgl) {
+                    entryDateString = entry.tgl;
+                } else if (entry.tanggal) {
+                    entryDateString = entry.tanggal;
+                } else if (entry.tgl_registrasi) {
+                    entryDateString = entry.tgl_registrasi;
                 }
+                return entryDateString && entryDateString.substring(0, 7) === currentSelectedMonth;
+            })
+            : entriesToDisplay;
+
+
+        if (filteredEntries.length > 0) {
+            filteredEntries.forEach((entry, index) => {
+                const newIndex = index + 1; // Sequential numbering for displayed rows
+                // Call the appropriate addRow function for each entry
+                if (formType === 'hand-hygiene') addHandHygieneRow(tbody, newIndex, entry);
+                else if (formType === 'apd') addApdRow(tbody, newIndex, entry);
+                else if (formType === 'identifikasi') addIdentifikasiRow(tbody, newIndex, entry);
+                else if (formType === 'wtri') addWtriRow(tbody, newIndex, entry);
+                else if (formType === 'kritis-lab') addKritisLabRow(tbody, newIndex, entry);
+                else if (formType === 'fornas') addFornasRow(tbody, newIndex, entry);
+                else if (formType === 'visite') addVisiteRow(tbody, newIndex, entry);
+                else if (formType === 'jatuh') addJatuhRow(tbody, newIndex, entry);
+                else if (formType === 'cp') addCpRow(tbody, newIndex, entry);
+                else if (formType === 'kepuasan') addKepuasanRow(tbody, newIndex, entry);
+                else if (formType === 'krk') addKrkRow(tbody, newIndex, entry);
+                else if (formType === 'poe') addPoeRow(tbody, newIndex, entry);
+                else if (formType === 'sc') addScRow(tbody, newIndex, entry);
             });
         } else {
-            // ONLY if there are NO saved entries, then add default empty ones
+            // If no entries are found (either because none exist or all are filtered out), add default empty rows
             if (['identifikasi', 'fornas', 'jatuh', 'cp'].includes(formType)) {
-                for (let i = 1; i <= 2; i++) { // Add 2 empty rows as template
+                for (let i = 1; i <= 2; i++) {
                     if (formType === 'identifikasi') addIdentifikasiRow(tbody, i);
                     else if (formType === 'fornas') addFornasRow(tbody, i);
                     else if (formType === 'jatuh') addJatuhRow(tbody, i);
                     else if (formType === 'cp') addCpRow(tbody, i);
                 }
             } else {
-                // All other forms get one empty row by default
                 if (formType === 'hand-hygiene') addHandHygieneRow(tbody, 1);
                 else if (formType === 'apd') addApdRow(tbody, 1);
                 else if (formType === 'wtri') addWtriRow(tbody, 1);
@@ -507,8 +431,7 @@
             }
         }
 
-        // IMPORTANT: Re-number rows (already simplified)
-        // ... (rest of renumbering and total updates)
+        // Re-number rows after all entries have been added.
         if (formType === 'identifikasi') {
             renumberTableRows(tbody, ['nb-row']);
         } else if (['fornas', 'jatuh', 'krk'].includes(formType)) {
@@ -519,7 +442,7 @@
             renumberTableRows(tbody, []);
         }
 
-        // Re-run totals if the form has them (e.g., CP, Jatuh, Hand Hygiene)
+        // Re-run totals if the form has them
         if (formType === 'cp') {
             updateCpTotals(formElement);
         } else if (formType === 'jatuh') {
@@ -532,34 +455,36 @@
 
     /**
      * Extracts data from a form element based on its type.
+     * This now collects ALL entries currently displayed in the table.
      * @param {string} formType - The type of the form.
-     * @returns {object} The extracted form data.
+     * @returns {object} The extracted form data (including all entries and top-level fields).
      */
     function getFormData(formType) {
         const formElement = document.getElementById(formIdMap[formType]);
-        const formData = {};
+        const formData = {}; // This will be the main 'data' blob sent to backend
 
         if (!formElement) return formData;
 
-        // Helper to get input value within a given row. Now uses simple name.
         const getInputValue = (row, name) => row.querySelector(`[name="${name}"]`)?.value;
-        // Helper to get checked status within a given row. Now uses simple name.
         const getCheckedValue = (row, name) => row.querySelector(`[name="${name}"]`)?.checked;
         const getParsedInt = (row, name) => parseInt(getInputValue(row, name)) || 0;
 
-        // Get month input for all forms that have it
+        // Get month input for forms that have it
         const monthInput = formElement.querySelector('input[type="month"][name$="_bulan"]');
         if (monthInput) {
             formData.bulan = monthInput.value;
+        } else {
+            // Default to current month if no specific month input is present
+            formData.bulan = moment().format('YYYY-MM');
         }
 
-        switch (formType) {
-            case 'hand-hygiene':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-                    // IMPORTANT CHANGE: Input names in addHandHygieneRow are now simpler, e.g., 'bulan', not 'bulan_1'.
-                    // So, we don't need to append index here.
-                    const entry = {
+        formData.entries = [];
+        // Select all data rows (excluding static total/rata-rata/nb rows)
+        formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
+            let entry = {};
+            switch (formType) {
+                case 'hand-hygiene':
+                    entry = {
                         bulan: getInputValue(row, `bulan`),
                         sesi: getParsedInt(row, `sesi`),
                         dpjp_kesempatan: getParsedInt(row, `dpjp_kesempatan`),
@@ -578,15 +503,9 @@
                         total_handwash: getParsedInt(row, `total_handwash`),
                         total_handrub: getParsedInt(row, `total_handrub`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'apd':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-                    // IMPORTANT CHANGE: Input names in addApdRow are now simpler, e.g., 'tgl', not 'apd_tgl_1'.
-                    const entry = {
+                    break;
+                case 'apd':
+                    entry = {
                         tgl: getInputValue(row, `tgl`),
                         profesi: getInputValue(row, `profesi`),
                         ruang: getInputValue(row, `ruang`),
@@ -606,16 +525,9 @@
                         kepatuhan: getInputValue(row, `kepatuhan`),
                         ket: getInputValue(row, `ket`)
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'identifikasi':
-                formData.unit_kerja = formElement.querySelector('select[name="identifikasi_unit_kerja"]')?.value;
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.nb-row)').forEach((row) => {
-                    // IMPORTANT CHANGE: Input names in addIdentifikasiRow are now simpler, e.g., 'tgl'.
-                    const entry = {
+                    break;
+                case 'identifikasi':
+                    entry = {
                         tgl: getInputValue(row, `tgl`),
                         staf: getInputValue(row, `staf`),
                         obat: getCheckedValue(row, `obat`),
@@ -630,24 +542,9 @@
                         dilakukan: getCheckedValue(row, `dilakukan`),
                         tidak_dilakukan: getCheckedValue(row, `tidak_dilakukan`),
                     };
-                    formData.entries.push(entry);
-                });
-                // Extract NB data from the specific NB row (names here are still prefixed as they are not dynamic rows)
-                formData.nb = {
-                    verbal_visual: getCheckedValue(formElement, 'identifikasi_nb_verbal_visual'),
-                    '2_parameter': getCheckedValue(formElement, 'identifikasi_nb_2_parameter'),
-                    '1_parameter': getCheckedValue(formElement, 'identifikasi_nb_1_parameter'),
-                    tidak_dilakukan: getCheckedValue(formElement, 'identifikasi_nb_tidak_dilakukan'),
-                };
-                break;
-
-
-            case 'wtri':
-                formData.unit = formElement.querySelector('input[name="wtri_unit"]:checked')?.value;
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-                    // IMPORTANT CHANGE: Input names in addWtriRow are now simpler.
-                    const entry = {
+                    break;
+                case 'wtri':
+                    entry = {
                         tgl: getInputValue(row, `tgl`),
                         no_rm: getInputValue(row, `no_rm`),
                         nama_pasien: getInputValue(row, `nama_pasien`),
@@ -659,15 +556,9 @@
                         respon_time_cb: getParsedInt(row, `respon_time_cb`),
                         pelayanan_percent_cb: getParsedInt(row, `pelayanan_percent_cb`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'kritis-lab':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-                    // IMPORTANT CHANGE: Input names in addKritisLabRow are now simpler.
-                    const entry = {
+                    break;
+                case 'kritis-lab':
+                    entry = {
                         tgl: getInputValue(row, `tgl`),
                         no_rm: getInputValue(row, `no_rm`),
                         nama_pasien: getInputValue(row, `nama_pasien`),
@@ -678,15 +569,9 @@
                         respon_time: getParsedInt(row, `respon_time`),
                         pelaporan_status: getInputValue(row, `pelaporan_status`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'fornas':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row)').forEach((row) => { // Exclude total row
-                    // IMPORTANT CHANGE: Input names in addFornasRow are now simpler.
-                    const entry = {
+                    break;
+                case 'fornas':
+                    entry = {
                         unit_kerja: getInputValue(row, `unit_kerja`),
                         nama_pasien: getInputValue(row, `nama_pasien`),
                         no_rm: getInputValue(row, `no_rm`),
@@ -694,15 +579,9 @@
                         formularium_nasional: getCheckedValue(row, `formularium_nasional`),
                         non_formularium: getCheckedValue(row, `non_formularium`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'visite':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-                    // IMPORTANT CHANGE: Input names in addVisiteRow are now simpler.
-                    const entry = {
+                    break;
+                case 'visite':
+                    entry = {
                         tgl_registrasi: getInputValue(row, `tgl_registrasi`),
                         nama_pasien: getInputValue(row, `nama_pasien`),
                         no_rm: getInputValue(row, `no_rm`),
@@ -720,15 +599,9 @@
                         total: getParsedInt(row, `total`),
                         jam_visite_akhir: getInputValue(row, `jam_visite_akhir`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'jatuh':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row)').forEach((row) => { // Exclude total row
-                    // IMPORTANT CHANGE: Input names in addJatuhRow are now simpler.
-                    const entry = {
+                    break;
+                case 'jatuh':
+                    entry = {
                         nama_pasien: getInputValue(row, `nama_pasien`),
                         no_rm: getInputValue(row, `no_rm`),
                         assessment_awal: getInputValue(row, `assessment_awal`),
@@ -737,24 +610,9 @@
                         ketiga_upaya_ya: getCheckedValue(row, `ketiga_upaya_ya`),
                         ketiga_upaya_tidak: getCheckedValue(row, `ketiga_upaya_tidak`),
                     };
-                    formData.entries.push(entry);
-                });
-                formData.totals = {
-                    assessment_awal: parseInt(formElement.querySelector('input[name="jatuh_total_assessment_awal"]')?.value) || 0,
-                    assessment_ulang: parseInt(formElement.querySelector('input[name="jatuh_total_assessment_ulang"]')?.value) || 0,
-                    intervensi: parseInt(formElement.querySelector('input[name="jatuh_total_intervensi"]')?.value) || 0,
-                    ketiga_upaya_ya: parseInt(formElement.querySelector('input[name="jatuh_total_ketiga_upaya_ya"]')?.value) || 0,
-                    ketiga_upaya_tidak: parseInt(formElement.querySelector('input[name="jatuh_total_ketiga_upaya_tidak"]')?.value) || 0,
-                };
-                break;
-
-            case 'cp':
-                formData.ruangan = getInputValue(formElement, 'cp_ruangan');
-                formData.judul_cp = getInputValue(formElement, 'cp_judul_cp');
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row)').forEach((row) => { // Exclude total/rata-rata rows
-                    // IMPORTANT CHANGE: Input names in addCpRow are now simpler.
-                    const entry = {
+                    break;
+                case 'cp':
+                    entry = {
                         no_mr: getInputValue(row, `no_mr`),
                         asesmen_p: getParsedInt(row, `asesmen_p`),
                         asesmen_n: getParsedInt(row, `asesmen_n`),
@@ -772,31 +630,9 @@
                         varian: getInputValue(row, `varian`),
                         ket: getInputValue(row, `ket`),
                     };
-                    formData.entries.push(entry);
-                });
-                formData.totals = {
-                    asesmen_p: parseInt(formElement.querySelector('input[name="cp_total_asesmen_p"]')?.value) || 0,
-                    asesmen_n: parseInt(formElement.querySelector('input[name="cp_total_asesmen_n"]')?.value) || 0,
-                    asesmen_c: parseInt(formElement.querySelector('input[name="cp_total_asesmen_c"]')?.value) || 0,
-                    fisik_p: parseInt(formElement.querySelector('input[name="cp_total_fisik_p"]')?.value) || 0,
-                    fisik_n: parseInt(formElement.querySelector('input[name="cp_total_fisik_n"]')?.value) || 0,
-                    fisik_c: parseInt(formElement.querySelector('input[name="cp_total_fisik_c"]')?.value) || 0,
-                    penunjang_p: parseInt(formElement.querySelector('input[name="cp_total_penunjang_p"]')?.value) || 0,
-                    penunjang_n: parseInt(formElement.querySelector('input[name="cp_total_penunjang_n"]')?.value) || 0,
-                    penunjang_c: parseInt(formElement.querySelector('input[name="cp_total_penunjang_c"]')?.value) || 0,
-                    obat_p: parseInt(formElement.querySelector('input[name="cp_total_obat_p"]')?.value) || 0,
-                    obat_n: parseInt(formElement.querySelector('input[name="cp_total_obat_n"]')?.value) || 0,
-                    obat_c: parseInt(formElement.querySelector('input[name="cp_obat_c"]')?.value) || 0, // This name should also be fixed in Blade
-                    grand_total: parseInt(formElement.querySelector('input[name="cp_grand_total"]')?.value) || 0, // This name should also be fixed in Blade
-                };
-                formData.rata_rata_kepatuhan = getInputValue(formElement, 'cp_rata_rata_kepatuhan');
-                break;
-
-            case 'kepuasan':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-                    // IMPORTANT CHANGE: Input names in addKepuasanRow are now simpler.
-                    const entry = {
+                    break;
+                case 'kepuasan':
+                    entry = {
                         tanggal: getInputValue(row, `tanggal`),
                         unit_kerja: getInputValue(row, `unit_kerja`),
                         nilai_ikm: getInputValue(row, `nilai_ikm`),
@@ -804,15 +640,9 @@
                         nilai_kepuasan: getInputValue(row, `nilai_kepuasan`),
                         komentar: getInputValue(row, `komentar`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'krk':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row)').forEach((row) => { // Exclude total row
-                    // IMPORTANT CHANGE: Input names in addKrkRow are now simpler.
-                    const entry = {
+                    break;
+                case 'krk':
+                    entry = {
                         tgl: getInputValue(row, `tgl`),
                         isi_komplain: getInputValue(row, `isi_komplain`),
                         kategori_komplain: getInputValue(row, `kategori_komplain`),
@@ -827,15 +657,9 @@
                         penyelesaian_tidak: getCheckedValue(row, `penyelesaian_tidak`),
                         ket: getInputValue(row, `ket`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'poe':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-                    // IMPORTANT CHANGE: Input names in addPoeRow are now simpler.
-                    const entry = {
+                    break;
+                case 'poe':
+                    entry = {
                         tgl: getInputValue(row, `tgl`),
                         nama_pasien: getInputValue(row, `nama_pasien`),
                         no_rm: getInputValue(row, `no_rm`),
@@ -849,59 +673,69 @@
                         penundaan_lt_1hr: getCheckedValue(row, `penundaan_lt_1hr`),
                         keterangan: getInputValue(row, `keterangan`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
-
-            case 'sc':
-                formData.entries = [];
-                formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-                    // IMPORTANT CHANGE: Input names in addScRow are now simpler.
-                    const entry = {
+                    break;
+                case 'sc':
+                    entry = {
                         nama_pasien: getInputValue(row, `nama_pasien`),
                         no_rm: getInputValue(row, `no_rm`),
                         diagnosa_kategori: getInputValue(row, `diagnosa_kategori`),
                         jam_tiba_igd: getInputValue(row, `jam_tiba_igd`),
                         jam_diputuskan_operasi: getInputValue(row, `jam_diputuskan_operasi`),
-                        jam_mulai_insisi: getInputValue(row, `jam_mulai_insisi`),
+                        jam_mulai_insisi: getParsedInt(row, `jam_mulai_insisi`),
                         waktu_tanggap: getParsedInt(row, `waktu_tanggap`),
                         gt_30_menit: getInputValue(row, `gt_30_menit`),
                         keterangan: getInputValue(row, `keterangan`),
                     };
-                    formData.entries.push(entry);
-                });
-                break;
+                    break;
+            }
+            formData.entries.push(entry);
+        });
 
-            default:
-                // Generic data extraction for any top-level inputs if they exist (not in table rows)
-                formElement.querySelectorAll('input, select, textarea').forEach(input => {
-                    // Exclude inputs that are part of dynamic rows, as they are handled in 'entries'
-                    if (input.name && !input.closest('tbody tr')) {
-                        if (input.type === 'checkbox') {
-                            formData[input.name] = input.checked;
-                        } else if (input.type === 'radio') {
-                            if (input.checked) {
-                                formData[input.name] = input.value;
-                            }
-                        } else {
-                            formData[input.name] = input.value;
-                        }
-                    }
-                });
-                break;
+        // Extract top-level fields for forms that have them (e.g. Identifikasi, CP, WTRI)
+        if (formType === 'identifikasi') {
+            formData.unit_kerja = formElement.querySelector('input[name="identifikasi_unit_kerja"]')?.value;
+            formData.nb = {
+                verbal_visual: getCheckedValue(formElement, 'identifikasi_nb_verbal_visual'),
+                '2_parameter': getCheckedValue(formElement, 'identifikasi_nb_2_parameter'),
+                '1_parameter': getCheckedValue(formElement, 'identifikasi_nb_1_parameter'),
+                tidak_dilakukan: getCheckedValue(formElement, 'identifikasi_nb_tidak_dilakukan'),
+            };
+        } else if (formType === 'wtri') {
+            formData.unit_kerja = formElement.querySelector('input[name="wtrj_unit_kerja"]')?.value;
+        } else if (formType === 'cp') {
+            formData.ruangan = getInputValue(formElement, 'cp_ruangan');
+            formData.judul_cp = getInputValue(formElement, 'cp_judul_cp');
+            // Recalculate totals directly from UI elements to ensure they are current
+            formData.totals = {
+                asesmen_p: parseInt(formElement.querySelector('input[name="cp_total_asesmen_p"]')?.value) || 0,
+                asesmen_n: parseInt(formElement.querySelector('input[name="cp_total_asesmen_n"]')?.value) || 0,
+                asesmen_c: parseInt(formElement.querySelector('input[name="cp_total_asesmen_c"]')?.value) || 0,
+                fisik_p: parseInt(formElement.querySelector('input[name="cp_total_fisik_p"]')?.value) || 0,
+                fisik_n: parseInt(formElement.querySelector('input[name="cp_total_fisik_n"]')?.value) || 0,
+                fisik_c: parseInt(formElement.querySelector('input[name="cp_total_fisik_c"]')?.value) || 0,
+                penunjang_p: parseInt(formElement.querySelector('input[name="cp_total_penunjang_p"]')?.value) || 0,
+                penunjang_n: parseInt(formElement.querySelector('input[name="cp_total_penunjang_n"]')?.value) || 0,
+                penunjang_c: parseInt(formElement.querySelector('input[name="cp_total_penunjang_c"]')?.value) || 0,
+                obat_p: parseInt(formElement.querySelector('input[name="cp_total_obat_p"]')?.value) || 0,
+                obat_n: parseInt(formElement.querySelector('input[name="cp_total_obat_n"]')?.value) || 0,
+                obat_c: parseInt(formElement.querySelector('input[name="cp_total_obat_c"]')?.value) || 0,
+                grand_total: parseInt(formElement.querySelector('input[name="cp_grand_total"]')?.value) || 0,
+            };
+            formData.rata_rata_kepatuhan = getInputValue(formElement, 'cp_rata_rata_kepatuhan');
+        } else if (formType === 'jatuh') {
+            formData.totals = {
+                assessment_awal: parseInt(formElement.querySelector('input[name="jatuh_total_assessment_awal"]')?.value) || 0,
+                assessment_ulang: parseInt(formElement.querySelector('input[name="jatuh_total_assessment_ulang"]')?.value) || 0,
+                intervensi: parseInt(formElement.querySelector('input[name="jatuh_total_intervensi"]')?.value) || 0,
+                ketiga_upaya_ya: parseInt(formElement.querySelector('input[name="jatuh_total_ketiga_upaya_ya"]')?.value) || 0,
+                ketiga_upaya_tidak: parseInt(formElement.querySelector('input[name="jatuh_total_ketiga_upaya_tidak"]')?.value) || 0,
+            };
         }
         return formData;
     }
 
 
     // --- Form-specific row handlers and calculations ---
-
-    /**
-     * Adds a new row to the Hand Hygiene form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
     function addHandHygieneRow(tbody, index, entry = {}) {
         const newRow = tbody.insertRow();
         newRow.innerHTML = `
@@ -930,25 +764,18 @@
             <td><input type="number" min="0" value="${entry.total_kesempatan || 0}" readonly name="total_kesempatan" /></td>
             <td><input type="number" min="0" value="${entry.total_handwash || 0}" readonly name="total_handwash" /></td>
             <td><input type="number" min="0" value="${entry.total_handrub || 0}" readonly name="total_handrub" /></td>
+             <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
 
-        // Attach event listeners for dynamic calculation
+        const formElement = tbody.closest('.form-card');
         newRow.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', function() {
-                updateHandHygieneTotals(input.closest('.form-card')); // Pass the form element to update all row totals
+                updateHandHygieneTotals(formElement);
             });
         });
-        // Trigger initial calculation if data is provided
-        updateHandHygieneTotals(newRow.closest('.form-card'));
+        updateHandHygieneTotals(formElement);
     }
-
-
-    /**
-     * Adds a new row to the APD form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addApdRow(tbody, index, entry = {}) {
         const newRow = tbody.insertRow();
         newRow.innerHTML = `
@@ -976,17 +803,12 @@
                 </select>
             </td>
             <td><input type="text" placeholder="Keterangan" name="ket" value="${entry.ket || ''}" required /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
     }
-
-    /**
-     * Adds a new row to the Identifikasi form table (excluding the NB row).
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addIdentifikasiRow(tbody, index, entry = {}) {
-        const insertIndex = getInsertionIndex(tbody, ['nb-row']); // Identifikasi has 'nb-row'
+        const insertIndex = getInsertionIndex(tbody, ['nb-row']);
         const newRow = tbody.insertRow(insertIndex);
         newRow.innerHTML = `
             <td>${index}</td> <td><input type="date" name="tgl" value="${entry.tgl || ''}" required /></td>
@@ -1002,15 +824,10 @@
             <td><input type="checkbox" name="visual_rm" ${entry.visual_rm ? 'checked' : ''} /></td>
             <td><input type="checkbox" name="dilakukan" ${entry.dilakukan ? 'checked' : ''} /></td>
             <td><input type="checkbox" name="tidak_dilakukan" ${entry.tidak_dilakukan ? 'checked' : ''} /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
     }
-
-    /**
-     * Adds a new row to the WTRI form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addWtriRow(tbody, index, entry = {}) {
         const newRow = tbody.insertRow();
         newRow.innerHTML = `
@@ -1024,6 +841,7 @@
             <td><input type="number" value="${entry.pelayanan_percent_ca || 0}" name="pelayanan_percent_ca" required /></td>
             <td><input type="number" value="${entry.respon_time_cb || 0}" name="respon_time_cb" required /></td>
             <td><input type="number" value="${entry.pelayanan_percent_cb || 0}" name="pelayanan_percent_cb" required /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
         const jamRegPendaftaranInput = newRow.querySelector(`input[name="jam_reg_pendaftaran"]`);
         const jamDilayaniDokterInput = newRow.querySelector(`input[name="jam_dilayani_dokter"]`);
@@ -1050,15 +868,9 @@
         };
         jamRegPendaftaranInput.addEventListener('input', updateWtriResponTime);
         jamDilayaniDokterInput.addEventListener('input', updateWtriResponTime);
-        updateWtriResponTime(); // Initial calculation
+        updateWtriResponTime();
     }
-
-    /**
-     * Adds a new row to the Kritis Lab form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addKritisLabRow(tbody, index, entry = {}) {
         const newRow = tbody.insertRow();
         newRow.innerHTML = `
@@ -1075,6 +887,7 @@
                 <option value="≤ 30 Menit" ${entry.pelaporan_status === '≤ 30 Menit' ? 'selected' : ''}>≤ 30 Menit</option>
                 <option value="> 30 Menit" ${entry.pelaporan_status === '> 30 Menit' ? 'selected' : ''}>> 30 Menit</option>
             </select></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
 
         const waktuHasilKeluarInput = newRow.querySelector(`input[name="waktu_hasil_keluar"]`);
@@ -1107,18 +920,12 @@
         };
         waktuHasilKeluarInput.addEventListener('input', updateKritisLabResponTime);
         waktuDilaporkanInput.addEventListener('input', updateKritisLabResponTime);
-        updateKritisLabResponTime(); // Initial calculation
+        updateKritisLabResponTime();
     }
-
-    /**
-     * Adds a new row to the FORNAS form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addFornasRow(tbody, index, entry = {}) {
-        const insertIndex = getInsertionIndex(tbody, ['total-row']); // Only exclude total-row for Fornas
-        const newRow = tbody.insertRow(insertIndex); 
+        const insertIndex = getInsertionIndex(tbody, ['total-row']);
+        const newRow = tbody.insertRow(insertIndex);
         newRow.innerHTML = `
             <td>${index}</td> <td><input type="text" placeholder="Unit Kerja" name="unit_kerja" value="${entry.unit_kerja || ''}" required /></td>
             <td><input type="text" placeholder="Nama Pasien" name="nama_pasien" value="${entry.nama_pasien || ''}" required /></td>
@@ -1126,13 +933,10 @@
             <td><input type="number" name="jumlah_resep" value="${entry.jumlah_resep || 0}" required /></td>
             <td><input type="checkbox" name="formularium_nasional" ${entry.formularium_nasional ? 'checked' : ''} /></td>
             <td><input type="checkbox" name="non_formularium" ${entry.non_formularium ? 'checked' : ''} /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
     }
-
-    /**
-     * Generates time options for the Visite form's "Jam" dropdown.
-     * @returns {string} HTML string of option elements.
-     */
+    
     function generateTimeOptions() {
         let options = '<option value="">Pilih Jam</option>';
         for (let h = 0; h < 24; h++) {
@@ -1142,13 +946,7 @@
         }
         return options;
     }
-
-    /**
-     * Adds a new row to the Visite form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addVisiteRow(tbody, index, entry = {}) {
         const newRow = tbody.insertRow();
         newRow.innerHTML = `
@@ -1172,6 +970,7 @@
             <td><input type="number" name="val_iv" value="${entry.val_iv || 0}" readonly /></td>
             <td><input type="number" readonly name="total" value="${entry.total || 0}" /></td>
             <td><input type="time" name="jam_visite_akhir" value="${entry.jam_visite_akhir || ''}" required /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
 
         const jamSelect = newRow.querySelector(`select[name="jam"]`);
@@ -1181,7 +980,6 @@
         const valIII = newRow.querySelector(`input[name="val_iii"]`);
         const valIV = newRow.querySelector(`input[name="val_iv"]`);
 
-        // Set initial selected value for the dropdown
         if (entry.jam) {
             jamSelect.value = entry.jam;
         }
@@ -1189,7 +987,6 @@
         const updateVisiteTotal = () => {
             const selectedTimeRange = jamSelect.value;
             let score = 0;
-            // Extract the start time from the range (e.g., "09:00" from "09:00 - 10:00")
             const jam = selectedTimeRange ? selectedTimeRange.split(' - ')[0] : '';
 
             if (jam) {
@@ -1213,18 +1010,12 @@
             totalInput.value = score;
         };
 
-        jamSelect.addEventListener('change', updateVisiteTotal); // Use 'change' for select elements
-        updateVisiteTotal(); // Initial calculation
+        jamSelect.addEventListener('change', updateVisiteTotal);
+        updateVisiteTotal();
     }
-
-    /**
-     * Adds a new row to the Jatuh form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addJatuhRow(tbody, index, entry = {}) {
-        const insertIndex = getInsertionIndex(tbody, ['total-row']); // Only exclude total-row for Fornas
+        const insertIndex = getInsertionIndex(tbody, ['total-row']);
         const newRow = tbody.insertRow(insertIndex);
         newRow.innerHTML = `
             <td>${index}</td> <td><input type="text" placeholder="Nama Pasien" name="nama_pasien" value="${entry.nama_pasien || ''}" required /></td>
@@ -1246,28 +1037,27 @@
             </select></td>
             <td><input type="checkbox" name="ketiga_upaya_ya" ${entry.ketiga_upaya_ya ? 'checked' : ''} /></td>
             <td><input type="checkbox" name="ketiga_upaya_tidak" ${entry.ketiga_upaya_tidak ? 'checked' : ''} /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
         const selects = newRow.querySelectorAll('select');
         const yaCheckbox = newRow.querySelector(`input[name="ketiga_upaya_ya"]`);
         const tidakCheckbox = newRow.querySelector(`input[name="ketiga_upaya_tidak"]`);
 
+        const formElement = tbody.closest('.form-card');
         const updateJatuhCheckboxes = () => {
-            // Ensure all selects have a 'Ya' value and are not empty
             const allYa = Array.from(selects).every(s => s.value === 'Ya');
             yaCheckbox.checked = allYa;
             tidakCheckbox.checked = !allYa;
         };
         selects.forEach(select => select.addEventListener('change', () => {
             updateJatuhCheckboxes();
-            updateJatuhTotals(select.closest('.form-card'));
+            updateJatuhTotals(formElement);
         }));
-        updateJatuhCheckboxes(); // Initial check
+        yaCheckbox.addEventListener('change', () => updateJatuhTotals(formElement));
+        tidakCheckbox.addEventListener('change', () => updateJatuhTotals(formElement));
+        updateJatuhCheckboxes();
     }
-
-    /**
-     * Updates total calculations for the Jatuh form.
-     * @param {HTMLElement} formElement - The Jatuh form element.
-     */
+    
     function updateJatuhTotals(formElement) {
         let totalAssessmentAwal = 0;
         let totalAssessmentUlang = 0;
@@ -1276,8 +1066,6 @@
         let totalKetigaUpayaTidak = 0;
 
         formElement.querySelectorAll('.form-table tbody tr:not(.total-row)').forEach(row => {
-            // Find the index of the current row relative to its siblings in the tbody (excluding total row)
-            // No need for index for input names here due to new naming convention
             if (row.querySelector(`select[name="assessment_awal"]`)?.value === 'Ya') totalAssessmentAwal++;
             if (row.querySelector(`select[name="assessment_ulang"]`)?.value === 'Ya') totalAssessmentUlang++;
             if (row.querySelector(`select[name="intervensi"]`)?.value === 'Ya') totalIntervensi++;
@@ -1291,16 +1079,8 @@
         formElement.querySelector('input[name="jatuh_total_ketiga_upaya_ya"]').value = totalKetigaUpayaYa;
         formElement.querySelector('input[name="jatuh_total_ketiga_upaya_tidak"]').value = totalKetigaUpayaTidak;
     }
-
-    /**
-     * Adds a new row to the CP form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addCpRow(tbody, index, entry = {}) {
-        // Locate the total/rata-rata rows to insert before them
-        // Determine where to insert: before total-row or rata-rata-row
         const insertIndex = getInsertionIndex(tbody, ['total-row', 'rata-rata-row']);
         const newRow = tbody.insertRow(insertIndex);
         newRow.innerHTML = `
@@ -1320,15 +1100,13 @@
             <td><input type="number" readonly name="total" value="${entry.total || 0}" /></td>
             <td><input type="text" name="varian" value="${entry.varian || ''}" required /></td>
             <td><input type="text" name="ket" value="${entry.ket || ''}" required /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
+        const formElement = tbody.closest('.form-card');
         const inputs = newRow.querySelectorAll('input[type="number"]');
-        inputs.forEach(input => input.addEventListener('input', () => updateCpTotals(input.closest('.form-card'))));
+        inputs.forEach(input => input.addEventListener('input', () => updateCpTotals(formElement)));
     }
-
-    /**
-     * Updates total calculations for the CP form.
-     * @param {HTMLElement} formElement - The CP form element.
-     */
+    
     function updateCpTotals(formElement) {
         let totalAsesmenP = 0, totalAsesmenN = 0, totalAsesmenC = 0;
         let totalFisikP = 0, totalFisikN = 0, totalFisikC = 0;
@@ -1337,7 +1115,6 @@
         let grandTotal = 0;
 
         formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row)').forEach(row => {
-            // IMPORTANT CHANGE: Input names are now simple.
             const asesmen_p = parseInt(row.querySelector(`input[name="asesmen_p"]`)?.value) || 0;
             const asesmen_n = parseInt(row.querySelector(`input[name="asesmen_n"]`)?.value) || 0;
             const asesmen_c = parseInt(row.querySelector(`input[name="asesmen_c"]`)?.value) || 0;
@@ -1352,7 +1129,7 @@
             const obat_c = parseInt(row.querySelector(`input[name="obat_c"]`)?.value) || 0;
 
             const rowTotal = asesmen_p + asesmen_n + asesmen_c + fisik_p + fisik_n + fisik_c + penunjang_p + penunjang_n + penunjang_c + obat_p + obat_n + obat_c;
-            row.querySelector(`input[name="total"]`).value = rowTotal; // Changed from `cp_total_${index}` to `total`
+            row.querySelector(`input[name="total"]`).value = rowTotal;
 
             totalAsesmenP += asesmen_p; totalAsesmenN += asesmen_n; totalAsesmenC += asesmen_c;
             totalFisikP += fisik_p; totalFisikN += fisik_n; totalFisikC += fisik_c;
@@ -1361,7 +1138,6 @@
             grandTotal += rowTotal;
         });
 
-        // These should already have fixed names in Blade, not dynamic indices.
         formElement.querySelector('input[name="cp_total_asesmen_p"]').value = totalAsesmenP;
         formElement.querySelector('input[name="cp_total_asesmen_n"]').value = totalAsesmenN;
         formElement.querySelector('input[name="cp_total_asesmen_c"]').value = totalAsesmenC;
@@ -1378,17 +1154,10 @@
 
         const totalObservedItems = totalAsesmenP + totalAsesmenN + totalAsesmenC + totalFisikP + totalFisikN + totalFisikC + totalPenunjangP + totalPenunjangN + totalPenunjangC + totalObatP + totalObatN + totalObatC;
         const compliantItems = totalAsesmenP + totalFisikP + totalPenunjangP + totalObatP;
-        const compliance = totalObservedItems > 0 ? (compliantItems / totalObservedItems) * 100 : 0; // Assuming 'P' means compliant
+        const compliance = totalObservedItems > 0 ? (compliantItems / totalObservedItems) * 100 : 0;
         formElement.querySelector('input[name="cp_rata_rata_kepatuhan"]').value = compliance.toFixed(2) + '%';
     }
-
-
-    /**
-     * Adds a new row to the Kepuasan form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addKepuasanRow(tbody, index, entry = {}) {
         const newRow = tbody.insertRow();
         newRow.innerHTML = `
@@ -1412,15 +1181,10 @@
                 <option ${entry.nilai_kepuasan === '5 (Sangat Puas)' ? 'selected' : ''}>5 (Sangat Puas)</option>
             </select></td>
             <td><input type="text" name="komentar" value="${entry.komentar || ''}" required /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
     }
-
-    /**
-     * Adds a new row to the KRK form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addKrkRow(tbody, index, entry = {}) {
         const insertIndex = getInsertionIndex(tbody, ['total-row']);
         const newRow = tbody.insertRow(insertIndex);
@@ -1438,15 +1202,10 @@
             <td><input type="checkbox" name="penyelesaian_ya" ${entry.penyelesaian_ya ? 'checked' : ''} /></td>
             <td><input type="checkbox" name="penyelesaian_tidak" ${entry.penyelesaian_tidak ? 'checked' : ''} /></td>
             <td><input type="text" name="ket" value="${entry.ket || ''}" required /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
     }
-
-    /**
-     * Adds a new row to the POE form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addPoeRow(tbody, index, entry = {}) {
         const newRow = tbody.insertRow();
         newRow.innerHTML = `
@@ -1462,6 +1221,7 @@
             <td><input type="checkbox" name="penundaan_gt_1hr" ${entry.penundaan_gt_1hr ? 'checked' : ''} /></td>
             <td><input type="checkbox" name="penundaan_lt_1hr" ${entry.penundaan_lt_1hr ? 'checked' : ''} /></td>
             <td><input type="text" name="keterangan" value="${entry.keterangan || ''}" required /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
         const jamRencanaInput = newRow.querySelector(`input[name="jam_rencana_operasi"]`);
         const jamInsisiInput = newRow.querySelector(`input[name="jam_insisi"]`);
@@ -1493,16 +1253,9 @@
         };
         jamRencanaInput.addEventListener('input', updatePoePenundaan);
         jamInsisiInput.addEventListener('input', updatePoePenundaan);
-        updatePoePenundaan(); // Initial calculation
+        updatePoePenundaan();
     }
-
-
-    /**
-     * Adds a new row to the SC form table.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {number} index - The index for the new row.
-     * @param {object} [entry={}] - Optional initial data for the row.
-     */
+    
     function addScRow(tbody, index, entry = {}) {
         const newRow = tbody.insertRow();
         newRow.innerHTML = `
@@ -1524,6 +1277,7 @@
                 <option ${entry.gt_30_menit === 'Tidak' ? 'selected' : ''}>Tidak</option>
             </select></td>
             <td><input type="text" name="keterangan" value="${entry.keterangan || ''}" required /></td>
+            <td><button type="button" onclick="removeRow(this)">Hapus</button></td>
         `;
 
         const jamDiputuskanOperasiInput = newRow.querySelector(`input[name="jam_diputuskan_operasi"]`);
@@ -1556,16 +1310,11 @@
         };
         jamDiputuskanOperasiInput.addEventListener('input', updateScWaktuTanggap);
         jamMulaiInsisiInput.addEventListener('input', updateScWaktuTanggap);
-        updateScWaktuTanggap(); // Initial calculation
+        updateScWaktuTanggap();
     }
-
-    /**
-     * Updates total calculations for the Hand Hygiene form.
-     * @param {HTMLElement} formElement - The Hand Hygiene form element (not just a row).
-     */
+    
     function updateHandHygieneTotals(formElement) {
         formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
-            // Now use the simplified names
             const getVal = (name) => {
                 const input = row.querySelector(`input[name="${name}"]`);
                 return parseInt(input?.value) || 0;
@@ -1592,11 +1341,44 @@
             const total_handrub = dpjp_handrub + perawat_handrub + pendidikan_handrub + lain_handrub;
 
 
-            // Update total inputs for this specific row using simplified names
             row.querySelector(`input[name="total_kesempatan"]`).value = total_kesempatan;
             row.querySelector(`input[name="total_handwash"]`).value = total_handwash;
             row.querySelector(`input[name="total_handrub"]`).value = total_handrub;
         });
+    }
+
+    /**
+     * Removes a row from the table and renumbers the remaining rows.
+     * @param {HTMLElement} button - The clicked remove button.
+     */
+    function removeRow(button) {
+        const row = button.closest('tr');
+        const tbody = row.closest('tbody');
+        const formElement = tbody.closest('.form-card');
+        if (row) {
+            row.remove();
+            const formType = Object.keys(formIdMap).find(key => formIdMap[key] === formElement.id);
+            if (formType) {
+                let excludeClasses = [];
+                if (formType === 'identifikasi') {
+                    excludeClasses = ['nb-row'];
+                } else if (['fornas', 'jatuh', 'krk'].includes(formType)) {
+                    excludeClasses = ['total-row'];
+                } else if (formType === 'cp') {
+                    excludeClasses = ['total-row', 'rata-rata-row'];
+                }
+                renumberTableRows(tbody, excludeClasses);
+
+                // Recalculate totals after row removal
+                if (formType === 'cp') {
+                    updateCpTotals(formElement);
+                } else if (formType === 'jatuh') {
+                    updateJatuhTotals(formElement);
+                } else if (formType === 'hand-hygiene') {
+                    updateHandHygieneTotals(formElement);
+                }
+            }
+        }
     }
 
 
@@ -1605,242 +1387,90 @@
     document.addEventListener('DOMContentLoaded', async function() {
         showLoading();
         await initializeData();
-        // checkAndAutoSubmitOldForms(); // This function logic might need adjustment based on your backend completion status
+        // checkAndAutoSubmitOldForms() is largely irrelevant/complex for this cumulative model
         updateStatisticsDisplay();
-        showSection('list'); // Show the list after everything is loaded and updated
-        setupFormEventListeners(); // Call this function to set up all event listeners
+        showSection('list');
+        setupFormEventListeners();
         hideLoading();
         showNotification('Selamat datang di Dashboard Indikator Mutu!', 'info');
     });
 
     /**
-     * Initializes data by fetching current and historical data for all forms.
+     * Initializes data by fetching ALL historical entries for each form type
+     * and combining them into formCurrentData.
      */
     async function initializeData() {
         for (const indicator of indicators) {
             try {
-                // Fetch current data
+                // Fetch ALL historical entries for this form type, combined by the backend
                 const currentResponse = await authenticatedFetch(`${API_BASE_URL}/${indicator.id}/current`);
                 if (currentResponse.ok) {
-                    formCurrentData[indicator.id] = await currentResponse.json();
+                    const result = await currentResponse.json();
+                    formCurrentData[indicator.id] = result; // This now contains the aggregated data from PHP
                 } else {
-                    console.warn(`Failed to fetch current data for ${indicator.id}:`, currentResponse.statusText);
-                    formCurrentData[indicator.id] = { data: {} }; // Ensure it's an object even if empty
+                    console.warn(`Failed to fetch all data for ${indicator.id}:`, currentResponse.statusText);
+                    // Ensure formCurrentData structure is minimal but correct if fetch fails
+                    formCurrentData[indicator.id] = { week_start_date: moment().startOf('isoWeek').format('YYYY-MM-DD'), data: { entries: [] } };
                 }
 
-                // Fetch history data
+                // Fetch history data (still for separate weekly records for history view)
                 const historyResponse = await authenticatedFetch(`${API_BASE_URL}/${indicator.id}/history`);
                 if (historyResponse.ok) {
                     formHistoryData[indicator.id] = await historyResponse.json();
                 } else {
                     console.warn(`Failed to fetch history data for ${indicator.id}:`, historyResponse.statusText);
-                    formHistoryData[indicator.id] = []; // Ensure it's an array even if empty
+                    formHistoryData[indicator.id] = [];
                 }
             } catch (error) {
                 console.error(`Error initializing data for ${indicator.id}:`, error);
-                formCurrentData[indicator.id] = { data: {} };
+                formCurrentData[indicator.id] = { week_start_date: moment().startOf('isoWeek').format('YYYY-MM-DD'), data: { entries: [] } };
                 formHistoryData[indicator.id] = [];
             }
         }
     }
 
     /**
-     * Checks for incomplete forms from previous weeks and attempts to auto-submit them.
-     * NOTE: This function's effectiveness heavily relies on how "complete" is determined
-     * by your backend. If the backend doesn't save a clear 'completed' status, this
-     * might need further refinement or a different approach for status management.
+     * Helper to re-initialize data for a single form type.
+     * Useful after a save operation to refresh the specific form with the latest cumulative data.
+     * @param {string} formType
      */
-    async function checkAndAutoSubmitOldForms() {
-        const today = moment().startOf('day');
-        const currentWeekStart = today.clone().startOf('isoWeek'); // Monday as start of week
-
-        for (const indicator of indicators) {
-            const currentData = formCurrentData[indicator.id];
-
-            // Check if current data exists, has a week_start_date, and is from a previous week
-            if (currentData && currentData.week_start_date) {
-                const dataWeekStart = moment(currentData.week_start_date).startOf('isoWeek');
-
-                // If it's an old week's data AND it's not marked complete (based on current client-side check)
-                if (dataWeekStart.isBefore(currentWeekStart) && !isFormComplete(indicator.id, currentData.data)) {
-                    console.log(`Auto-submitting incomplete form for ${indicator.id} from week ${dataWeekStart.format('YYYY-MM-DD')}`);
-                    // Save the data for the *previous* week. This should ideally mark it as complete on the backend.
-                    await saveFormData(indicator.id, dataWeekStart.format('YYYY-MM-DD'), currentData.data);
-                }
-            }
-        }
-        // After potential auto-submissions, re-initialize to reflect any changes
-        // await initializeData(); // This might cause a loop if saveFormData also triggers updates
-        updateStatisticsDisplay(); // Update display based on current local state
-    }
-
-
-    /**
-     * Filters the entries displayed in the table based on the selected month.
-     * This is a client-side filtering function.
-     * @param {HTMLElement} formElement - The current form HTML element.
-     * @param {string} formType - The type of form (e.g., 'visite').
-     * @param {object} fullData - The full data object for the form, containing all entries.
-     */
-    function filterEntriesByMonth(formElement, formType, fullData) {
-        const monthInput = formElement.querySelector('input[type="month"][name$="_bulan"]');
-        const selectedMonth = monthInput ? monthInput.value : ''; // Format YYYY-MM
-
-        const tbody = formElement.querySelector('.form-table tbody');
-        if (!tbody || !fullData.entries) return;
-
-        // Preserve static rows by filtering them out, clearing tbody, then re-appending them
-        const rowsToPreserve = Array.from(tbody.children).filter(row =>
-            row.classList.contains('total-row') ||
-            row.classList.contains('rata-rata-row') ||
-            row.classList.contains('nb-row')
-        );
-        tbody.innerHTML = ''; // Clear all content
-        rowsToPreserve.forEach(row => tbody.appendChild(row)); // Re-append preserved rows
-
-        let filteredEntries = fullData.entries;
-
-        if (selectedMonth) {
-            filteredEntries = fullData.entries.filter(entry => {
-                // Adapt property name based on form type for date checking
-                let entryDateString;
-                if (formType === 'hand-hygiene') {
-                    entryDateString = entry.bulan; // Hand Hygiene uses 'bulan' field directly (YYYY-MM format)
-                } else if (entry.tgl) {
-                    entryDateString = entry.tgl; // Many forms use 'tgl' (YYYY-MM-DD format)
-                } else if (entry.tanggal) {
-                    entryDateString = entry.tanggal; // Kepuasan uses 'tanggal' (YYYY-MM-DD format)
-                } else if (entry.tgl_registrasi) {
-                    entryDateString = entry.tgl_registrasi; // Visite uses 'tgl_registrasi' (YYYY-MM-DD format)
-                }
-
-                if (entryDateString) {
-                    // For date fields (YYYY-MM-DD), extract YYYY-MM
-                    if (entryDateString.length >= 7 && entryDateString.includes('-')) {
-                        return entryDateString.substring(0, 7) === selectedMonth;
-                    }
-                    // For month fields (YYYY-MM)
-                    return entryDateString === selectedMonth;
-                }
-                return false; // No date/month field to compare
-            });
-        }
-
-        // Sort filtered entries by their original 'no' for consistent numbering if not already
-        filteredEntries.sort((a, b) => (a.no || 0) - (b.no || 0));
-
-        // Repopulate tbody with filtered entries
-        filteredEntries.forEach((entry, index) => {
-            const newIndex = index + 1; // Ensure sequential numbering after filtering
-            if (formType === 'hand-hygiene') {
-                addHandHygieneRow(tbody, newIndex, entry);
-            } else if (formType === 'apd') {
-                addApdRow(tbody, newIndex, entry);
-            } else if (formType === 'identifikasi') {
-                addIdentifikasiRow(tbody, newIndex, entry);
-            } else if (formType === 'wtri') {
-                addWtriRow(tbody, newIndex, entry);
-            } else if (formType === 'kritis-lab') {
-                addKritisLabRow(tbody, newIndex, entry);
-            } else if (formType === 'fornas') {
-                addFornasRow(tbody, newIndex, entry);
-            } else if (formType === 'visite') {
-                addVisiteRow(tbody, newIndex, entry);
-            } else if (formType === 'jatuh') {
-                addJatuhRow(tbody, newIndex, entry);
-            } else if (formType === 'cp') {
-                addCpRow(tbody, newIndex, entry);
-            } else if (formType === 'kepuasan') {
-                addKepuasanRow(tbody, newIndex, entry);
-            } else if (formType === 'krk') {
-                addKrkRow(tbody, newIndex, entry);
-            } else if (formType === 'poe') {
-                addPoeRow(tbody, newIndex, entry);
-            } else if (formType === 'sc') {
-                addScRow(tbody, newIndex, entry);
-            }
-        });
-
-        // IMPORTANT: Re-number rows after all filtered entries have been added.
-        // The renumberTableRows function has been simplified to only update the displayed 'No'.
-        if (formType === 'identifikasi') {
-            renumberTableRows(tbody, ['nb-row']);
-        } else if (['fornas', 'jatuh', 'krk'].includes(formType)) {
-            renumberTableRows(tbody, ['total-row']);
-        } else if (formType === 'cp') {
-            renumberTableRows(tbody, ['total-row', 'rata-rata-row']);
-        } else {
-            renumberTableRows(tbody, []); // For forms with no specific static rows at the end
-        }
-
-        // Re-run totals if the form has them (e.g., CP, Jatuh, Hand Hygiene)
-        if (formType === 'cp') {
-            updateCpTotals(formElement);
-        } else if (formType === 'jatuh') {
-            updateJatuhTotals(formElement);
-        } else if (formType === 'hand-hygiene') {
-            updateHandHygieneTotals(formElement);
-        }
-    }
-
-
-    /**
-     * Saves form data to the backend API.
-     * @param {string} formType - The type of the form to save.
-     * @param {string} [weekStartDate=null] - Optional specific week start date for historical saves.
-     * @param {object} [existingData=null] - Optional data to send if it's an auto-submission of existing (potentially incomplete) data.
-     */
-    async function saveFormData(formType, weekStartDate = null, existingData = null) {
-        showLoading();
+    async function initializeDataForForm(formType) {
         try {
-            let dataToSave;
-            if (existingData) {
-                dataToSave = existingData; // Use provided data for auto-submission of old forms
+            const currentResponse = await authenticatedFetch(`${API_BASE_URL}/${formType}/current`);
+            if (currentResponse.ok) {
+                const result = await currentResponse.json();
+                formCurrentData[formType] = result;
+                // If the form is currently displayed, re-populate it
+                const formElement = document.getElementById(formIdMap[formType]);
+                if (currentSection === formType && formElement) {
+                    populateForm(formElement, formCurrentData[formType]?.data || {}, formType);
+                    // Also ensure the month input reflects the data's overall 'bulan' if available
+                    const monthInput = formElement.querySelector('input[type="month"][name$="_bulan"]');
+                    if (monthInput && formCurrentData[formType]?.data?.bulan) {
+                        monthInput.value = formCurrentData[formType].data.bulan;
+                    }
+                }
             } else {
-                dataToSave = getFormData(formType); // Get current form data from UI
+                console.warn(`Failed to re-fetch data for ${formType} after save:`, currentResponse.statusText);
+                formCurrentData[formType] = { week_start_date: moment().startOf('isoWeek').format('YYYY-MM-DD'), data: { entries: [] } };
             }
 
-            const requestBody = { data: dataToSave };
-
-            // If a specific weekStartDate is provided (e.g., for auto-submitting old data), use it.
-            // Otherwise, the backend will default to the current week.
-            if (weekStartDate) {
-                requestBody.week_start_date = weekStartDate;
-            }
-
-            const response = await authenticatedFetch(`${API_BASE_URL}/${formType}`, {
-                method: 'POST',
-                body: JSON.stringify(requestBody)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            formCurrentData[formType] = result.data; // Update local current data with response
-
-            // Re-fetch history to ensure it's up-to-date
+            // Also refresh history data for this form type
             const historyResponse = await authenticatedFetch(`${API_BASE_URL}/${formType}/history`);
             if (historyResponse.ok) {
                 formHistoryData[formType] = await historyResponse.json();
+            } else {
+                console.warn(`Failed to re-fetch history data for ${formType} after save:`, historyResponse.statusText);
+                formHistoryData[formType] = [];
             }
-
-            updateStatisticsDisplay(); // Update dashboard stats after save
-            showNotification(result.message, 'success');
-
         } catch (error) {
-            console.error(`Error saving data for ${formType}:`, error);
-            showNotification(`Failed to save data: ${error.message}`, 'error');
-        } finally {
-            hideLoading();
+            console.error(`Error during post-save data refresh for ${formType}:`, error);
         }
     }
 
-
     /**
      * Updates the counts and statuses displayed in the dashboard statistics and indicator list.
+     * In this cumulative model, 'pending' and 'in-progress' status might be interpreted differently.
      */
     function updateStatisticsDisplay() {
         let completedCount = 0;
@@ -1850,22 +1480,14 @@
         indicators.forEach(indicator => {
             const formData = formCurrentData[indicator.id]?.data;
 
-            // The logic for isFormComplete now needs to rely on the *saved* data structure
-            // not just what's visible in the DOM, especially after a refresh.
-            // This is why backend completeness is crucial. For now, it uses the frontend's
-            // understanding of completeness which might be what's causing your refresh issue.
-            // If your backend also sets a 'status' field, use that here:
-            // if (formCurrentData[indicator.id]?.status === 'completed') { ... }
-
             if (isFormComplete(indicator.id, formData)) {
                 indicator.status = 'completed';
                 completedCount++;
-            } else if (formData && Object.keys(formData).length > 0 && (formData.entries && formData.entries.length > 0)) {
-                // Form has some data entries, but not "complete"
-                indicator.status = 'in-progress';
+            } else if (formData && formData.entries && formData.entries.length > 0) {
+                indicator.status = 'in-progress'; // Has some entries, but not all required fields might be filled
                 inProgressCount++;
             } else {
-                indicator.status = 'pending';
+                indicator.status = 'pending'; // No entries at all
                 pendingCount++;
             }
 
@@ -1887,7 +1509,6 @@
             }
         });
 
-        // Update the numbers in the stat cards
         document.querySelector('.stat-card:nth-child(2) .stat-number').textContent = completedCount;
         document.querySelector('.stat-card:nth-child(3) .stat-number').textContent = inProgressCount;
         document.querySelector('.stat-card:nth-child(4) .stat-number').textContent = pendingCount;
@@ -1895,56 +1516,49 @@
 
 
     // --- History Section Logic ---
-
-    /**
-     * Renders the history section with tabs for each form type.
-     */
+    
     function renderHistorySection() {
         const historyContainer = document.getElementById('history-section-content');
         if (!historyContainer) return;
 
-        historyContainer.innerHTML = '<h2>Riwayat Pengisian Form</h2>'; // Clear and re-add title
+        historyContainer.innerHTML = '<h2>Riwayat Pengisian Form (Per Minggu)</h2>'; // Clarify this shows weekly snapshots
 
         const historyTabs = document.createElement('div');
-        historyTabs.className = 'history-tabs flex flex-wrap gap-2 mb-4'; // flex-wrap for small screens
+        historyTabs.className = 'history-tabs flex flex-wrap gap-2 mb-4';
 
-        let defaultFormType = Object.keys(formIdMap)[0]; // Default to the first form type
+        let defaultFormType = Object.keys(formIdMap)[0];
 
-        // Create tabs for each form type
         for (const formType of Object.keys(formIdMap)) {
             const button = document.createElement('button');
             const indicator = indicators.find(i => i.id === formType);
             button.textContent = indicator ? indicator.name : formType.replace(/-/g, ' ').toUpperCase();
             button.className = 'tab-button px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200';
 
-            // Add click event to display history for that form
             button.onclick = () => displayHistoryForForm(formType, historyContainer);
             historyTabs.appendChild(button);
         }
         historyContainer.appendChild(historyTabs);
 
-        // Display history for the default form type initially
         displayHistoryForForm(defaultFormType, historyContainer);
     }
 
     /**
-     * Displays the historical data for a specific form type.
+     * Displays historical data from weekly snapshots.
      * @param {string} formType - The type of form whose history to display.
      * @param {HTMLElement} container - The container element for history data display.
      */
     function displayHistoryForForm(formType, container) {
-        // Remove previous history data display
         container.querySelectorAll('.history-data-display').forEach(el => el.remove());
 
         const historyContent = document.createElement('div');
-        historyContent.className = 'history-data-display mt-4 overflow-x-auto'; // Added overflow-x-auto
+        historyContent.className = 'history-data-display mt-4 overflow-x-auto';
 
         let history = formHistoryData[formType];
 
         if (!history || history.length === 0) {
             historyContent.innerHTML = `<p class="text-gray-600">Tidak ada riwayat tersedia untuk ${formType.replace(/-/g, ' ')}.</p>`;
         } else {
-            // Sort history by week_start_date in descending order (most recent first)
+            // Sort history by week_start_date in descending order (most recent snapshot first)
             history = [...history].sort((a, b) => moment(b.week_start_date).diff(moment(a.week_start_date)));
 
             const indicator = indicators.find(i => i.id === formType);
@@ -1952,13 +1566,13 @@
             historyContent.innerHTML = `<h3 class="text-xl font-semibold mb-3">Riwayat ${formName}</h3>`;
 
             const table = document.createElement('table');
-            table.className = 'history-table w-full border-collapse min-w-max md:min-w-0'; // min-w-max for horizontal scroll on small screens
+            table.className = 'history-table w-full border-collapse min-w-max md:min-w-0';
             let tableHtml = `
                 <thead class="bg-gray-200">
                     <tr>
                         <th class="py-2 px-4 border text-left">Tanggal Mulai Minggu</th>
-                        <th class="py-2 px-4 border text-left">Data Form</th>
-                        <th class="py-2 px-4 border text-left">Tanggal Input</th>
+                        <th class="py-2 px-4 border text-left">Data Form (Snapshot)</th>
+                        <th class="py-2 px-4 border text-left">Tanggal Input Snapshot</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -1966,7 +1580,8 @@
             history.forEach(entry => {
                 const weekStartDate = moment(entry.week_start_date).format('YYYY-MM-DD');
                 const createdAt = moment(entry.created_at).format('YYYY-MM-DD HH:mm');
-                const dataDisplay = formatFormDataForDisplay(entry.data, formType);
+                // Decode the data for display in history
+                const dataDisplay = formatFormDataForDisplay(JSON.parse(entry.data), formType);
                 tableHtml += `
                     <tr>
                         <td class="py-2 px-4 border">${weekStartDate}</td>
@@ -1980,13 +1595,12 @@
         }
         container.appendChild(historyContent);
 
-        // Update active state of history tabs
         container.querySelectorAll('.tab-button').forEach(btn => {
             btn.classList.remove('active', 'bg-blue-500', 'text-white', 'hover:bg-blue-600');
             btn.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-100');
             const btnText = btn.textContent.toLowerCase();
             const indicatorName = indicators.find(i => i.id === formType)?.name.toLowerCase();
-            if (btnText === indicatorName.toLowerCase() || btnText === formType.replace(/-/g, ' ')) { // Compare by lowercased names
+            if (btnText === indicatorName.toLowerCase() || btnText === formType.replace(/-/g, ' ')) {
                 btn.classList.add('active', 'bg-blue-500', 'text-white', 'hover:bg-blue-600');
             }
         });
@@ -1994,8 +1608,8 @@
 
     /**
      * Formats the raw form data into a human-readable string for history display.
-     * This function needs to be expanded for each specific form type for better summaries.
-     * @param {object} data - The raw form data.
+     * Now expects 'data' to be the full data object potentially containing 'entries'.
+     * @param {object} data - The raw form data (a single weekly snapshot).
      * @param {string} formType - The type of the form.
      * @returns {string} Formatted string.
      */
@@ -2004,51 +1618,47 @@
             return "Tidak ada data";
         }
 
-        switch (formType) {
-            case 'hand-hygiene':
-                if (data.entries && data.entries.length > 0) {
+        // Prioritize showing a summary of entries if present
+        if (data.entries && Array.isArray(data.entries) && data.entries.length > 0) {
+            let summary = `Total Entries: ${data.entries.length}`;
+            switch (formType) {
+                case 'hand-hygiene':
                     const totalSesi = data.entries.reduce((sum, entry) => sum + (entry.sesi || 0), 0);
                     const totalKesempatan = data.entries.reduce((sum, entry) => sum + (entry.total_kesempatan || 0), 0);
-                    return `Total Entries: ${data.entries.length}, Total Sesi: ${totalSesi}, Total Kesempatan: ${totalKesempatan}`;
-                }
-                return "Tidak ada data";
-            case 'apd':
-                return `Entries: ${data.entries?.length || 0} (e.g., Tgl: ${data.entries?.[0]?.tgl || '-'}, Profesi: ${data.entries?.[0]?.profesi || '-'})`;
-            case 'identifikasi':
-                return `Unit: ${data.unit_kerja || '-'}, Entries: ${data.entries?.length || 0}`;
-            case 'wtri':
-                return `Unit: ${data.unit || '-'}, Entries: ${data.entries?.length || 0}`;
-            case 'kritis-lab':
-                return `Entries: ${data.entries?.length || 0} (e.g., Critical Value: ${data.entries?.[0]?.critical_value || '-'})`;
-            case 'fornas':
-                return `Entries: ${data.entries?.length || 0} (e.g., Resep: ${data.entries?.[0]?.jumlah_resep || 0}, Fornas Nasional: ${data.entries?.[0]?.formularium_nasional ? 'Ya' : 'Tidak'})`;
-            case 'visite':
-                return `Bulan: ${data.bulan || '-'}, Entries: ${data.entries?.length || 0}`;
-            case 'jatuh':
-                return `Entries: ${data.entries?.length || 0}, Ya: ${data.totals?.ketiga_upaya_ya || 0}, Tidak: ${data.totals?.ketiga_upaya_tidak || 0}`;
-            case 'cp':
-                return `Bulan: ${data.bulan || '-'}, Ruangan: ${data.ruangan || '-'}, Kepatuhan: ${data.rata_rata_kepatuhan || '-'}`;
-            case 'kepuasan':
-                return `Entries: ${data.entries?.length || 0} (e.g., Nilai: ${data.entries?.[0]?.nilai_kepuasan || '-'})`;
-            case 'krk':
-                return `Entries: ${data.entries?.length || 0} (e.g., Komplain: ${data.entries?.[0]?.isi_komplain || '-'})`;
-            case 'poe':
-                return `Entries: ${data.entries?.length || 0} (e.g., Diagnosa: ${data.entries?.[0]?.diagnosa || '-'})`;
-            case 'sc':
-                return `Entries: ${data.entries?.length || 0} (e.g., Kat: ${data.entries?.[0]?.diagnosa_kategori || '-'})`;
-            default:
-                return "Data: " + JSON.stringify(data).substring(0, 100) + "..."; // Truncate for brevity
+                    summary += `, Total Sesi: ${totalSesi}, Kesempatan: ${totalKesempatan}`;
+                    break;
+                case 'identifikasi':
+                    summary += data.unit_kerja ? `, Unit: ${data.unit_kerja}` : '';
+                    break;
+                case 'wtri':
+                    summary += data.unit_kerja ? `, Unit: ${data.unit_kerja}` : '';
+                    break;
+                case 'cp':
+                    summary += data.ruangan ? `, Ruangan: ${data.ruangan}` : '';
+                    summary += data.rata_rata_kepatuhan ? `, Kepatuhan: ${data.rata_rata_kepatuhan}` : '';
+                    break;
+                case 'jatuh':
+                    summary += data.totals ? `, Ya: ${data.totals.ketiga_upaya_ya || 0}, Tidak: ${data.totals.ketiga_upaya_tidak || 0}` : '';
+                    break;
+                // Add more specific summaries for other forms as needed
+            }
+            return summary;
         }
-    }
 
-    /**
-     * Renumbers the 'No' column in a table's tbody.
-     * This is crucial for forms where rows can be added/removed and the 'No' column needs to reflect the current order.
-     * This function has been simplified to only update the displayed 'No' column.
-     * It NO LONGER modifies input 'name' attributes.
-     * @param {HTMLElement} tbody - The tbody element of the table.
-     * @param {string[]} excludeClasses - An array of class names for rows to exclude from renumbering (e.g., ['total-row', 'nb-row']).
-     */
+        // Fallback for top-level fields if no 'entries' or 'entries' is empty
+        let displayString = '';
+        for (const key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key) && key !== 'entries') { // Exclude 'entries' itself
+                let value = data[key];
+                if (typeof value === 'object' && value !== null) {
+                    value = JSON.stringify(value); // Stringify nested objects for display
+                }
+                displayString += `${key}: ${String(value).substring(0, 50)}${String(value).length > 50 ? '...' : ''}, `;
+            }
+        }
+        return displayString ? displayString.slice(0, -2) : "Tidak ada data (top-level)";
+    }
+    
     function renumberTableRows(tbody, excludeClasses = []) {
         let currentNumber = 1;
         Array.from(tbody.children).forEach(row => {
@@ -2059,25 +1669,21 @@
                     break;
                 }
             }
-
             if (!isExcluded) {
                 const noCell = row.querySelector('td:first-child');
                 if (noCell) {
                     noCell.textContent = currentNumber;
                 }
-                // IMPORTANT: The logic to update input names has been removed from here.
-                // Input names should be consistent across all dynamic rows (e.g., `name="tgl"` instead of `name="tgl_1"`).
                 currentNumber++;
             }
         });
     }
 
-
     /**
      * Sets up event listeners for "Add Row" buttons and "Save" buttons.
      */
     function setupFormEventListeners() {
-        // Add Row buttons
+        // --- Add Row buttons ---
         document.getElementById('add-hand-hygiene-row')?.addEventListener('click', function() {
             const tbody = document.querySelector('#kebersihan-form .form-table tbody');
             const currentDataRows = tbody.querySelectorAll('tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').length;
@@ -2138,11 +1744,10 @@
 
         document.getElementById('add-cp-row')?.addEventListener('click', function() {
             const tbody = document.querySelector('#cp-form .form-table tbody');
-            // Problem area: How is `dataRows.length + 1` behaving?
             const dataRows = Array.from(tbody.children).filter(row => !row.classList.contains('total-row') && !row.classList.contains('rata-rata-row'));
-            addCpRow(tbody, dataRows.length + 1); // Pass the new index here
-            renumberTableRows(tbody, ['total-row', 'rata-rata-row']); // Renumber after adding
-            updateCpTotals(document.getElementById('cp-form')); // Update totals
+            addCpRow(tbody, dataRows.length + 1);
+            renumberTableRows(tbody, ['total-row', 'rata-rata-row']);
+            updateCpTotals(document.getElementById('cp-form'));
         });
 
         document.getElementById('add-kepuasan-row')?.addEventListener('click', function() {
@@ -2173,14 +1778,14 @@
             renumberTableRows(tbody, ['total-row', 'rata-rata-row', 'nb-row']);
         });
 
-        // Save buttons
+        // --- Save buttons ---
         document.querySelectorAll('.save-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const formCard = this.closest('.form-card');
                 if (formCard) {
                     const formType = Object.keys(formIdMap).find(key => formIdMap[key] === formCard.id);
                     if (formType) {
-                        saveFormData(formType);
+                        saveFormData(formType); // Call save with just formType
                     } else {
                         console.error("Save button's parent form-card ID not found in formIdMap.");
                         showNotification("Error: Could not determine form type to save.", "error");
@@ -2192,32 +1797,19 @@
             });
         });
 
-        // Attach event listeners to month inputs for filtering
+        // --- Month Filter (if applicable) ---
         document.querySelectorAll('input[type="month"][name$="_bulan"]').forEach(monthInput => {
-            monthInput.addEventListener('change', function() {
-                const formElement = this.closest('.form-card');
-                const formType = Object.keys(formIdMap).find(key => formIdMap[key] === formElement.id);
-                if (formType) {
-                    filterEntriesByMonth(formElement, formType, formCurrentData[formType]?.data || {});
-                }
-            });
+            // Ensure this listener is only attached once
+            if (!monthInput.dataset.listenerAttached) {
+                monthInput.addEventListener('change', function() {
+                    const formElement = this.closest('.form-card');
+                    const formType = Object.keys(formIdMap).find(key => formIdMap[key] === formElement.id);
+                    if (formType) {
+                        // Pass the *entire* combined data from formCurrentData to the filter
+                        filterEntriesByMonth(formElement, formType, formCurrentData[formType]?.data || { entries: [] });
+                    }
+                });
+                monthInput.dataset.listenerAttached = 'true';
+            }
         });
-        // Di bagian paling bawah file indikator-mutu.js, GANTI ini:
-    document.addEventListener('DOMContentLoaded', async function() {
-        showLoading();
-        await initializeData();
-        updateStatisticsDisplay();
-        showSection('list');
-        hideLoading();
-    });
-
-    // MENJADI ini:
-    document.addEventListener('DOMContentLoaded', async function() {
-        showLoading();
-        await initializeData();
-        updateStatisticsDisplay();
-        setupFormEventListeners();  // <-- INI YANG PERLU DITAMBAHKAN
-        showSection('list');
-        hideLoading();
-    });
     }

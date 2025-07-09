@@ -46,6 +46,8 @@ class QualityInspectionController extends Controller
     }
 
     /**
+     * Fetches all available entries for a form type, combined into one array,
+     * and returns it along with the current week's start date context.
      * @param string $formType
      * @return \Illuminate\Http\JsonResponse
      */
@@ -56,21 +58,89 @@ class QualityInspectionController extends Controller
         }
 
         $model = $this->formModels[$formType];
-        $weekStartDate = $this->getCurrentWeekStartDate();
+        $currentWeekStartDate = $this->getCurrentWeekStartDate();
 
-        $formData = $model::where('week_start_date', $weekStartDate)->first();
+        // Get all records for this form type, ordered by date to process chronologically
+        $allForms = $model::orderBy('week_start_date', 'asc')->get();
 
-        if (!$formData) {
-            return response()->json([
-                'week_start_date' => $weekStartDate,
-                'data' => []
-            ]);
+        $combinedEntries = [];
+        $latestOverallData = []; // To hold top-level fields like 'unit_kerja', 'ruangan', 'bulan', 'nb', 'totals'
+
+        foreach ($allForms as $formRecord) {
+            $data = json_decode($formRecord->data, true); // Decode the JSON 'data' column
+
+            // Aggregate top-level fields from the latest record
+            // This assumes that fields like 'unit_kerja' or 'ruangan' are generally constant
+            // or the latest value is the desired one.
+            $latestOverallData = array_merge($latestOverallData, array_diff_key($data, ['entries' => 0]));
+        
+            // Combine entries from all records
+            if (isset($data['entries']) && is_array($data['entries'])) {
+                foreach ($data['entries'] as $entry) {
+                    $combinedEntries[] = $entry;
+                }
+            }
         }
 
-        return response()->json($formData);
+        // Sort combined entries by their internal date/time field if they have one
+        // This ensures the display order in the frontend is logical.
+        if (!empty($combinedEntries)) {
+            usort($combinedEntries, function($a, $b) use ($formType) {
+                $dateFieldA = null;
+                $dateFieldB = null;
+
+                // Determine the primary date/time field for sorting
+                if ($formType === 'hand-hygiene' && isset($a['bulan'])) {
+                    $dateFieldA = Carbon::parse($a['bulan'] . '-01')->timestamp;
+                    $dateFieldB = Carbon::parse($b['bulan'] . '-01')->timestamp;
+                } elseif (isset($a['tgl'])) {
+                    $dateFieldA = Carbon::parse($a['tgl'])->timestamp;
+                    $dateFieldB = Carbon::parse($b['tgl'])->timestamp;
+                } elseif (isset($a['tanggal'])) {
+                    $dateFieldA = Carbon::parse($a['tanggal'])->timestamp;
+                    $dateFieldB = Carbon::parse($b['tanggal'])->timestamp;
+                } elseif (isset($a['tgl_registrasi'])) {
+                    $dateFieldA = Carbon::parse($a['tgl_registrasi'])->timestamp;
+                    $dateFieldB = Carbon::parse($b['tgl_registrasi'])->timestamp;
+                }
+
+                if ($dateFieldA !== null && $dateFieldB !== null) {
+                    return $dateFieldA - $dateFieldB;
+                }
+                return 0; // Maintain original relative order if no date field for comparison
+            });
+
+            // Re-assign 'no' if the frontend depends on it being sequential after combining
+            foreach ($combinedEntries as $index => &$entry) {
+                $entry['no'] = $index + 1;
+            }
+            unset($entry); // Unset reference to prevent unexpected modification
+        }
+        
+        // Ensure 'bulan' is present for Hand Hygiene even if no data or from older records
+        if ($formType === 'hand-hygiene' && !isset($latestOverallData['bulan'])) {
+            $latestOverallData['bulan'] = Carbon::now()->format('YYYY-MM');
+        }
+
+
+        // Construct the final data structure to send to the frontend
+        $finalData = [
+            // week_start_date here is for the *current context*, used for saving a new snapshot
+            'week_start_date' => $currentWeekStartDate,
+            'data' => array_merge($latestOverallData, ['entries' => $combinedEntries]),
+            // Pass the ID and timestamps of the most recent overall form record for reference
+            'id' => $allForms->last()->id ?? null,
+            'created_at' => $allForms->last()->created_at ?? null,
+            'updated_at' => $allForms->last()->updated_at ?? null,
+        ];
+
+        return response()->json($finalData);
     }
 
     /**
+     * Submits form data. This will always create/update a record for the CURRENT week_start_date,
+     * containing the ENTIRE set of entries and top-level data from the frontend.
+     * This effectively creates a new 'snapshot' for the current week.
      * @param Request $request
      * @param string $formType
      * @return \Illuminate\Http\JsonResponse
@@ -83,12 +153,16 @@ class QualityInspectionController extends Controller
 
         $model = $this->formModels[$formType];
 
-        // Determine the week_start_date from request or default to current week
-        $weekStartDate = $request->input('week_start_date', $this->getCurrentWeekStartDate());
+        // Data is always saved against the CURRENT week's start date as a new cumulative snapshot
+        $weekStartDate = $this->getCurrentWeekStartDate();
 
-        // Basic validation for the 'data' field
+        // The 'data' field now contains the *entire* collection of entries and top-level fields
+        // that the frontend has.
         $validator = Validator::make($request->all(), [
             'data' => 'required|array',
+            'data.entries' => 'nullable|array', // Entries are part of the main 'data' blob
+            // Add specific validation rules for other top-level fields within 'data' if needed
+            // e.g., 'data.unit_kerja' => 'sometimes|string',
         ]);
 
         if ($validator->fails()) {
@@ -96,11 +170,13 @@ class QualityInspectionController extends Controller
         }
 
         try {
+            // Encode the entire 'data' array (including all entries and top-level fields) as JSON
             $formData = $model::updateOrCreate(
                 ['week_start_date' => $weekStartDate],
-                ['data' => $request->input('data')]
+                ['data' => json_encode($request->input('data'))] // Store the entire data object as JSON
             );
 
+            // Associate with authenticated user if applicable
             if (auth()->check()) {
                 $formData->user_id = auth()->id();
                 $formData->save();
@@ -113,6 +189,7 @@ class QualityInspectionController extends Controller
     }
 
     /**
+     * Fetches historical form data records. This still fetches individual weekly snapshots.
      * @param string $formType
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -132,6 +209,7 @@ class QualityInspectionController extends Controller
             $query->where('week_start_date', $request->input('week_start_date'));
         }
 
+        // Order by week_start_date in descending order for most recent history first
         $history = $query->orderBy('week_start_date', 'desc')->get();
 
         return response()->json($history);

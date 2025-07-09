@@ -60,7 +60,7 @@
                 <td onclick="showSection('hand-hygiene')">HAND HYGIENE</td>
                 <td onclick="showSection('apd')">APD</td>
                 <td onclick="showSection('identifikasi')">IDENTIFIKASI</td>
-                <td onclick="showSection('wtri')">WTRI</td>
+                <td onclick="showSection('wtri')">WTRJ</td>
                 <td onclick="showSection('kritis-lab')">KRITIS LAB</td>
                 <td onclick="showSection('fornas')">FORNAS</td>
                 <td onclick="showSection('visite')">VISITE</td>
@@ -286,27 +286,7 @@
             <div class="form-section">
                 <div class="form-section-title">Bulan: <input type="month" name="identifikasi_bulan" value="{{ date('Y-m') }}" required /></div>
                 <div class="form-section-title">Unit Kerja:
-                    <select name="identifikasi_unit_kerja" required>
-                        <option value="">Pilih Unit Kerja</option>
-                        <option value="PJT">PJT</option>
-                        <option value="RA">RA</option>
-                        <option value="GIZI">GIZI</option>
-                        <option value="REHAB ME">REHAB ME</option>
-                        <option value="RADIOTERAPI">RADIOTERAPI</option>
-                        <option value="PAVILI">PAVILI</option>
-                        <option value="RB">RB</option>
-                        <option value="IRJ">IRJ</option>
-                        <option value="UTD">UTD</option>
-                        <option value="KEDOKTERAN NUKLIR">KEDOKTERAN NUKLIR</option>
-                        <option value="ICD">ICD</option>
-                        <option value="PK">PK</option>
-                        <option value="IBS">IBS</option>
-                        <option value="RADIOLOGI">RADIOLOGI</option>
-                        <option value="ICU">ICU</option>
-                        <option value="PA">PA</option>
-                        <option value="IDT">IDT</option>
-                        <option value="MIKROBIOLOGI">MIKROBIOLOGI</option>
-                    </select>
+                    <input type="text" name="identifikasi_unit_kerja" placeholder="Masukkan Unit Kerja" value="" required />
                 </div>
                 <div style="overflow-x: auto;">
                     <table class="form-table min-w-max">
@@ -371,12 +351,12 @@
             <h3><i class="fas fa-clock"></i> Waktu Tunggu Pelayanan Rawat Jalan (WTPR)</h3>
             <div style="margin-bottom: 20px;">
                 <strong>Unit Kerja:</strong>
-                <div style="margin: 10px 0;">
-                    <label><input type="radio" name="wtri_unit" value="IRJ" required> 1. IRJ</label><br>
-                    <label><input type="radio" name="wtri_unit" value="PJT" required> 2. PJT</label><br>
-                    <label><input type="radio" name="wtri_unit" value="EKSEKUTIF" required> 3. EKSEKUTIF</label>
+                <div style="margin-bottom: 20px;">
+                    <strong>Unit Kerja:</strong>
+                    <input type="text" name="wtrj_unit_kerja" placeholder="Masukkan Unit Kerja" value="" required />
+                    <br>
+                    <strong>Undangan: Rekam Medik</strong>
                 </div>
-                <strong>Undangan: Rekam Medik</strong>
             </div>
             <div style="overflow-x: auto;">
                 <table class="form-table min-w-max">
