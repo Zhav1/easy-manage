@@ -121,11 +121,32 @@ html, body {
             </div>
             
             <div class="space-y-2">
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>Tugas Luar
-              </label>
-              <input name="external_task" type="text" class="input-focus mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:ring-red-500 focus:border-red-500 py-3 px-4 bg-gray-50" placeholder="Keterangan tugas luar" />
-            </div>
+    <label class="block text-sm font-semibold text-gray-700 mb-2">
+        <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>Tugas Luar
+    </label>
+    <select name="external_task" id="external_task" class="input-focus mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:ring-red-500 focus:border-red-500 py-3 px-4 bg-gray-50" onchange="checkOther(this)">
+        <option value="" disabled selected>Pilih jenis tugas luar</option>
+        <option value="Webinar">Webinar</option>
+        <option value="Pelatihan">Pelatihan</option>
+        <option value="Seminar">Seminar</option>
+        <option value="other">Lainnya</option>
+    </select>
+    
+    <div id="other_input_container" class="hidden mt-2">
+        <input type="text" name="external_task_other" id="external_task_other" class="input-focus block w-full rounded-xl border-gray-200 shadow-sm focus:ring-red-500 focus:border-red-500 py-3 px-4 bg-gray-50" placeholder="Keterangan tugas luar">
+    </div>
+</div>
+
+<script>
+    function checkOther(select) {
+        const otherInputContainer = document.getElementById('other_input_container');
+        if (select.value === 'other') {
+            otherInputContainer.classList.remove('hidden');
+        } else {
+            otherInputContainer.classList.add('hidden');
+        }
+    }
+</script>
             
             <div class="md:col-span-2 space-y-2">
               <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -188,7 +209,6 @@ html, body {
               </tbody>
           </table>
       </div>
-        
         <div class="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <div class="flex items-center">
             <i class="fas fa-info-circle text-blue-500 mr-3"></i>
@@ -197,9 +217,168 @@ html, body {
             </p>
           </div>
         </div>
+      </div>
         
+    
+
+      <!-- Tambahkan kode ini setelah div yang berisi tabel riwayat kegiatan -->
+      <div class="card-hover bg-white rounded-3xl shadow-xl flex-1 p-8 mt-8 border border-gray-100 animate-fade-in ">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-exclamation-triangle mr-3 text-yellow-500"></i>
+            Pasien/Kasus Butuh Perhatian Khusus
+          </h2>
+          <p class="text-gray-500">Daftar pasien atau kasus yang membutuhkan perhatian khusus</p>
+        </div>
+        
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                <th class="px-4 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                  <i class="fas fa-calendar mr-2 text-blue-500"></i>Tanggal
+                </th>
+                <th class="px-4 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                  <i class="fas fa-user-injured mr-2 text-red-500"></i>Nama Pasien
+                </th>
+                <th class="px-4 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                  <i class="fas fa-procedures mr-2 text-purple-500"></i>Jenis Kasus
+                </th>
+                <th class="px-4 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                  <i class="fas fa-info-circle mr-2 text-cyan-500"></i>Detail
+                </th>
+                <th class="px-4 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                  <i class="fas fa-stethoscope mr-2 text-green-500"></i>Tindakan
+                </th>
+                <th class="px-4 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                  <i class="fas fa-cog mr-2 text-purple-500"></i>Aksi
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="specialCasesTableBody">
+              <!-- Contoh data statis - nanti bisa diisi dengan data dinamis -->
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  15 Mei 2023
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  Budi Santoso
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm">
+                  <span class="special-case-badge special-case-high-risk">Resiko Tinggi</span>
+                </td>
+                <td class="px-4 py-4 text-sm text-gray-700">
+                  Pasien dengan riwayat alergi multipel dan kondisi hemodinamik tidak stabil
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  Monitoring ketat, observasi 2 jam sekali
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  <button class="text-blue-500 hover:text-blue-700 mr-3">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  16 Mei 2023
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  Ani Wijaya
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm">
+                  <span class="special-case-badge special-case-complex">Kompleks</span>
+                </td>
+                <td class="px-4 py-4 text-sm text-gray-700">
+                  Pasien dengan multi-morbiditas: DM, Hipertensi, dan Gagal Ginjal Kronik
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  Koordinasi dengan tim spesialis, penyesuaian dosis obat
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  <button class="text-blue-500 hover:text-blue-700 mr-3">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  17 Mei 2023
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  Citra Dewi
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm">
+                  <span class="special-case-badge special-case-rare">Kasus Langka</span>
+                </td>
+                <td class="px-4 py-4 text-sm text-gray-700">
+                  Suspected Guillain-Barré Syndrome, perlu konsul neurologi
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  Pemeriksaan EMG, observasi fungsi pernapasan
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                  <button class="text-blue-500 hover:text-blue-700 mr-3">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+          <div class="flex items-center">
+            <i class="fas fa-info-circle text-yellow-500 mr-3"></i>
+            <p class="text-yellow-700 text-sm">
+              <span class="font-semibold">Catatan:</span> Tabel ini menampilkan pasien atau kasus yang membutuhkan perhatian dan penanganan khusus dari tim medis.
+            </p>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
+
+<style>
+  .special-case-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .special-case-high-risk {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  .special-case-complex {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+  }
+  
+  .special-case-rare {
+    background-color: #fef9c3;
+    color: #a16207;
+  }
+  
+  .special-case-other {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+</style>
+
   <!-- Schedule Modal -->
   <div id="scheduleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-3xl shadow-xl p-8 w-full max-w-2xl">

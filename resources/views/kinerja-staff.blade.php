@@ -285,54 +285,54 @@
     </div>
 
     <!-- Performance Evaluation Modal -->
-    <div id="performanceEvaluationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg p-4 md:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-3 md:mb-4">
-                <h3 id="performanceEvaluationModalTitle" class="text-lg md:text-xl font-bold text-gray-800">Tambah Penilaian Staf Baru</h3>
-                <button type="button" onclick="closePerformanceEvaluationModal()" class="text-gray-500 hover:text-gray-700 text-lg">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="performanceEvaluationForm">
-                <input type="hidden" id="evaluationId">
-                <div class="mb-3 md:mb-4">
-                    <label for="staffSelect" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Pilih Staff</label>
-                    <select id="staffSelect" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                        <option value="">Pilih Staff</option>
-                    </select>
-                </div>
-                <div class="mb-3 md:mb-4">
-                    <label for="kedisiplinan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Kedisiplinan (1-5)</label>
-                    <input type="number" id="kedisiplinan" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                </div>
-                <div class="mb-3 md:mb-4">
-                    <label for="komunikasi" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Komunikasi (1-5)</label>
-                    <input type="number" id="komunikasi" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                </div>
-                <div class="mb-3 md:mb-4">
-                    <label for="komplain" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Komplain (1-5)</label>
-                    <input type="number" id="komplain" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                </div>
-                <div class="mb-3 md:mb-4">
-                    <label for="kepatuhan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Kepatuhan (1-5)</label>
-                    <input type="number" id="kepatuhan" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                </div>
-                <div class="mb-4 md:mb-6">
-                    <label for="targetKerja" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Target Kerja (1-5)</label>
-                    <input type="number" id="targetKerja" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                </div>
-                <div class="mb-4 md:mb-6">
-                    <label for="notes" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Catatan (Opsional)</label>
-                    <textarea id="notes" rows="3" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"></textarea>
-                </div>
-                <div class="flex justify-end space-x-2 md:space-x-3">
-                    <button type="button" onclick="closePerformanceEvaluationModal()" class="animated-button bg-gray-200 text-gray-800 px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-gray-300 transition duration-300 text-xs md:text-sm">Batal</button>
-                    <button type="submit" class="animated-button bg-blue-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-blue-700 transition duration-300 text-xs md:text-sm">Simpan</button>
-                    <button type="button" id="deleteEvaluationBtn" onclick="deletePerformanceEvaluation()" class="animated-button bg-red-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-red-700 transition duration-300 text-xs md:text-sm hidden">Hapus</button>
-                </div>
-            </form>
+<div id="performanceEvaluationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg p-4 md:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-3 md:mb-4">
+            <h3 id="performanceEvaluationModalTitle" class="text-lg md:text-xl font-bold text-gray-800">Tambah Penilaian Baru</h3>
+            <button type="button" onclick="closePerformanceEvaluationModal()" class="text-gray-500 hover:text-gray-700 text-lg">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
+        <form id="performanceEvaluationForm">
+            <input type="hidden" id="evaluationId">
+            <div class="mb-3 md:mb-4">
+                <label for="staffSelect" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Pilih Staff</label>
+                <select id="staffSelect" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <option value="">Pilih Staff</option>
+                </select>
+            </div>
+            <div class="mb-3 md:mb-4">
+                <label for="kedisiplinan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Kedisiplinan (10-100, kelipatan 10)</label>
+                <input type="number" id="kedisiplinan" min="10" max="100" step="10" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+            </div>
+            <div class="mb-3 md:mb-4">
+                <label for="komunikasi" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Komunikasi (10-100, kelipatan 10)</label>
+                <input type="number" id="komunikasi" min="10" max="100" step="10" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+            </div>
+            <div class="mb-3 md:mb-4">
+                <label for="komplain" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Komplain (10-100, kelipatan 10)</label>
+                <input type="number" id="komplain" min="10" max="100" step="10" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+            </div>
+            <div class="mb-3 md:mb-4">
+                <label for="kepatuhan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Kepatuhan (10-100, kelipatan 10)</label>
+                <input type="number" id="kepatuhan" min="10" max="100" step="10" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+            </div>
+            <div class="mb-4 md:mb-6">
+                <label for="targetKerja" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Target Kerja (10-100, kelipatan 10)</label>
+                <input type="number" id="targetKerja" min="10" max="100" step="10" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+            </div>
+            <div class="mb-4 md:mb-6">
+                <label for="notes" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Catatan (Opsional)</label>
+                <textarea id="notes" rows="3" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"></textarea>
+            </div>
+            <div class="flex justify-end space-x-2 md:space-x-3">
+                <button type="button" onclick="closePerformanceEvaluationModal()" class="animated-button bg-gray-200 text-gray-800 px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-gray-300 transition duration-300 text-xs md:text-sm">Batal</button>
+                <button type="submit" class="animated-button bg-blue-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-blue-700 transition duration-300 text-xs md:text-sm">Simpan</button>
+                <button type="button" id="deleteEvaluationBtn" onclick="deletePerformanceEvaluation()" class="animated-button bg-red-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-red-700 transition duration-300 text-xs md:text-sm hidden">Hapus</button>
+            </div>
+        </form>
     </div>
+</div>
 
     <!-- Performance Detail Modal -->
     <div id="performanceDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

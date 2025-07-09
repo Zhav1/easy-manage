@@ -569,72 +569,127 @@ function updatePositionDropdownForStaffManagement() {
     });
 }
 
-function getPerformanceBadgeColor(status) {
-    switch (status) {
-        case 'Excellent Performance': return '#10b981'; // Green
-        case 'Good Performance': return '#3b82f6';    // Blue
-        case 'Need Mentoring': return '#f59e0b';    // Yellow/Orange
-        case 'Need Improvement': return '#ef4444';  // Red
-        default: return '#6b7280'; // Gray
-    }
+// ====== BAGIAN BARU UNTUK SKALA PENILAIAN 10-100 ====== //
+// Fungsi helper untuk konversi skala baru (10-100) ke skala lama (1-5) untuk kompatibilitas
+function convertToOldScale(newRating) {
+    return Math.ceil(newRating / 20); // 10-20=1, 30-40=2, 50-60=3, 70-80=4, 90-100=5
 }
 
-// Helper functions for rating colors and descriptions for Rekapitulasi Penilaian Staff table
+// Modifikasi fungsi-fungsi rating untuk menangani skala baru
 function getRatingColor(rating) {
-    if (rating >= 4) return '#10b981'; // Green for high (Excellent/Good)
-    if (rating >= 3) return '#3b82f6'; // Blue for medium (Good/Fair)
-    if (rating >= 2) return '#f59e0b'; // Orange for low-medium (Needs Mentoring)
+    const oldScaleRating = convertToOldScale(rating);
+    if (oldScaleRating >= 4) return '#10b981'; // Green for high (Excellent/Good)
+    if (oldScaleRating >= 3) return '#3b82f6'; // Blue for medium (Good/Fair)
+    if (oldScaleRating >= 2) return '#f59e0b'; // Orange for low-medium (Needs Mentoring)
     return '#ef4444'; // Red for low (Needs Improvement)
 }
 
 function getRatingTextColor(rating) {
-    if (rating >= 4) return 'text-green-700';
-    if (rating >= 3) return 'text-blue-600';
-    if (rating >= 2) return 'text-yellow-600';
+    const oldScaleRating = convertToOldScale(rating);
+    if (oldScaleRating >= 4) return 'text-green-700';
+    if (oldScaleRating >= 3) return 'text-blue-600';
+    if (oldScaleRating >= 2) return 'text-yellow-600';
     return 'text-red-600';
 }
 
 function getRatingDescription(rating) {
-    switch(rating) {
-        case 5: return 'Sangat Baik';
-        case 4: return 'Baik';
-        case 3: return 'Cukup';
-        case 2: return 'Kurang';
-        case 1: return 'Sangat Kurang';
+    const oldScaleRating = convertToOldScale(rating);
+    switch(oldScaleRating) {
+        case 5: return 'Sangat Baik (90-100)';
+        case 4: return 'Baik (70-80)';
+        case 3: return 'Cukup (50-60)';
+        case 2: return 'Kurang (30-40)';
+        case 1: return 'Sangat Kurang (10-20)';
         default: return '-';
     }
 }
 
-
-function updateKinerjaStatistics() {
-    let excellentCount = 0;
-    let goodCount = 0;
-    let mentoringCount = 0;
-    let improvementCount = 0;
-
-    performanceEvaluations.forEach(evaluation => {
-        switch (evaluation.status_kinerja) {
-            case 'Excellent Performance':
-                excellentCount++;
-                break;
-            case 'Good Performance':
-                goodCount++;
-                break;
-            case 'Need Mentoring':
-                mentoringCount++;
-                break;
-            case 'Need Improvement':
-                improvementCount++;
-                break;
+// Modifikasi form handler untuk validasi input baru
+const originalHandlePerformanceEvaluationFormSubmit = handlePerformanceEvaluationFormSubmit;
+handlePerformanceEvaluationFormSubmit = async function(e) {
+    e.preventDefault();
+    showLoading();
+    
+    // Validasi nilai harus kelipatan 10 antara 10-100
+    const validateRating = (value, fieldName) => {
+        const num = parseInt(value);
+        if (isNaN(num) || num < 10 || num > 100 || num % 10 !== 0) {
+            alert(`${fieldName} harus nilai antara 10-100 dan kelipatan 10`);
+            throw new Error(`Invalid ${fieldName} value`);
         }
-    });
+        return num;
+    };
 
-    document.getElementById('excellentPerformanceCount').textContent = excellentCount;
-    document.getElementById('goodPerformanceCount').textContent = goodCount;
-    document.getElementById('needMentoringCount').textContent = mentoringCount;
-    document.getElementById('needImprovementCount').textContent = improvementCount;
-}
+    try {
+        const formData = {
+            id: document.getElementById('evaluationId').value,
+            staff_id: document.getElementById('staffSelect').value,
+            kedisiplinan: validateRating(document.getElementById('kedisiplinan').value, 'Kedisiplinan'),
+            komunikasi: validateRating(document.getElementById('komunikasi').value, 'Komunikasi'),
+            komplain: validateRating(document.getElementById('komplain').value, 'Komplain'),
+            kepatuhan: validateRating(document.getElementById('kepatuhan').value, 'Kepatuhan'),
+            target_kerja: validateRating(document.getElementById('targetKerja').value, 'Target Kerja'),
+            notes: document.getElementById('notes').value,
+            user_id: window.currentUser.id,
+            department_id: window.currentUser.department_id,
+            hospital_id: window.currentUser.hospital_id
+        };
 
+        const token = window.authToken;
+        const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        };
+
+        const url = formData.id ? `/api/v1/performance-evaluations/${formData.id}` : '/api/v1/performance-evaluations';
+        const method = formData.id ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
+            headers,
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Network response was not ok');
+        }
+
+        await loadInitialKinerjaStaffData();
+        closePerformanceEvaluationModal();
+        alert('Penilaian berhasil disimpan!');
+    } catch (error) {
+        console.error('Error saving performance evaluation:', error);
+        if (!error.message.includes('Invalid')) { // Jangan tampilkan alert untuk error validasi
+            alert('Gagal menyimpan penilaian: ' + error.message);
+        }
+    } finally {
+        hideLoading();
+    }
+};
+
+// Update modal untuk menampilkan placeholder baru
+const originalOpenAddPerformanceEvaluationModal = openAddPerformanceEvaluationModal;
+openAddPerformanceEvaluationModal = function() {
+    originalOpenAddPerformanceEvaluationModal();
+    document.getElementById('kedisiplinan').placeholder = '10-100 (kelipatan 10)';
+    document.getElementById('komunikasi').placeholder = '10-100 (kelipatan 10)';
+    document.getElementById('komplain').placeholder = '10-100 (kelipatan 10)';
+    document.getElementById('kepatuhan').placeholder = '10-100 (kelipatan 10)';
+    document.getElementById('targetKerja').placeholder = '10-100 (kelipatan 10)';
+};
+
+const originalOpenEditPerformanceEvaluationModal = openEditPerformanceEvaluationModal;
+openEditPerformanceEvaluationModal = function(evaluationId) {
+    originalOpenEditPerformanceEvaluationModal(evaluationId);
+    document.getElementById('kedisiplinan').placeholder = '10-100 (kelipatan 10)';
+    document.getElementById('komunikasi').placeholder = '10-100 (kelipatan 10)';
+    document.getElementById('komplain').placeholder = '10-100 (kelipatan 10)';
+    document.getElementById('kepatuhan').placeholder = '10-100 (kelipatan 10)';
+    document.getElementById('targetKerja').placeholder = '10-100 (kelipatan 10)';
+};
+// ====== END BAGIAN BARU UNTUK SKALA PENILAIAN 10-100 ====== //
 function filterPerformanceEvaluations() {
     renderPerformanceEvaluationTable(); // Re-render table with current filters
 }

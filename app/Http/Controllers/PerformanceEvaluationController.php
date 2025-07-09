@@ -34,11 +34,11 @@ class PerformanceEvaluationController extends Controller
     {
         $validatedData = $request->validate([
             'staff_id' => 'required|exists:staff,id',
-            'kedisiplinan' => 'required|integer|min:1|max:5',
-            'komunikasi' => 'required|integer|min:1|max:5',
-            'komplain' => 'required|integer|min:1|max:5',
-            'kepatuhan' => 'required|integer|min:1|max:5',
-            'target_kerja' => 'required|integer|min:1|max:5',
+            'kedisiplinan' => 'required|integer|min:1|max:100',
+            'komunikasi' => 'required|integer|min:1|max:100',
+            'komplain' => 'required|integer|min:1|max:100',
+            'kepatuhan' => 'required|integer|min:1|max:100',
+            'target_kerja' => 'required|integer|min:1|max:100',
             'notes' => 'nullable|string',
         ]);
 
@@ -92,11 +92,11 @@ class PerformanceEvaluationController extends Controller
         }
 
         $validatedData = $request->validate([
-            'kedisiplinan' => 'sometimes|required|integer|min:1|max:5',
-            'komunikasi' => 'sometimes|required|integer|min:1|max:5',
-            'komplain' => 'sometimes|required|integer|min:1|max:5',
-            'kepatuhan' => 'sometimes|required|integer|min:1|max:5',
-            'target_kerja' => 'sometimes|required|integer|min:1|max:5',
+            'kedisiplinan' => 'sometimes|required|integer|min:1|max:100',
+            'komunikasi' => 'sometimes|required|integer|min:1|max:100',
+            'komplain' => 'sometimes|required|integer|min:1|max:100',
+            'kepatuhan' => 'sometimes|required|integer|min:1|max:100',
+            'target_kerja' => 'sometimes|required|integer|min:1|max:100',
             'notes' => 'nullable|string',
         ]);
 
@@ -145,11 +145,11 @@ class PerformanceEvaluationController extends Controller
      */
     private function determinePerformanceStatus($averageRating)
     {
-        if ($averageRating >= 4.5) {
+        if ($averageRating / 20 >= 4.5) {
             return 'Excellent Performance';
-        } elseif ($averageRating >= 3.5) {
+        } elseif ($averageRating / 20 >= 3.5) {
             return 'Good Performance';
-        } elseif ($averageRating >= 2.5) {
+        } elseif ($averageRating / 20 >= 2.5) {
             return 'Need Mentoring';
         } else {
             return 'Need Improvement';
