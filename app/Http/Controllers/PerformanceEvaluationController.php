@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PerformanceEvaluation;
-use App\Models\Staff; // Ensure Staff model is imported
+use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,11 +16,11 @@ class PerformanceEvaluationController extends Controller
     {
         $user = Auth::user();
 
-        $evaluations = PerformanceEvaluation::with(['staff.position', 'staff.department']) // Eager load staff and its relations
+        $evaluations = PerformanceEvaluation::with(['staff.position', 'staff.department'])
             ->whereHas('staff', function ($query) use ($user) {
                 $query->where('department_id', $user->department_id)
                       ->where('hospital_id', $user->hospital_id)
-                      ->where('user_id', $user->id); // Assuming staff are linked to the user who added them
+                      ->where('user_id', $user->id);
             })
             ->get();
 
@@ -34,15 +34,14 @@ class PerformanceEvaluationController extends Controller
     {
         $validatedData = $request->validate([
             'staff_id' => 'required|exists:staff,id',
-            'kedisiplinan' => 'required|integer|min:1|max:100',
-            'komunikasi' => 'required|integer|min:1|max:100',
-            'komplain' => 'required|integer|min:1|max:100',
-            'kepatuhan' => 'required|integer|min:1|max:100',
-            'target_kerja' => 'required|integer|min:1|max:100',
+            'kedisiplinan' => 'required|integer|min:10|max:100|multiple_of:10',
+            'komunikasi' => 'required|integer|min:10|max:100|multiple_of:10',
+            'komplain' => 'required|integer|min:10|max:100|multiple_of:10',
+            'kepatuhan' => 'required|integer|min:10|max:100|multiple_of:10',
+            'target_kerja' => 'required|integer|min:10|max:100|multiple_of:10',
             'notes' => 'nullable|string',
         ]);
 
-        // Calculate performance status based on the ratings
         $averageRating = array_sum([
             $validatedData['kedisiplinan'],
             $validatedData['komunikasi'],
@@ -58,7 +57,7 @@ class PerformanceEvaluationController extends Controller
 
         return response()->json([
             'message' => 'Performance evaluation created successfully',
-            'evaluation' => $evaluation->load('staff.position', 'staff.department') // Load relations for immediate response
+            'evaluation' => $evaluation->load('staff.position', 'staff.department')
         ], 201);
     }
 
@@ -67,7 +66,6 @@ class PerformanceEvaluationController extends Controller
      */
     public function show(PerformanceEvaluation $performanceEvaluation)
     {
-        // Ensure the evaluation belongs to the authenticated user's scope
         $user = Auth::user();
         if ($performanceEvaluation->staff->department_id !== $user->department_id ||
             $performanceEvaluation->staff->hospital_id !== $user->hospital_id ||
@@ -83,7 +81,6 @@ class PerformanceEvaluationController extends Controller
      */
     public function update(Request $request, PerformanceEvaluation $performanceEvaluation)
     {
-        // Ensure the evaluation belongs to the authenticated user's scope
         $user = Auth::user();
         if ($performanceEvaluation->staff->department_id !== $user->department_id ||
             $performanceEvaluation->staff->hospital_id !== $user->hospital_id ||
@@ -92,15 +89,14 @@ class PerformanceEvaluationController extends Controller
         }
 
         $validatedData = $request->validate([
-            'kedisiplinan' => 'sometimes|required|integer|min:1|max:100',
-            'komunikasi' => 'sometimes|required|integer|min:1|max:100',
-            'komplain' => 'sometimes|required|integer|min:1|max:100',
-            'kepatuhan' => 'sometimes|required|integer|min:1|max:100',
-            'target_kerja' => 'sometimes|required|integer|min:1|max:100',
+            'kedisiplinan' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
+            'komunikasi' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
+            'komplain' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
+            'kepatuhan' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
+            'target_kerja' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
             'notes' => 'nullable|string',
         ]);
 
-        // Recalculate status if any rating is updated
         $currentData = $performanceEvaluation->toArray();
         $updatedData = array_merge($currentData, $validatedData);
 
@@ -128,7 +124,6 @@ class PerformanceEvaluationController extends Controller
      */
     public function destroy(PerformanceEvaluation $performanceEvaluation)
     {
-        // Ensure the evaluation belongs to the authenticated user's scope
         $user = Auth::user();
         if ($performanceEvaluation->staff->department_id !== $user->department_id ||
             $performanceEvaluation->staff->hospital_id !== $user->hospital_id ||
@@ -145,14 +140,16 @@ class PerformanceEvaluationController extends Controller
      */
     private function determinePerformanceStatus($averageRating)
     {
-        if ($averageRating / 20 >= 4.5) {
-            return 'Excellent Performance';
-        } elseif ($averageRating / 20 >= 3.5) {
-            return 'Good Performance';
-        } elseif ($averageRating / 20 >= 2.5) {
-            return 'Need Mentoring';
+        if ($averageRating >= 90) {
+            return 'Sangat Baik';
+        } elseif ($averageRating >= 70) {
+            return 'Baik';
+        } elseif ($averageRating >= 50) {
+            return 'Cukup';
+        } elseif ($averageRating >= 30) {
+            return 'Kurang';
         } else {
-            return 'Need Improvement';
+            return 'Sangat Kurang';
         }
     }
 }
