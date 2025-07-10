@@ -11,7 +11,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-{{-- Add Moment.js for date calculations --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="{{ asset('js/indikator-mutu.js') }}"></script>
 </head>
@@ -183,11 +183,14 @@
     <div class="data-forms" style="display: none;">
         <div class="form-card overflow-x-auto" id="kebersihan-form" style="display: none;">
             <h3><i class="fas fa-hands-wash "></i> LEMBAR PENGUMPUL DATA KEPATUHAN KEBERSIHAN TANGAN</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="handHygieneChart"></canvas>
+            </div>
             <div style="overflow-x: auto;">
                 <table class="form-table min-w-max">
                     <thead>
                         <tr>
-                            <th rowspan="2">No</th> <th rowspan="2">Bulan</th>
+                            <th rowspan="2">No</th> <th rowspan="2">Tgl</th>
                             <th rowspan="2">Sesi (n)</th>
                             <th colspan="3">DPJP</th>
                             <th colspan="3">Perawat</th>
@@ -231,6 +234,9 @@
 
         <div class="form-card overflow-x-auto" id="apd-form" style="display: none;">
             <h3><i class="fas fa-shield-alt"></i> Kepatuhan Penggunaan APD</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="apdChart"></canvas>
+            </div>
             <div style="overflow-x: auto;">
                 <table class="form-table min-w-max">
                     <thead>
@@ -283,8 +289,10 @@
 
         <div class="form-card overflow-x-auto" id="identifikasi-form" style="display: none;">
             <h3><i class="fas fa-id-card"></i> Kepatuhan Identifikasi Pasien</h3>
+                <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                    <canvas id="identifikasiChart"></canvas>
+                </div>
             <div class="form-section">
-                <div class="form-section-title">Bulan: <input type="month" name="identifikasi_bulan" value="{{ date('Y-m') }}" required /></div>
                 <div class="form-section-title">Unit Kerja:
                     <input type="text" name="identifikasi_unit_kerja" placeholder="Masukkan Unit Kerja" value="" required />
                 </div>
@@ -349,6 +357,9 @@
 
         <div class="form-card overflow-x-auto" id="wtri-form" style="display: none;">
             <h3><i class="fas fa-clock"></i> Waktu Tunggu Pelayanan Rawat Jalan (WTPR)</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="wtriChart"></canvas>
+            </div>
             <div style="margin-bottom: 20px;">
                 <strong>Unit Kerja:</strong>
                 <div style="margin-bottom: 20px;">
@@ -394,6 +405,9 @@
 
         <div class="form-card overflow-x-auto" id="kritis-form" style="display: none;">
             <h3><i class="fas fa-flask"></i> Waktu Lapor Hasil Tes Kritis Laboratorium</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="kritisLabChart"></canvas>
+            </div>
             <div style="margin-bottom: 20px;">
                 <strong>Unit Kerja: PK, PA, MIKROBIOLOGI</strong>
             </div>
@@ -438,6 +452,9 @@
 
         <div class="form-card overflow-x-auto" id="fornas-form" style="display: none;">
             <h3><i class="fas fa-pills"></i> Kepatuhan Penggunaan Formularium Nasional (FORNAS)</h3>
+             <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="fornasChart"></canvas>
+            </div>
             <div class="form-section">
                 <div class="form-section-title">Unit Kerja: Seluruh Depo Farmasi</div>
                 <div style="overflow-x: auto;">
@@ -485,8 +502,10 @@
 
         <div class="form-card overflow-x-auto" id="visite-form" style="display: none;">
             <h3><i class="fas fa-user-md"></i> Kepatuhan Waktu Visite Dokter</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="visiteChart"></canvas>
+            </div>
             <div class="form-section">
-                <div class="form-section-title">Bulan: <input type="month" name="visite_bulan" value="{{ date('Y-m') }}" required /></div>
                 <div style="overflow-x: auto;">
                     <table class="form-table min-w-max">
                         <thead>
@@ -544,6 +563,9 @@
 
         <div class="form-card overflow-x-auto" id="jatuh-form" style="display: none;">
             <h3><i class="fas fa-procedures"></i> Kepatuhan Upaya Pencegahan Risiko Jatuh</h3>
+             <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="jatuhChart"></canvas>
+            </div>
             <div class="form-section">
                 <div class="form-section-title">Pasien Rawat Inap Berisiko Tinggi Jatuh</div>
                 <div style="overflow-x: auto;">
@@ -592,15 +614,15 @@
 
         <div class="form-card overflow-x-auto" id="cp-form" style="display: none;">
             <h3><i class="fas fa-clipboard-list"></i> Kepatuhan Terhadap Clinical Pathway (Medis)</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="cpChart"></canvas>
+            </div>
             <div class="form-section">
                 <div class="form-header">
-                    <div class="form-field">
-                        <label>Bulan:</label>
-                        <input type="month" name="cp_bulan" value="{{ date('Y-m') }}" required />
-                    </div>
-                    <div class="form-field">
+                    <div class="form-field text-black">
                         <label>Ruangan:</label>
-                        <input type="text" name="cp_ruangan" required />
+                        <label>{{ auth()->user()->department->name }}</label>
+                        <input type="hidden" name="cp_ruangan"  value="{{ auth()->user()->department->name ?? 'N/A' }}" readonly/>
                     </div>
                     <div class="form-field">
                         <label>Judul CP:</label>
@@ -713,6 +735,9 @@
 
         <div class="form-card overflow-x-auto" id="kepuasan-form" style="display: none;">
             <h3><i class="fas fa-smile"></i> Kepuasan Pasien</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="kepuasanChart"></canvas>
+            </div>
             <div class="form-section">
                 <div class="form-section-title">Survey Kepuasan Pasien</div>
                 <div style="overflow-x: auto;">
@@ -748,6 +773,9 @@
 
         <div class="form-card overflow-x-auto" id="krk-form" style="display: none;">
             <h3><i class="fas fa-exclamation-triangle"></i> Kecepatan Waktu Tanggap Komplain (KRK)</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="krkChart"></canvas>
+            </div>
             <div class="form-section">
                 <div style="overflow-x: auto;">
                     <table class="form-table min-w-max">
@@ -801,6 +829,9 @@
 
         <div class="form-card overflow-x-auto" id="poe-form" style="display: none;">
             <h3><i class="fas fa-calendar-times"></i> Penundaan Operasi Elektif</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="poeChart"></canvas>
+            </div>
             <div class="form-section">
                 <div class="form-section-title">Unit: Instalasi Bedah Sentral</div>
                 <div style="overflow-x: auto;">
@@ -845,6 +876,9 @@
 
         <div class="form-card overflow-x-auto" id="sc-form" style="display: none;">
             <h3><i class="fas fa-baby"></i> Waktu Tanggap Operasi Seksio Sesarea Emergensi</h3>
+            <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-bottom: 20px;">
+                <canvas id="scChart"></canvas>
+            </div>
             <div class="form-section">
                 <div class="form-section-title">Unit: IGD Lt 1, IGD Lt 3, IBS</div>
                 <div style="overflow-x: auto;">

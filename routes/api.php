@@ -54,6 +54,7 @@ Route::get('/logistics/items', function (Request $request) {
 
         // Quality Inspection / Indikator Mutu
         Route::get('/quality-inspection/{formType}/current', [QualityInspectionController::class, 'getCurrentWeekForm']);
+        Route::get('/quality-inspection/{formType}/all', [QualityInspectionController::class, 'getAllFormData']);
         Route::post('/quality-inspection/{formType}', [QualityInspectionController::class, 'submitForm']);
         Route::get('/quality-inspection/{formType}/history', [QualityInspectionController::class, 'getFormHistory']);
 
