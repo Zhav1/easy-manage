@@ -430,7 +430,7 @@ class ReportController extends Controller
                 $perf->komplain,
                 $perf->kepatuhan,
                 $perf->target_kerja
-            ]) / 5; // Average on a scale of 1-5
+            ]) / 100; // Average on a scale of 1-5
 
             // Convert average rating to a 0-100 scale for consistency with frontend's getStarRating if needed
             // If getStarRating expects 0-5 input, keep it as $averageRating

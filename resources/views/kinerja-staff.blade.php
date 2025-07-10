@@ -302,24 +302,24 @@
                     </select>
                 </div>
                 <div class="mb-3 md:mb-4">
-                    <label for="kedisiplinan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Kedisiplinan (1-5)</label>
-                    <input type="number" id="kedisiplinan" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <label for="kedisiplinan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Kedisiplinan (10-100)</label>
+                    <input type="number" id="kedisiplinan" min="10" max="100" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                 </div>
                 <div class="mb-3 md:mb-4">
-                    <label for="komunikasi" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Komunikasi (1-5)</label>
-                    <input type="number" id="komunikasi" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <label for="komunikasi" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Komunikasi (10-100)</label>
+                    <input type="number" id="komunikasi" min="10" max="100" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                 </div>
                 <div class="mb-3 md:mb-4">
-                    <label for="komplain" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Komplain (1-5)</label>
-                    <input type="number" id="komplain" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <label for="komplain" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Komplain (10-100)</label>
+                    <input type="number" id="komplain" min="10" max="100" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                 </div>
                 <div class="mb-3 md:mb-4">
-                    <label for="kepatuhan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Kepatuhan (1-5)</label>
-                    <input type="number" id="kepatuhan" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <label for="kepatuhan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Kepatuhan (10-100)</label>
+                    <input type="number" id="kepatuhan" min="10" max="100" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                 </div>
                 <div class="mb-4 md:mb-6">
-                    <label for="targetKerja" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Target Kerja (1-5)</label>
-                    <input type="number" id="targetKerja" min="1" max="5" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <label for="targetKerja" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Target Kerja (10-100)</label>
+                    <input type="number" id="targetKerja" min="10" max="100" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                 </div>
                 <div class="mb-4 md:mb-6">
                     <label for="notes" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Catatan (Opsional)</label>
@@ -1037,28 +1037,25 @@ function getPerformanceBadgeColor(status) {
 
 // Helper functions for rating colors and descriptions for Rekapitulasi Penilaian Staff table
 function getRatingColor(rating) {
-    if (rating >= 4) return '#10b981'; // Green for high (Excellent/Good)
-    if (rating >= 3) return '#3b82f6'; // Blue for medium (Good/Fair)
-    if (rating >= 2) return '#f59e0b'; // Orange for low-medium (Needs Mentoring)
+    if (rating >= 86) return '#10b981'; // Green for high (Excellent/Good)
+    if (rating >= 76) return '#3b82f6'; // Blue for medium (Good/Fair)
+    if (rating >= 61) return '#f59e0b'; // Orange for low-medium (Needs Mentoring)
     return '#ef4444'; // Red for low (Needs Improvement)
 }
 
 function getRatingTextColor(rating) {
-    if (rating >= 4) return 'text-green-700';
-    if (rating >= 3) return 'text-blue-600';
-    if (rating >= 2) return 'text-yellow-600';
+    if (rating >= 86) return 'text-green-700';
+    if (rating >= 76) return 'text-blue-600';
+    if (rating >= 61) return 'text-yellow-600';
     return 'text-red-600';
 }
 
 function getRatingDescription(rating) {
-    switch(rating) {
-        case 5: return 'Sangat Baik';
-        case 4: return 'Baik';
-        case 3: return 'Cukup';
-        case 2: return 'Kurang';
-        case 1: return 'Sangat Kurang';
-        default: return '-';
-    }
+    
+ if (rating >= 86) return 'Sangat Baik';
+    if (rating >= 76) return 'Baik';
+    if (rating >= 61) return 'Cukup';
+    return 'Kurang';
 }
 
 
