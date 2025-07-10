@@ -10,6 +10,9 @@ use App\Http\Controllers\PasswordChangeController;
 Route::get('/', function () {
     return view('landing-page');
 });
+Route::get('/tentang-kami', function () {
+        return view('tentang-kami');
+    });
 Route::put('/logistics/{id}/use', [LogisticController::class, 'useItem'])->name('logistics.use');
 Route::middleware(['auth', 'web', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -17,6 +20,8 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
     Route::get('/notifikasi', function () {
         return view('notifikasi');
     });
+
+
 // Get initial items for dropdown
 Route::get('/logistics/get-items', [LogisticController::class, 'getItems'])->name('logistics.get-items');
 
@@ -79,9 +84,7 @@ Route::post('/logistics/store-item', [LogisticController::class, 'storeItem'])->
         return view('indikator-mutu');
     });
 
-     Route::get('/tentang-kami', function () {
-        return view('tentang-kami');
-    });
+     
 });
 
 Route::middleware('auth')->group(function () {
