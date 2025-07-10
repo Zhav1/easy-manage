@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cvc_maintenance_forms');
+        Schema::dropIfExists('cvc_maintenance');
     }
 };

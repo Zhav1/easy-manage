@@ -22,21 +22,24 @@
         $token = $request->user()->createToken('api-token')->plainTextToken;
         return ['token' => $token];
     });
-Route::get('/logistics/items', function (Request $request) {
-    $category = $request->query('category');
-    
-    if (!in_array($category, ['Alat Kesehatan', 'Barang Habis Pakai'])) {
-        return response()->json([], 400);
-    }
 
-    $items = \App\Models\Logistic::where('category', $category)
-        ->where('department_id', auth()->user()->department_id)
-        ->select('id', 'item_name')
-        ->distinct('item_name')
-        ->get();
+    Route::get('/logistics/items', function (Request $request) {
+            $category = $request->query('category');
+            
+            if (!in_array($category, ['Alat Kesehatan', 'Barang Habis Pakai'])) {
+                return response()->json([], 400);
+            }
 
-    return response()->json($items);
-})->middleware('auth:sanctum');
+            $items = \App\Models\Logistic::where('category', $category)
+                ->where('department_id', auth()->user()->department_id)
+                ->select('id', 'item_name')
+                ->distinct('item_name')
+                ->get();
+
+            return response()->json($items);
+    })->middleware('auth:sanctum');
+
+
     Route::middleware(['auth:sanctum'])->prefix('v1')->group(function() {
         // Departments
         Route::get('/departments', [DepartmentController::class, 'index']) ;
@@ -109,6 +112,15 @@ Route::get('/logistics/items', function (Request $request) {
             Route::put('/{report}', [CvcMonitoringController::class, 'updateInfectionReport']);
             Route::delete('/{report}', [CvcMonitoringController::class, 'deleteInfectionReport']);
             Route::get('/{report}', [CvcMonitoringController::class, 'showInfectionReport']);
+        });
+
+        // Needlestick Reports
+        Route::prefix('needlestick-reports')->group(function () {
+            Route::get('/', [CvcMonitoringController::class, 'getNeedlestickReports']);
+            Route::post('/', [CvcMonitoringController::class, 'storeNeedlestickReport']);
+            Route::put('/{report}', [CvcMonitoringController::class, 'updateNeedlestickReport']);
+            Route::delete('/{report}', [CvcMonitoringController::class, 'deleteNeedlestickReport']);
+            Route::get('/{report}', [CvcMonitoringController::class, 'showNeedlestickReport']);
         });
 
         Route::get('/reports/header-stats', [ReportController::class, 'getHeaderStats']);

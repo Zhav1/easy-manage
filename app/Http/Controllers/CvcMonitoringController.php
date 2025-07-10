@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\CvcInsertion;
 use App\Models\CvcMaintenance;
 use App\Models\CvcInfection;
+use App\Models\NeedlestickReport;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\File\UploadedFile; // Required for manual file parsing
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class CvcMonitoringController extends Controller
 {
@@ -34,9 +35,7 @@ class CvcMonitoringController extends Controller
         if (str_starts_with($contentType, 'multipart/form-data')) {
             $parts = explode('boundary=', $contentType);
             if (count($parts) < 2) {
-                // Invalid or missing boundary for multipart data, return empty.
-                // This prevents the "Undefined array key 1" error.
-                return [];
+                return []; // Invalid or missing boundary for multipart data
             }
             $boundary = '--' . $parts[1];
 
@@ -46,7 +45,7 @@ class CvcMonitoringController extends Controller
 
                 list($rawHeaders, $content) = explode("\r\n\r\n", $part, 2);
                 $rawHeaders = explode("\r\n", $rawHeaders);
-                $content = substr($content, 0, strlen($content) - 2); // Remove trailing --\r\n
+                $content = substr($content, 0, strlen($content) - 2);
 
                 $headers = [];
                 foreach ($rawHeaders as $header) {
@@ -69,13 +68,12 @@ class CvcMonitoringController extends Controller
                         }
                     }
 
-                    // Handle nested array inputs (e.g., elements_data[0][status])
                     if (preg_match('/^(.+)\[(.+)\](?:\[(.+)\])?$/', $name, $matches)) {
                         $baseName = $matches[1];
                         $firstKey = $matches[2];
                         $secondKey = $matches[3] ?? null;
 
-                        if ($filename) { // It's a nested file upload
+                        if ($filename) {
                             $tmpFilePath = sys_get_temp_dir() . '/' . uniqid('laravel_upload_');
                             file_put_contents($tmpFilePath, $content);
 
@@ -83,8 +81,8 @@ class CvcMonitoringController extends Controller
                                 $tmpFilePath,
                                 $filename,
                                 $headers['content-type'] ?? null,
-                                UPLOAD_ERR_OK, // Corrected: Removed filesize() as it's auto-calculated/not needed
-                                true // Test mode means the file will not be moved out of the temp dir
+                                UPLOAD_ERR_OK,
+                                true
                             );
 
                             if ($secondKey !== null) {
@@ -92,61 +90,57 @@ class CvcMonitoringController extends Controller
                             } else {
                                 $files[$baseName][$firstKey] = $fileInstance;
                             }
-                        } else { // It's a nested form field (non-file)
+                        } else {
                             if ($secondKey !== null) {
-                                // PHP will convert string content to correct types later (e.g. "true" to bool true)
                                 $data[$baseName][$firstKey][$secondKey] = $content;
                             } else {
-                                $data[$baseName][$firstKey] = $content;
+                                if (str_ends_with($firstKey, '[]')) {
+                                    $trueFirstKey = rtrim($firstKey, '[]');
+                                    if (!isset($data[$baseName][$trueFirstKey])) {
+                                        $data[$baseName][$trueFirstKey] = [];
+                                    }
+                                    $data[$baseName][$trueFirstKey][] = $content;
+                                } else {
+                                    $data[$baseName][$firstKey] = $content;
+                                }
                             }
                         }
-                    } else { // Top-level inputs
-                        if ($filename) { // Top-level file upload
+                    } else {
+                        if ($filename) {
                             $tmpFilePath = sys_get_temp_dir() . '/' . uniqid('laravel_upload_');
                             file_put_contents($tmpFilePath, $content);
                             $files[$name] = new UploadedFile(
                                 $tmpFilePath,
                                 $filename,
                                 $headers['content-type'] ?? null,
-                                UPLOAD_ERR_OK, // Corrected: Removed filesize()
+                                UPLOAD_ERR_OK,
                                 true
                             );
-                        } else { // Top-level form field (non-file)
+                        } else {
                             $data[$name] = $content;
                         }
                     }
                 }
             }
-        }
-        // Handle application/x-www-form-urlencoded (for PUT/PATCH requests without files)
-        // This is often the default if FormData is sent with no actual file objects.
-        elseif ($rawBody && str_contains($contentType, 'application/x-www-form-urlencoded')) {
+        } elseif ($rawBody && str_contains($contentType, 'application/x-www-form-urlencoded')) {
             parse_str($rawBody, $data);
-        }
-        // Handle application/json (less common for forms, but good to include for completeness)
-        elseif ($rawBody && str_contains($contentType, 'application/json')) {
+        } elseif ($rawBody && str_contains($contentType, 'application/json')) {
             $data = json_decode($rawBody, true);
         }
 
-        // Handle the _method spoofing field. This needs to be done before merging data.
         if (isset($data['_method'])) {
             $request->setMethod($data['_method']);
-            unset($data['_method']); // Remove it from the parsed data so it's not validated or saved
+            unset($data['_method']);
         }
 
-        // Merge manually parsed data into the request object's parameter bag
-        // and file bag for validation and later access.
         $request->request->add($data);
         $request->files->add($files);
 
-        return $data; // Return parsed data (useful for internal debugging if needed)
+        return $data;
     }
 
     // --- CVC Insertion Form Methods ---
 
-    /**
-     * Get CVC Insertion Forms (for history display), sorted by creation date.
-     */
     public function getInsertionForms(Request $request)
     {
         $user = Auth::user();
@@ -156,9 +150,6 @@ class CvcMonitoringController extends Controller
         return response()->json($forms);
     }
 
-    /**
-     * Show a specific CVC Insertion Form.
-     */
     public function showInsertionForm(CvcInsertion $form)
     {
         if ($form->user_id !== Auth::id()) {
@@ -167,13 +158,8 @@ class CvcMonitoringController extends Controller
         return response()->json($form);
     }
 
-    /**
-     * Store a new CVC Insertion Form.
-     */
     public function storeInsertionForm(Request $request)
     {
-        // For POST requests, PHP automatically populates $_POST and $_FILES,
-        // so no manual parsing is needed here.
         try {
             $validated = $request->validate([
                 'patient_name' => 'required|string|max:255',
@@ -186,8 +172,7 @@ class CvcMonitoringController extends Controller
                 'elements_data.*.detail' => 'nullable|string|max:500',
                 'elements_data.*.status' => 'required|in:Ya,Tidak,Tidak Dilakukan',
                 'elements_data.*.notes' => 'nullable|string|max:500',
-                'elements_data.*.photo' => 'nullable|image|max:2048', // File object
-                // photo_path and photo_path_removed are typically not sent for new forms
+                'elements_data.*.photo' => 'nullable|image|max:2048',
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -203,19 +188,13 @@ class CvcMonitoringController extends Controller
         $elementsToSave = [];
         foreach ($validated['elements_data'] as $index => $element) {
             $currentElementData = $element;
-
-            // Handle new file upload for this specific element
             if ($request->hasFile("elements_data.{$index}.photo")) {
-                $path = $request->file("elements_data.{$index}.photo")->store('public/insertion_photos');
+                $path = $request->file("elements_data.{$index}.photo")->store('insertion_photos', 'public');
                 $currentElementData['photo_path'] = Storage::url($path);
             } else {
-                // Ensure photo_path is null if no photo is uploaded for this element
                 $currentElementData['photo_path'] = null;
             }
-
-            // Remove the temporary file object from the array before saving to DB
             unset($currentElementData['photo']);
-
             $elementsToSave[] = $currentElementData;
         }
         $validated['elements_data'] = $elementsToSave;
@@ -224,16 +203,9 @@ class CvcMonitoringController extends Controller
         return response()->json(['message' => 'Insertion form submitted successfully', 'form' => $form], 201);
     }
 
-    /**
-     * Update an existing CVC Insertion Form.
-     */
     public function updateInsertionForm(Request $request, CvcInsertion $form)
     {
-        // CRITICAL FIX: Manually parse incoming data for PUT/PATCH requests
-        // This ensures $request->all() and $request->files are populated.
         $this->parseAndPopulatePutPatchRequest($request);
-
-        // dd($request->all()); // UNCOMMENT THIS TO INSPECT THE INCOMING DATA AFTER PARSING
 
         if ($form->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -251,9 +223,9 @@ class CvcMonitoringController extends Controller
                 'elements_data.*.detail' => 'nullable|string|max:500',
                 'elements_data.*.status' => 'required|in:Ya,Tidak,Tidak Dilakukan',
                 'elements_data.*.notes' => 'nullable|string|max:500',
-                'elements_data.*.photo' => 'nullable|image|max:2048', // New photo file
-                'elements_data.*.photo_path' => 'nullable|string', // Existing photo path from frontend
-                'elements_data.*.photo_path_removed' => 'nullable|boolean', // Frontend flag for removal
+                'elements_data.*.photo' => 'nullable|image|max:2048',
+                'elements_data.*.photo_path' => 'nullable|string',
+                'elements_data.*.photo_path_removed' => 'nullable|boolean',
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -262,58 +234,44 @@ class CvcMonitoringController extends Controller
             ], 422);
         }
 
-        // dd($validated); // UNCOMMENT THIS TO INSPECT THE VALIDATED DATA BEFORE UPDATE
-
         if (isset($validated['elements_data'])) {
             $compliancePercentage = $this->calculateCompliance($validated['elements_data']);
             $validated['compliance_percentage'] = $compliancePercentage;
 
-            $existingElementsData = $form->elements_data; // Get current elements data from the database model
+            $existingElementsData = $form->elements_data;
 
             $elementsToUpdate = [];
             foreach ($validated['elements_data'] as $index => $element) {
                 $currentElementData = $element;
-
-                // Ensure description and detail are always present
                 $currentElementData['description'] = $element['description'] ?? ($existingElementsData[$index]['description'] ?? null);
                 $currentElementData['detail'] = $element['detail'] ?? ($existingElementsData[$index]['detail'] ?? null);
 
-                // Handle new photo upload
                 if ($request->hasFile("elements_data.{$index}.photo")) {
-                    // Delete old photo if it exists and a new one is uploaded
                     if (isset($existingElementsData[$index]['photo_path']) && $existingElementsData[$index]['photo_path']) {
                         Storage::delete(str_replace('/storage', 'public', $existingElementsData[$index]['photo_path']));
                     }
-                    $path = $request->file("elements_data.{$index}.photo")->store('public/insertion_photos');
+                    $path = $request->file("elements_data.{$index}.photo")->store('insertion_photos', 'public');
                     $currentElementData['photo_path'] = Storage::url($path);
-                }
-                // Handle explicit photo removal from frontend
-                else if (isset($element['photo_path_removed']) && $element['photo_path_removed'] === true) {
+                } elseif (isset($element['photo_path_removed']) && $element['photo_path_removed'] === true) {
                     if (isset($existingElementsData[$index]['photo_path']) && $existingElementsData[$index]['photo_path']) {
                         Storage::delete(str_replace('/storage', 'public', $existingElementsData[$index]['photo_path']));
                     }
-                    $currentElementData['photo_path'] = null; // Explicitly set to null in JSON
-                }
-                // If no new photo and not explicitly marked for removal, retain existing photo path from DB
-                else if (isset($existingElementsData[$index]['photo_path'])) {
+                    $currentElementData['photo_path'] = null;
+                } else if (isset($existingElementsData[$index]['photo_path'])) {
                     $currentElementData['photo_path'] = $existingElementsData[$index]['photo_path'];
                 } else {
-                    // Ensure 'photo_path' key exists in the array, even if null
                     $currentElementData['photo_path'] = null;
                 }
-
-                // Clean up temporary flags/file objects from the array before saving to DB
                 unset($currentElementData['photo_path_removed']);
                 unset($currentElementData['photo']);
-
                 $elementsToUpdate[] = $currentElementData;
             }
             $validated['elements_data'] = $elementsToUpdate;
         }
 
-        $form->fill($validated); // Fill the model with validated data
-        $form->save(); // Persist changes to the database
-        $form->refresh(); // Reload the model instance to ensure the response is fresh
+        $form->fill($validated);
+        $form->save();
+        $form->refresh();
 
         return response()->json(['message' => 'Insertion form updated successfully', 'form' => $form], 200);
     }
@@ -339,14 +297,11 @@ class CvcMonitoringController extends Controller
     {
         $user = Auth::user();
         $forms = CvcMaintenance::where('user_id', $user->id)
-                                ->orderBy('created_at', 'desc')
-                                ->paginate(10);
+                                 ->orderBy('created_at', 'desc')
+                                 ->paginate(10);
         return response()->json($forms);
     }
 
-    /**
-     * Show a specific CVC Maintenance Form.
-     */
     public function showMaintenanceForm(CvcMaintenance $form)
     {
         if ($form->user_id !== Auth::id()) {
@@ -362,7 +317,9 @@ class CvcMonitoringController extends Controller
                 'patient_name' => 'required|string|max:255',
                 'medical_record_number' => 'nullable|string|max:255',
                 'maintenance_date' => 'required|date',
-                'nurse_name' => 'nullable|string|max:255',
+                'maintenance_location' => 'required|string|max:255', // Added
+                'days_inserted' => 'required|integer|min:0',        // Added
+                'nurse_name' => 'nullable|string|max:255',           // Added/Confirmed
                 'elements_data' => 'required|array',
                 'elements_data.*.description' => 'required|string|max:255',
                 'elements_data.*.detail' => 'nullable|string|max:500',
@@ -385,16 +342,13 @@ class CvcMonitoringController extends Controller
         $elementsToSave = [];
         foreach ($validated['elements_data'] as $index => $element) {
             $currentElementData = $element;
-
             if ($request->hasFile("elements_data.{$index}.photo")) {
-                $path = $request->file("elements_data.{$index}.photo")->store('public/maintenance_photos');
+                $path = $request->file("elements_data.{$index}.photo")->store('maintenance_photos', 'public');
                 $currentElementData['photo_path'] = Storage::url($path);
             } else {
                 $currentElementData['photo_path'] = null;
             }
-
             unset($currentElementData['photo']);
-
             $elementsToSave[] = $currentElementData;
         }
         $validated['elements_data'] = $elementsToSave;
@@ -405,10 +359,7 @@ class CvcMonitoringController extends Controller
 
     public function updateMaintenanceForm(Request $request, CvcMaintenance $form)
     {
-        // CRITICAL FIX: Manually parse multipart/form-data for PUT/PATCH
         $this->parseAndPopulatePutPatchRequest($request);
-
-        // dd($request->all()); // UNCOMMENT THIS TO INSPECT THE INCOMING DATA AFTER PARSING
 
         if ($form->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -419,7 +370,9 @@ class CvcMonitoringController extends Controller
                 'patient_name' => 'sometimes|string|max:255',
                 'medical_record_number' => 'nullable|string|max:255',
                 'maintenance_date' => 'sometimes|date',
-                'nurse_name' => 'sometimes|string|max:255',
+                'maintenance_location' => 'sometimes|string|max:255', // Added
+                'days_inserted' => 'sometimes|integer|min:0',        // Added
+                'nurse_name' => 'nullable|string|max:255',           // Added/Confirmed
                 'elements_data' => 'sometimes|array',
                 'elements_data.*.description' => 'required|string|max:255',
                 'elements_data.*.detail' => 'nullable|string|max:500',
@@ -436,8 +389,6 @@ class CvcMonitoringController extends Controller
             ], 422);
         }
 
-        // dd($validated); // UNCOMMENT THIS TO INSPECT THE VALIDATED DATA AFTER VALIDATION
-
         if (isset($validated['elements_data'])) {
             $compliancePercentage = $this->calculateCompliance($validated['elements_data']);
             $validated['compliance_percentage'] = $compliancePercentage;
@@ -447,7 +398,6 @@ class CvcMonitoringController extends Controller
             $elementsToUpdate = [];
             foreach ($validated['elements_data'] as $index => $element) {
                 $currentElementData = $element;
-
                 $currentElementData['description'] = $element['description'] ?? ($existingElementsData[$index]['description'] ?? null);
                 $currentElementData['detail'] = $element['detail'] ?? ($existingElementsData[$index]['detail'] ?? null);
 
@@ -455,7 +405,7 @@ class CvcMonitoringController extends Controller
                     if (isset($existingElementsData[$index]['photo_path']) && $existingElementsData[$index]['photo_path']) {
                         Storage::delete(str_replace('/storage', 'public', $existingElementsData[$index]['photo_path']));
                     }
-                    $path = $request->file("elements_data.{$index}.photo")->store('public/maintenance_photos');
+                    $path = $request->file("elements_data.{$index}.photo")->store('maintenance_photos', 'public');
                     $currentElementData['photo_path'] = Storage::url($path);
                 } elseif (isset($element['photo_path_removed']) && $element['photo_path_removed'] === true) {
                     if (isset($existingElementsData[$index]['photo_path']) && $existingElementsData[$index]['photo_path']) {
@@ -467,10 +417,8 @@ class CvcMonitoringController extends Controller
                 } else {
                     $currentElementData['photo_path'] = null;
                 }
-
                 unset($currentElementData['photo_path_removed']);
                 unset($currentElementData['photo']);
-
                 $elementsToUpdate[] = $currentElementData;
             }
             $validated['elements_data'] = $elementsToUpdate;
@@ -504,14 +452,11 @@ class CvcMonitoringController extends Controller
     {
         $user = Auth::user();
         $reports = CvcInfection::where('user_id', $user->id)
-                                ->orderBy('created_at', 'desc')
-                                ->paginate(10);
+                                 ->orderBy('created_at', 'desc')
+                                 ->paginate(10);
         return response()->json($reports);
     }
 
-    /**
-     * Show a specific CVC Infection Report.
-     */
     public function showInfectionReport(CvcInfection $report)
     {
         if ($report->user_id !== Auth::id()) {
@@ -528,6 +473,7 @@ class CvcMonitoringController extends Controller
                 'medical_record_number' => 'nullable|string|max:255',
                 'insertion_date' => 'nullable|date',
                 'insertion_location' => 'nullable|string|max:255',
+                'days_inserted' => 'nullable|integer|min:0', // Added
                 'infection_diagnosis_date' => 'required|date',
                 'infection_type' => 'required|in:CLABSI (Central Line Associated Bloodstream Infection),Exit Site Infection,Tunnel Infection,Pocket Infection',
                 'clinical_symptoms' => 'nullable|string|max:1000',
@@ -545,7 +491,7 @@ class CvcMonitoringController extends Controller
         $validated['user_id'] = Auth::id();
 
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('public/infection_reports');
+            $path = $request->file('photo')->store('infection_reports', 'public');
             $validated['photo_path'] = Storage::url($path);
         } else {
             $validated['photo_path'] = null;
@@ -558,10 +504,7 @@ class CvcMonitoringController extends Controller
 
     public function updateInfectionReport(Request $request, CvcInfection $report)
     {
-        // CRITICAL FIX: Manually parse multipart/form-data for PUT/PATCH
         $this->parseAndPopulatePutPatchRequest($request);
-
-        // dd($request->all()); // UNCOMMENT THIS TO INSPECT THE INCOMING DATA AFTER PARSING
 
         if ($report->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -573,12 +516,13 @@ class CvcMonitoringController extends Controller
                 'medical_record_number' => 'nullable|string|max:255',
                 'insertion_date' => 'nullable|date',
                 'insertion_location' => 'nullable|string|max:255',
+                'days_inserted' => 'sometimes|integer|min:0', // Added
                 'infection_diagnosis_date' => 'sometimes|date',
                 'infection_type' => 'sometimes|in:CLABSI (Central Line Associated Bloodstream Infection),Exit Site Infection,Tunnel Infection,Pocket Infection',
                 'clinical_symptoms' => 'nullable|string|max:1000',
                 'microorganism' => 'nullable|string|max:255',
                 'management' => 'nullable|string|max:1000',
-                'photo' => 'nullable|image|max:2048', // New photo file
+                'photo' => 'nullable|image|max:2048',
                 'status' => 'sometimes|in:Aktif,Selesai',
             ]);
         } catch (ValidationException $e) {
@@ -588,27 +532,19 @@ class CvcMonitoringController extends Controller
             ], 422);
         }
 
-        // dd($validated); // UNCOMMENT THIS TO INSPECT THE VALIDATED DATA BEFORE UPDATE
-
-        // Handle photo updates
         if ($request->hasFile('photo')) {
             if (isset($report->photo_path) && $report->photo_path) {
                 Storage::delete(str_replace('/storage', 'public', $report->photo_path));
             }
-            $path = $request->file('photo')->store('public/infection_reports');
+            $path = $request->file('photo')->store('infection_reports', 'public');
             $validated['photo_path'] = Storage::url($path);
-        }
-        // Check if frontend explicitly sent an empty string for the 'photo' input to signal removal
-        // If the 'photo' field is in the request but its value is an empty string, it means it was cleared.
-        else if ($request->has('photo') && $request->input('photo') === '') {
-             if (isset($report->photo_path) && $report->photo_path) {
+        } elseif ($request->has('photo') && $request->input('photo') === '') {
+            if (isset($report->photo_path) && $report->photo_path) {
                 Storage::delete(str_replace('/storage', 'public', $report->photo_path));
             }
-            $validated['photo_path'] = null; // Explicitly set to null
+            $validated['photo_path'] = null;
         }
-        // If 'photo' input was not present in the request (i.e., not changed),
-        // the existing 'photo_path' on $report will be retained by fill() automatically.
-        unset($validated['photo']); // Remove the file object from validation array if it exists
+        unset($validated['photo']);
 
         $report->fill($validated);
         $report->save();
@@ -618,6 +554,150 @@ class CvcMonitoringController extends Controller
     }
 
     public function deleteInfectionReport(CvcInfection $report)
+    {
+        if ($report->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (isset($report->photo_path) && $report->photo_path) {
+            Storage::delete(str_replace('/storage', 'public', $report->photo_path));
+        }
+        $report->delete();
+        return response()->noContent();
+    }
+
+    // --- Needlestick Report Methods (No changes needed, as they align with previous logic) ---
+    public function getNeedlestickReports(Request $request)
+    {
+        $user = Auth::user();
+        $reports = NeedlestickReport::where('user_id', $user->id)
+                                     ->orderBy('created_at', 'desc')
+                                     ->paginate(10);
+        return response()->json($reports);
+    }
+
+    public function showNeedlestickReport(NeedlestickReport $report)
+    {
+        if ($report->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        return response()->json($report);
+    }
+
+    public function storeNeedlestickReport(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'incident_date' => 'required|date',
+                'incident_time' => 'required',
+                'location' => 'required|string|max:255',
+                'department' => 'required|string|max:255',
+                'injured_person_name' => 'required|string|max:255',
+                'injured_person_position' => 'required|string|max:255',
+                'injured_person_age' => 'required|integer|min:1',
+                'injured_person_gender' => 'required|in:Laki-laki,Perempuan',
+                'incident_description' => 'required|string|max:1000',
+                'source_patient_status' => 'nullable|string|max:1000',
+                'immediate_actions' => 'required|array',
+                'immediate_actions.*' => 'string|max:255',
+                'other_immediate_action' => 'nullable|string|max:255',
+                'follow_up_actions' => 'required|string|max:1000',
+                'photo' => 'nullable|image|max:2048',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        $validated['user_id'] = Auth::id();
+
+        if (isset($validated['immediate_actions']) && in_array('Lainnya', $validated['immediate_actions']) && !empty($validated['other_immediate_action'])) {
+            $otherIndex = array_search('Lainnya', $validated['immediate_actions']);
+            if ($otherIndex !== false) {
+                $validated['immediate_actions'][$otherIndex] = $validated['other_immediate_action'];
+            }
+        }
+        unset($validated['other_immediate_action']);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('needlestick_reports', 'public');
+            $validated['photo_path'] = Storage::url($path);
+        } else {
+            $validated['photo_path'] = null;
+        }
+        unset($validated['photo']);
+
+        $report = NeedlestickReport::create($validated);
+        return response()->json(['message' => 'Needlestick report submitted successfully', 'report' => $report], 201);
+    }
+
+    public function updateNeedlestickReport(Request $request, NeedlestickReport $report)
+    {
+        $this->parseAndPopulatePutPatchRequest($request);
+
+        if ($report->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $validated = $request->validate([
+                'incident_date' => 'sometimes|date',
+                'incident_time' => 'sometimes',
+                'location' => 'sometimes|string|max:255',
+                'department' => 'sometimes|string|max:255',
+                'injured_person_name' => 'sometimes|string|max:255',
+                'injured_person_position' => 'sometimes|string|max:255',
+                'injured_person_age' => 'sometimes|integer|min:1',
+                'injured_person_gender' => 'sometimes|in:Laki-laki,Perempuan',
+                'incident_description' => 'sometimes|string|max:1000',
+                'source_patient_status' => 'nullable|string|max:1000',
+                'immediate_actions' => 'sometimes|array',
+                'immediate_actions.*' => 'string|max:255',
+                'other_immediate_action' => 'nullable|string|max:255',
+                'follow_up_actions' => 'sometimes|string|max:1000',
+                'photo' => 'nullable|image|max:2048',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        if (isset($validated['immediate_actions'])) {
+            if (in_array('Lainnya', $validated['immediate_actions']) && !empty($validated['other_immediate_action'])) {
+                $otherIndex = array_search('Lainnya', $validated['immediate_actions']);
+                if ($otherIndex !== false) {
+                    $validated['immediate_actions'][$otherIndex] = $validated['other_immediate_action'];
+                }
+            }
+        }
+        unset($validated['other_immediate_action']);
+
+        if ($request->hasFile('photo')) {
+            if (isset($report->photo_path) && $report->photo_path) {
+                Storage::delete(str_replace('/storage', 'public', $report->photo_path));
+            }
+            $path = $request->file('photo')->store('needlestick_reports', 'public');
+            $validated['photo_path'] = Storage::url($path);
+        } else if ($request->has('photo') && $request->input('photo') === '') {
+            if (isset($report->photo_path) && $report->photo_path) {
+                Storage::delete(str_replace('/storage', 'public', $report->photo_path));
+            }
+            $validated['photo_path'] = null;
+        }
+        unset($validated['photo']);
+
+        $report->fill($validated);
+        $report->save();
+        $report->refresh();
+
+        return response()->json(['message' => 'Needlestick report updated successfully', 'report' => $report], 200);
+    }
+
+    public function deleteNeedlestickReport(NeedlestickReport $report)
     {
         if ($report->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -659,19 +739,51 @@ class CvcMonitoringController extends Controller
     {
         $user = Auth::user();
         $today = Carbon::today();
+        $last30Days = Carbon::now()->subDays(30);
+        $last6Months = Carbon::now()->subMonths(6);
 
         $totalInsertionsToday = CvcInsertion::where('user_id', $user->id)
-                                            ->whereDate('insertion_date', $today)
+                                            ->whereDate('created_at', $today) 
                                             ->count();
         $totalMaintenancesToday = CvcMaintenance::where('user_id', $user->id)
-                                                 ->whereDate('maintenance_date', $today)
-                                                 ->count();
+                                            ->whereDate('created_at', $today) 
+                                            ->count();
         $totalActiveInfections = CvcInfection::where('user_id', $user->id)
-                                             ->where('status', 'Aktif')
-                                             ->count();
+                                            ->where('status', 'Aktif')
+                                            ->count();
+        $totalInfectionsToday = CvcInfection::where('user_id', $user->id)
+                                            ->whereDate('created_at', $today) 
+                                            ->count();
+        $totalNeedlestickCasesToday = NeedlestickReport::where('user_id', $user->id)
+                                            ->whereDate('created_at', $today) 
+                                            ->count();
+
+        // Compliance Rates for last 30 days
+        $totalInsertionsLast30Days = CvcInsertion::where('user_id', $user->id)
+                                                ->where('insertion_date', '>=', $last30Days)
+                                                ->count();
+        $compliantInsertionsLast30Days = CvcInsertion::where('user_id', $user->id)
+                                                    ->where('insertion_date', '>=', $last30Days)
+                                                    ->where('compliance_percentage', 100)
+                                                    ->count();
+        $insertionComplianceRate = ($totalInsertionsLast30Days > 0) ? round(($compliantInsertionsLast30Days / $totalInsertionsLast30Days) * 100, 2) : 0;
+
+        $totalMaintenancesLast30Days = CvcMaintenance::where('user_id', $user->id)
+                                                      ->where('maintenance_date', '>=', $last30Days)
+                                                      ->count();
+        $compliantMaintenancesLast30Days = CvcMaintenance::where('user_id', $user->id)
+                                                        ->where('maintenance_date', '>=', $last30Days)
+                                                        ->where('compliance_percentage', 100)
+                                                        ->count();
+        $maintenanceComplianceRate = ($totalMaintenancesLast30Days > 0) ? round(($compliantMaintenancesLast30Days / $totalMaintenancesLast30Days) * 100, 2) : 0;
+
+        $totalNeedlestickLast30Days = NeedlestickReport::where('user_id', $user->id)
+                                                      ->where('incident_date', '>=', $last30Days)
+                                                      ->count();
+
 
         $infectionTrend = CvcInfection::where('user_id', $user->id)
-            ->where('infection_diagnosis_date', '>=', Carbon::now()->subMonths(6))
+            ->where('infection_diagnosis_date', '>=', $last6Months)
             ->selectRaw('DATE_FORMAT(infection_diagnosis_date, "%Y-%m") as month, count(*) as count')
             ->groupBy('month')
             ->orderBy('month')
@@ -690,13 +802,47 @@ class CvcMonitoringController extends Controller
             ->limit(5)
             ->get();
 
+        $needlestickTrend = NeedlestickReport::where('user_id', $user->id)
+            ->where('incident_date', '>=', $last6Months)
+            ->selectRaw('DATE_FORMAT(incident_date, "%Y-%m") as month, count(*) as count')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $needlestickByDepartment = NeedlestickReport::where('user_id', $user->id)
+            ->selectRaw('department, count(*) as count')
+            ->groupBy('department')
+            ->orderByDesc('count')
+            ->get();
+
+        $needlestickByPosition = NeedlestickReport::where('user_id', $user->id)
+            ->selectRaw('injured_person_position, count(*) as count')
+            ->groupBy('injured_person_position')
+            ->orderByDesc('count')
+            ->get();
+
+
+        // Placeholder for CLABSI Rate.
+        // To calculate accurately, you'd need CVC device-days data which isn't currently tracked.
+        // It's (number of CLABSIs / total CVC device-days) * 1000.
+        $clabsiRate = 0.0; // Placeholder
+
         return response()->json([
             'total_insertions_today' => $totalInsertionsToday,
             'total_maintenances_today' => $totalMaintenancesToday,
             'total_active_infections_overall' => $totalActiveInfections,
+            'total_infections_today' => $totalInfectionsToday,
+            'total_needlestick_cases_today' => $totalNeedlestickCasesToday,
+            'insertion_compliance_rate' => $insertionComplianceRate,
+            'maintenance_compliance_rate' => $maintenanceComplianceRate,
+            'needlestick_rate_30_days' => $totalNeedlestickLast30Days,
+            'clabsi_rate' => $clabsiRate,
             'infection_trend' => $infectionTrend,
             'infection_by_location' => $infectionByLocation,
             'infection_by_microorganism' => $infectionByMicroorganism,
+            'needlestick_trend' => $needlestickTrend,
+            'needlestick_by_department' => $needlestickByDepartment,
+            'needlestick_by_position' => $needlestickByPosition,
         ]);
     }
 }

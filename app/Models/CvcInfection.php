@@ -15,6 +15,7 @@ class CvcInfection extends Model
         'medical_record_number',
         'insertion_date',
         'insertion_location',
+        'days_inserted',
         'infection_diagnosis_date',
         'infection_type',
         'clinical_symptoms',

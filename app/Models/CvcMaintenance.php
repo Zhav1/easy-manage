@@ -14,6 +14,8 @@ class CvcMaintenance extends Model
         'patient_name',
         'medical_record_number',
         'maintenance_date',
+        'maintenance_location', 
+        'days_inserted',
         'nurse_name',
         'compliance_percentage',
         'elements_data',
