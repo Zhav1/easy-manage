@@ -888,17 +888,46 @@ document.addEventListener('click', function(event) {
 </div>
 
                 <!-- Seminar / Workshop / Webinar -->
-                <div class="mb-3 md:mb-4">
-                    <label for="seminarWorkshopWebinar" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Seminar / Workshop / Webinar</label>
-                    <select id="seminarWorkshopWebinar" class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 text-sm">
-                        <option value="">Pilih Kegiatan</option>
-                        <option value="Seminar">Seminar</option>
-                        <option value="Workshop">Workshop</option>
-                        <option value="Webinar">Webinar</option>
-                        <option value="Pelatihan Internal">Pelatihan Internal</option>
-                        <option value="Pelatihan Eksternal">Pelatihan Eksternal</option>
-                    </select>
-                </div>
+               <div class="mb-3 md:mb-4">
+    <label for="seminarWorkshopWebinar" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">
+        Seminar / Workshop / Webinar
+    </label>
+    <select id="seminarWorkshopWebinar" onchange="toggleNamaKegiatanInput()" 
+        class="w-full px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 text-sm">
+        <option value="">Pilih Kegiatan</option>
+        <option value="Seminar">Seminar</option>
+        <option value="Workshop">Workshop</option>
+        <option value="Webinar">Webinar</option>
+        <option value="Pelatihan Internal">Pelatihan Internal</option>
+        <option value="Pelatihan Eksternal">Pelatihan Eksternal</option>
+    </select>
+</div>
+
+<!-- Input tambahan untuk nama kegiatan -->
+<div id="namaKegiatanContainer" class="mb-3 md:mb-4 hidden">
+    <label for="namaKegiatan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">
+        Masukkan Nama Kegiatan
+    </label>
+    <input type="text" id="namaKegiatan" name="namaKegiatan" placeholder="Contoh: Seminar Manajemen Risiko"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 text-sm">
+</div>
+
+<script>
+    function toggleNamaKegiatanInput() {
+        const select = document.getElementById('seminarWorkshopWebinar');
+        const inputContainer = document.getElementById('namaKegiatanContainer');
+        
+        // Daftar opsi yang butuh input tambahan
+        const perluInput = ['Seminar', 'Workshop', 'Webinar', 'Pelatihan Internal', 'Pelatihan Eksternal'];
+
+        if (perluInput.includes(select.value)) {
+            inputContainer.classList.remove('hidden');
+        } else {
+            inputContainer.classList.add('hidden');
+        }
+    }
+</script>
+
                 <!-- Pelatihan -->
                 <div class="mb-3 md:mb-4">
                     <label for="pelatihan" class="block text-gray-700 text-xs md:text-sm font-medium mb-1 md:mb-2">Pelatihan</label>
