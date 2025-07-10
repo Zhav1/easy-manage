@@ -49,22 +49,7 @@
     }
 
     // Performance/Rating Helpers
-    function getPerformanceBadgeColor(status) {
-        switch (status) {
-            case 'Excellent Performance': return '#10b981'; // Green
-            case 'Good Performance': return '#3b82f6';    // Blue
-            case 'Need Mentoring': return '#f59e0b';    // Yellow/Orange
-            case 'Need Improvement': return '#ef4444';  // Red
-            default: return '#6b7280'; // Gray
-        }
-    }
-
-    function getRatingColor(rating) {
-        if (rating >= 4) return '#10b981'; // Green for high (Excellent/Good)
-        if (rating >= 3) return '#3b82f6'; // Blue for medium (Good/Fair)
-        if (rating >= 2) return '#f59e0b'; // Orange for low-medium (Needs Mentoring)
-        return '#ef4444'; // Red for low (Needs Improvement)
-    }
+   
 
     function toggleSection(sectionId) {
         const section = document.getElementById(sectionId);
@@ -80,25 +65,32 @@
             }
         }
     }
+// Ganti fungsi getRatingDescription dengan ini:
+function getRatingDescription(rating) {
+    if (rating >= 86) return 'Sangat Baik';
+    if (rating >= 76) return 'Baik';
+    if (rating >= 61) return 'Cukup';
+    if (rating >= 31) return 'Kurang';
+    if (rating >= 0) return 'Sangat Kurang'; // Menangkap semua nilai di bawah 31
+    return '-';
+}
 
-    function getRatingTextColor(rating) {
-        if (rating >= 4) return 'text-green-700';
-        if (rating >= 3) return 'text-blue-600';
-        if (rating >= 2) return 'text-yellow-600';
-        return 'text-red-600';
-    }
+// Pastikan fungsi getRatingColor dan getRatingTextColor konsisten:
+function getRatingColor(rating) {
+    if (rating >= 86) return '#10b981'; // Green for Excellent
+    if (rating >= 76) return '#3b82f6'; // Blue for Good
+    if (rating >= 61) return '#f59e0b'; // Orange/Yellow for Fair
+    if (rating >= 31) return '#ef4444'; // Red for Poor
+    return '#6b7280'; // Gray for Very Poor/N/A
+}
 
-    function getRatingDescription(rating) {
-        switch(rating) {
-            case 5: return 'Sangat Baik';
-            case 4: return 'Baik';
-            case 3: return 'Cukup';
-            case 2: return 'Kurang';
-            case 1: return 'Sangat Kurang';
-            default: return '-';
-        }
-    }
-
+function getRatingTextColor(rating) {
+    if (rating >= 86) return 'text-green-700';
+    if (rating >= 76) return 'text-blue-600';
+    if (rating >= 61) return 'text-yellow-600';
+    if (rating >= 31) return 'text-red-600';
+    return 'text-gray-600';
+}
     function getStarRating(score) {
         const maxStars = 5;
         const filledStars = Math.round((score / 100) * maxStars);
@@ -737,117 +729,114 @@
     }
 
     function renderKinerjaStaff() {
-        const kinerjaContent = document.getElementById('kinerja');
-        // IMPORTANT: Declare tbody with 'let' to allow reassignment
-        let tbody = kinerjaContent.querySelector('tbody');
+    const kinerjaContent = document.getElementById('kinerja');
+    let tbody = kinerjaContent.querySelector('tbody');
 
-        // If tbody doesn't exist, create the full table structure.
-        // This is important because the initial tab content div is empty.
-        if (!tbody) {
-            kinerjaContent.innerHTML = `
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Kinerja Staff</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-100 text-gray-700">
-                            <tr>
-                                <th class="px-4 py-3 text-left">Nama</th>
-                                <th class="px-4 py-3 text-center">Kedisiplinan</th>
-                                <th class="px-4 py-3 text-center">Komunikasi</th>
-                                <th class="px-4 py-3 text-center">Komplain</th>
-                                <th class="px-4 py-3 text-center">Kepatuhan</th>
-                                <th class="px-4 py-3 text-center">Target</th>
-                                <th class="px-4 py-3 text-center">Score</th>
-                                <th class="px-4 py-3 text-left">Catatan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="kinerjaStaffTableBody"></tbody>
-                    </table>
-                </div>
-            `;
-            // Re-select tbody after it has been created in the DOM
-            tbody = document.getElementById('kinerjaStaffTableBody');
-        } else {
-            // If tbody already exists (meaning the table structure is there), just clear its content.
-            tbody.innerHTML = '';
-        }
-
-        const evaluationsToRender = staffPerformanceData;
-
-        if (!evaluationsToRender || evaluationsToRender.length === 0) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="8" class="text-center py-4 text-gray-500">Tidak ada data penilaian kinerja staff.</td>`;
-            tbody.appendChild(row);
-            return;
-        }
-
-        evaluationsToRender.forEach(evaluation => {
-            const staff = evaluation.staff;
-
-            const row = document.createElement('tr');
-            row.classList.add('border-t', 'hover:bg-gray-50');
-
-            // Determine values for rendering
-            const disciplineScore = evaluation.discipline_score;
-            const communicationScore = evaluation.communication_score;
-            const complaintScore = evaluation.complaint_count;
-            const complianceScore = evaluation.compliance_score;
-            const targetScore = evaluation.target_achievement; // This is the 1-5 score from backend
-
-            const overallScore = evaluation.overall_score; // This is the 0-100 score for star rating
-
-            // Construct star rating HTML using the 0-100 overall_score
-            const scoreStarsHtml = getStarRating(overallScore);
-
-            row.innerHTML = `
-                <td class="px-6 py-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">${staff ? staff.name.charAt(0).toUpperCase() : 'N/A'}</div>
-                        <div>
-                            <p class="font-semibold text-black">${staff ? staff.name : 'N/A'}</p>
-                            <p class="text-xs text-gray-500">Jabatan: ${staff && staff.position ? staff.position.name : 'N/A'}</p>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-center">
-                        <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(disciplineScore)}"></span>
-                        <span class="${getRatingTextColor(disciplineScore)} font-medium">${getRatingDescription(disciplineScore)}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-center">
-                        <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(communicationScore)}"></span>
-                        <span class="${getRatingTextColor(communicationScore)} font-medium">${getRatingDescription(communicationScore)}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-center">
-                        <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(complaintScore)}"></span>
-                        <span class="${getRatingTextColor(complaintScore)} font-medium">${getRatingDescription(complaintScore)}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-center">
-                        <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(complianceScore)}"></span>
-                        <span class="${getRatingTextColor(complianceScore)} font-medium">${getRatingDescription(complianceScore)}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-center">
-                        <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(targetScore)}"></span>
-                        <span class="${getRatingTextColor(targetScore)} font-medium">${getRatingDescription(targetScore)}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-center">
-                    <div class="flex items-center justify-center gap-1">
-                        ${scoreStarsHtml}
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-gray-600">${evaluation.notes || 'Tidak ada catatan.'}</td>
-            `;
-            tbody.appendChild(row);
-        });
+    if (!tbody) {
+        kinerjaContent.innerHTML = `
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Kinerja Staff</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Nama</th>
+                            <th class="px-4 py-3 text-center">Kedisiplinan</th>
+                            <th class="px-4 py-3 text-center">Komunikasi</th>
+                            <th class="px-4 py-3 text-center">Komplain</th>
+                            <th class="px-4 py-3 text-center">Kepatuhan</th>
+                            <th class="px-4 py-3 text-center">Target</th>
+                            <th class="px-4 py-3 text-center">Score</th>
+                            <th class="px-4 py-3 text-left">Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kinerjaStaffTableBody"></tbody>
+                </table>
+            </div>
+        `;
+        tbody = document.getElementById('kinerjaStaffTableBody');
+    } else {
+        tbody.innerHTML = '';
     }
+
+    const evaluationsToRender = staffPerformanceData;
+
+    if (!evaluationsToRender || evaluationsToRender.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="8" class="text-center py-4 text-gray-500">Tidak ada data penilaian kinerja staff.</td>`;
+        tbody.appendChild(row);
+        return;
+    }
+
+    evaluationsToRender.forEach(evaluation => {
+        const staff = evaluation.staff;
+
+        // Convert scores to numbers if they aren't already
+        const disciplineScore = Number(evaluation.discipline_score) || 0;
+        const communicationScore = Number(evaluation.communication_score) || 0;
+        const complaintScore = Number(evaluation.complaint_count) || 0;
+        const complianceScore = Number(evaluation.compliance_score) || 0;
+        const targetScore = Number(evaluation.target_achievement) || 0;
+        const overallScore = Number(evaluation.overall_score) || 0;
+
+        // For complaint score, we might want to invert it since fewer complaints are better
+        // Let's assume complaintScore is already inverted (higher is better) or adjust as needed
+        const adjustedComplaintScore = Math.max(0, 100 - (complaintScore * 2)); // Example adjustment
+
+        const scoreStarsHtml = getStarRating(overallScore);
+
+        const row = document.createElement('tr');
+        row.classList.add('border-t', 'hover:bg-gray-50');
+
+        row.innerHTML = `
+            <td class="px-6 py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">${staff ? staff.name.charAt(0).toUpperCase() : 'N/A'}</div>
+                    <div>
+                        <p class="font-semibold text-black">${staff ? staff.name : 'N/A'}</p>
+                        <p class="text-xs text-gray-500">Jabatan: ${staff && staff.position ? staff.position.name : 'N/A'}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="flex items-center justify-center">
+                    <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(disciplineScore)}"></span>
+                    <span class="${getRatingTextColor(disciplineScore)} font-medium">${getRatingDescription(disciplineScore)}</span>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="flex items-center justify-center">
+                    <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(communicationScore)}"></span>
+                    <span class="${getRatingTextColor(communicationScore)} font-medium">${getRatingDescription(communicationScore)}</span>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="flex items-center justify-center">
+                    <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(adjustedComplaintScore)}"></span>
+                    <span class="${getRatingTextColor(adjustedComplaintScore)} font-medium">${getRatingDescription(adjustedComplaintScore)}</span>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="flex items-center justify-center">
+                    <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(complianceScore)}"></span>
+                    <span class="${getRatingTextColor(complianceScore)} font-medium">${getRatingDescription(complianceScore)}</span>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="flex items-center justify-center">
+                    <span class="status-indicator w-3 h-3 rounded-full mr-2" style="background:${getRatingColor(targetScore)}"></span>
+                    <span class="${getRatingTextColor(targetScore)} font-medium">${getRatingDescription(targetScore)}</span>
+                </div>
+            </td>
+            <td class="px-6 py-4 text-center">
+                <div class="flex items-center justify-center gap-1">
+                    ${scoreStarsHtml}
+                </div>
+            </td>
+            <td class="px-6 py-4 text-gray-600">${evaluation.notes || 'Tidak ada catatan.'}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
 
     function renderTna() {
         const tnaContent = document.getElementById('tna');

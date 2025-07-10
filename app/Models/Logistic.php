@@ -15,7 +15,6 @@ class Logistic extends Model
         'item_name',
         'brand',
         'item_code',
-        'maintenance_schedule',
         'calibration_date',
         'calibration_expiry_date',
         'stock',

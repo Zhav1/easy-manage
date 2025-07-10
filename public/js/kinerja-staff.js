@@ -581,27 +581,27 @@ function getPerformanceBadgeColor(status) {
 
 // Helper functions for rating colors and descriptions for Rekapitulasi Penilaian Staff table
 function getRatingColor(rating) {
-    if (rating >= 4) return '#10b981'; // Green for high (Excellent/Good)
-    if (rating >= 3) return '#3b82f6'; // Blue for medium (Good/Fair)
-    if (rating >= 2) return '#f59e0b'; // Orange for low-medium (Needs Mentoring)
+    if (rating >= 86) return '#10b981'; // Green for high (Excellent/Good)
+    if (rating >= 76) return '#3b82f6'; // Blue for medium (Good/Fair)
+    if (rating >= 61) return '#f59e0b'; // Orange for low-medium (Needs Mentoring)
     return '#ef4444'; // Red for low (Needs Improvement)
 }
 
 function getRatingTextColor(rating) {
-    if (rating >= 4) return 'text-green-700';
-    if (rating >= 3) return 'text-blue-600';
-    if (rating >= 2) return 'text-yellow-600';
+    if (rating >= 86) return 'text-green-700';
+    if (rating >= 76) return 'text-blue-600';
+    if (rating >= 61) return 'text-yellow-600';
     return 'text-red-600';
 }
 
 function getRatingDescription(rating) {
     switch(rating) {
-        case 5: return 'Sangat Baik';
-        case 4: return 'Baik';
-        case 3: return 'Cukup';
-        case 2: return 'Kurang';
-        case 1: return 'Sangat Kurang';
-        default: return '-';
+        case 86-100: return 'Sangat Baik';
+        case 76-85: return 'Baik';
+        case 61-75: return 'Cukup';
+        case 31-60: return 'Kurang';
+        case 10-30: return 'Sangat Kurang';
+        default: return '';
     }
 }
 

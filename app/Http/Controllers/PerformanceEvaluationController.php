@@ -34,11 +34,11 @@ class PerformanceEvaluationController extends Controller
     {
         $validatedData = $request->validate([
             'staff_id' => 'required|exists:staff,id',
-            'kedisiplinan' => 'required|integer|min:10|max:100|multiple_of:10',
-            'komunikasi' => 'required|integer|min:10|max:100|multiple_of:10',
-            'komplain' => 'required|integer|min:10|max:100|multiple_of:10',
-            'kepatuhan' => 'required|integer|min:10|max:100|multiple_of:10',
-            'target_kerja' => 'required|integer|min:10|max:100|multiple_of:10',
+            'kedisiplinan' => 'required|integer|min:10|max:100',
+            'komunikasi' => 'required|integer|min:10|max:100',
+            'komplain' => 'required|integer|min:10|max:100|',
+            'kepatuhan' => 'required|integer|min:10|max:100|',
+            'target_kerja' => 'required|integer|min:10|max:100|',
             'notes' => 'nullable|string',
         ]);
 
@@ -89,11 +89,11 @@ class PerformanceEvaluationController extends Controller
         }
 
         $validatedData = $request->validate([
-            'kedisiplinan' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
-            'komunikasi' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
-            'komplain' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
-            'kepatuhan' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
-            'target_kerja' => 'sometimes|required|integer|min:10|max:100|multiple_of:10',
+            'kedisiplinan' => 'sometimes|required|integer|min:10|max:100|',
+            'komunikasi' => 'sometimes|required|integer|min:10|max:100|',
+            'komplain' => 'sometimes|required|integer|min:10|max:100|',
+            'kepatuhan' => 'sometimes|required|integer|min:10|max:100|',
+            'target_kerja' => 'sometimes|required|integer|min:10|max:100|',
             'notes' => 'nullable|string',
         ]);
 

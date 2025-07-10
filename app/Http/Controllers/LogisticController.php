@@ -138,7 +138,6 @@ class LogisticController extends Controller
             'item_name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
             'item_code' => 'nullable|string|max:100|unique:logistics,item_code',
-            'maintenance_schedule' => 'nullable|string|max:255',
             'calibration_date' => 'nullable|date',
             'calibration_expiry_date' => 'nullable|date|after_or_equal:calibration_date',
             'stock' => 'required|integer|min:0',
@@ -188,7 +187,7 @@ class LogisticController extends Controller
             'item_name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
             'item_code' => 'nullable|string|max:100|unique:logistics,item_code,'.$id,
-            'maintenance_schedule' => 'nullable|string|max:255',
+
             'calibration_date' => 'nullable|date',
             'calibration_expiry_date' => 'nullable|date|after_or_equal:calibration_date',
             'stock' => 'required|integer|min:0',
