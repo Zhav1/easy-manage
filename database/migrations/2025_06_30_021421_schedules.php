@@ -18,7 +18,7 @@ return new class extends Migration
         $table->date('start');
         $table->date('end');
         $table->timestamps();
-        $table->unique(['staff_id', 'start']); // Prevent duplicate shifts for same staff per day
+        $table->unique(['staff_id', 'start', 'shift_id']); // Prevent duplicate shifts 
     });
 
 

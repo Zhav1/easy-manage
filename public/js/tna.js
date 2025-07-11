@@ -256,18 +256,18 @@ async function handleSubmitFormStaff() {
 
 async function handleSubmitFormTNA() {
     tampilkanLoading();
-    
-    // Validasi field yang wajib diisi
+
+    // Validasi field yang wajib diisi (existing code)
     const inputTanggal = document.getElementById('tanggal');
     const selectStaff = document.getElementById('tnaStaffName');
-    
+
     if (!inputTanggal.value) {
         alert('Harap isi tanggal terlebih dahulu!');
         inputTanggal.focus();
         sembunyikanLoading();
         return false;
     }
-    
+
     if (!selectStaff.value) {
         alert('Harap pilih staff terlebih dahulu!');
         selectStaff.focus();
@@ -275,11 +275,24 @@ async function handleSubmitFormTNA() {
         return false;
     }
 
+    // Get the values from the dropdown and the text input
+    const seminarWorkshopWebinarValue = document.getElementById('seminarWorkshopWebinar').value;
+    const namaKegiatanValue = document.getElementById('namaKegiatan').value;
+
+    let finalSeminarWorkshopWebinar = seminarWorkshopWebinarValue;
+
+    // Append namaKegiatan if the dropdown value is one of the specified types
+    const perluInput = ['Seminar', 'Workshop', 'Webinar', 'Pelatihan Internal', 'Pelatihan Eksternal'];
+    if (perluInput.includes(seminarWorkshopWebinarValue) && namaKegiatanValue) {
+        finalSeminarWorkshopWebinar = `${seminarWorkshopWebinarValue} ${namaKegiatanValue}`;
+    }
+
     const dataForm = {
         id: document.getElementById('tnaId').value,
         staff_id: selectStaff.value,
         tanggal: inputTanggal.value,
-        seminar_workshop_webinar: document.getElementById('seminarWorkshopWebinar').value,
+        // Use the combined value here
+        seminar_workshop_webinar: finalSeminarWorkshopWebinar,
         pelatihan: document.getElementById('pelatihan').value,
         pendidikan_lanjutan: document.getElementById('pendidikanLanjutan').value,
     };

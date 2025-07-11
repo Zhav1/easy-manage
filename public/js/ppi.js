@@ -594,14 +594,12 @@ async function loadDashboardStats() {
         if (maintenanceComplianceElem) maintenanceComplianceElem.textContent = `${stats.total_maintenances_today || 0} Form`;
 
         const totalInfectionsElem = document.getElementById('totalInfections');
-        if (totalInfectionsElem) totalInfectionsElem.textContent = `${stats.total_active_infections_overall || 0} Kasus`;
+        if (totalInfectionsElem) totalInfectionsElem.textContent = `${stats.total_infections_today || 0} Kasus`;
 
         const totalNeedlestickCasesElem = document.getElementById('totalNeedlestickCases');
         if (totalNeedlestickCasesElem) totalNeedlestickCasesElem.textContent = `${stats.total_needlestick_cases_today || 0} Kasus`;
 
         // Update KPI section for analytics
-        const clabsiRateElem = document.getElementById('clabsiRate');
-        if (clabsiRateElem) clabsiRateElem.textContent = `${stats.clabsi_rate || 0.0}`;
 
         const insertionComplianceRateElem = document.getElementById('insertionComplianceRate');
         if (insertionComplianceRateElem) insertionComplianceRateElem.textContent = `${stats.insertion_compliance_rate || 0}%`;

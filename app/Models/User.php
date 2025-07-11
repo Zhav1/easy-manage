@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->hasMany(Staff::class, 'user_id');
     }
 
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
+    }
+
     public function privateSchedules()
     {
         return $this->hasMany(PrivateSchedule::class);
@@ -66,5 +71,10 @@ class User extends Authenticatable
     public function getFullPositionAttribute()
     {
         return $this->position . (($this->department) ? ' ' . $this->department->name : '');
+    }
+
+    public function specialCases()
+    {
+        return $this->hasMany(SpecialCase::class);
     }
 }

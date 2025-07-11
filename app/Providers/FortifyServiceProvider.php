@@ -34,7 +34,7 @@ class FortifyServiceProvider extends ServiceProvider
                     $user = $request->user();
 
                     // Optional: delete old tokens
-                    // $user->tokens()->delete();
+                    $user->tokens()->delete();
 
                     // Generate token
                     $token = $user->createToken('ui-token')->plainTextToken;

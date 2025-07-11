@@ -74,11 +74,18 @@
         Route::put('/schedules/{schedule}', [ScheduleController::class, 'update']);
 
         // Private Schedules
-        Route::get('/private-schedules', [PrivateScheduleController::class, 'index']);
-        Route::post('/private-schedules', [PrivateScheduleController::class, 'store']);
-        Route::get('/private-schedules/{id}', [PrivateScheduleController::class, 'show']);
-        Route::put('/private-schedules/{id}', [PrivateScheduleController::class, 'update']);
-        Route::delete('/private-schedules/{id}', [PrivateScheduleController::class, 'destroy']);
+        Route::get('/private-schedules', [PrivateScheduleController::class, 'indexPrivateSchedules']);
+        Route::post('/private-schedules', [PrivateScheduleController::class, 'storePrivateSchedule']);
+        Route::get('/private-schedules/{id}', [PrivateScheduleController::class, 'showPrivateSchedule']);
+        Route::put('/private-schedules/{id}', [PrivateScheduleController::class, 'updatePrivateSchedule']);
+        Route::delete('/private-schedules/{id}', [PrivateScheduleController::class, 'destroyPrivateSchedule']);
+
+        // Special Cases Routes
+        Route::get('special-cases', [PrivateScheduleController::class, 'indexSpecialCases']);
+        Route::post('special-cases', [PrivateScheduleController::class, 'storeSpecialCase']);
+        Route::get('special-cases/{id}', [PrivateScheduleController::class, 'showSpecialCase']);
+        Route::put('special-cases/{id}', [PrivateScheduleController::class, 'updateSpecialCase']);
+        Route::delete('special-cases/{id}', [PrivateScheduleController::class, 'destroySpecialCase']);
 
         // Performance Evaluations
         Route::apiResource('performance-evaluations', PerformanceEvaluationController::class);
@@ -122,7 +129,8 @@
             Route::delete('/{report}', [CvcMonitoringController::class, 'deleteNeedlestickReport']);
             Route::get('/{report}', [CvcMonitoringController::class, 'showNeedlestickReport']);
         });
-
+        
+        //Reports
         Route::get('/reports/header-stats', [ReportController::class, 'getHeaderStats']);
         Route::get('/reports/daily-logs', [ReportController::class, 'getDailyLogs']);
         Route::get('/reports/staff-schedules', [ReportController::class, 'getStaffSchedules']);

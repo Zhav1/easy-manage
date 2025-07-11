@@ -200,3 +200,55 @@ html, body {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
+.special-case-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .special-case-high-risk {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  .special-case-complex {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+  }
+  
+  .special-case-rare {
+    background-color: #fef9c3;
+    color: #a16207;
+  }
+  
+  .special-case-other {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+
+  @media (max-width: 768px) {
+    .pl-60 {
+        padding-left: 1rem;
+    }
+    .pr-5 {
+        padding-right: 1rem;
+    }
+}
+
+
+
+        /* Chrome, Safari, Opera */
+::-webkit-scrollbar {
+  width: 0px;          /* hilang sama sekali */
+  background: transparent;
+}
+
+/* Firefox */
+html, body {
+  scrollbar-width: none;      /* hilang di Firefox */
+  -ms-overflow-style: none;   /* hilang di Edge lama/IE */
+}
