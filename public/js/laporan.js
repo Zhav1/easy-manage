@@ -273,27 +273,6 @@
             staffSchedulesData = { schedules: [], shift_summary: {}, all_staff_names: [] };
         }
     }
-    
-    async function fetchLogisticItemNames() {
-        try {
-            const response = await fetch('/api/v1/logistics/items', { headers: getAuthHeaders() });
-            if (handleUnauthorized(response)) return;
-            if (!response.ok) {
-                const errorBody = await response.json();
-                throw new Error(`Failed to fetch logistic item names: ${errorBody.message || response.statusText}`);
-            }
-            const data = await response.json();
-            if (data.success) {
-                logisticItemNames = data.items;
-                console.log('Fetched Logistic Item Names:', logisticItemNames);
-            } else {
-                console.warn('Failed to fetch logistic item names:', data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching logistic item names:', error);
-            logisticItemNames = { 'Alat Kesehatan': [], 'Barang Habis Pakai': [] };
-        }
-    }
 
     async function fetchLogisticsSummary() {
         try {
@@ -424,7 +403,6 @@
                     break;
                 case 'logistik':
                     await fetchLogisticsSummary();
-                    await fetchLogisticItemNames(); // Ensure item names are fetched
                     renderManajemenLogistik();
                     renderExportButtons('logistik', 'logistics');
                     break;
@@ -958,52 +936,6 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Catat Penggunaan / Tambah Stok Barang</h3>
-                <form id="logisticForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="logistic_category" class="block text-sm font-medium text-gray-700">Kategori Barang</label>
-                            <select id="logistic_category" name="category" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                                <option value="">Pilih Kategori</option>
-                                <option value="Alat Kesehatan">Alat Kesehatan</option>
-                                <option value="Barang Habis Pakai">Barang Habis Pakai</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="logistic_item_name" class="block text-sm font-medium text-gray-700">Nama Barang</label>
-                            <select id="logistic_item_name" name="item_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" required disabled>
-                                <option value="">Pilih Nama Barang</option>
-                            </select>
-                            <div id="other_item_name_container" class="hidden mt-2">
-                                <input type="text" id="other_item_name" name="other_item_name" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan nama barang baru">
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <label for="logistic_quantity" class="block text-sm font-medium text-gray-700">Jumlah</label>
-                        <input type="number" id="logistic_quantity" name="quantity" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" min="1" required>
-                    </div>
-                    <div>
-                        <label for="logistic_transaction_type" class="block text-sm font-medium text-gray-700">Jenis Transaksi</label>
-                        <select id="logistic_transaction_type" name="transaction_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                            <option value="">Pilih Jenis Transaksi</option>
-                            <option value="Penggunaan">Penggunaan</option>
-                            <option value="Penambahan">Penambahan Stok</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="logistic_notes" class="block text-sm font-medium text-gray-700">Catatan (Opsional)</label>
-                        <textarea id="logistic_notes" name="notes" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-                    </div>
-                    <div class="flex justify-end">
-                        <button type="submit" id="submitLogisticBtn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <i class="fas fa-save mr-2"></i> Simpan Transaksi
-                        </button>
-                    </div>
-                </form>
-            </div>
-
             <div class="space-y-6" id="logisticsCategoriesContainer">
                 ${categoriesOverview.map(category => `
                     ${category.count > 0 ? `
@@ -1116,125 +1048,6 @@
              console.warn('Flowbite initFlowbite function not found. Ensure Flowbite JS is loaded.');
         }
     }
-
-    // NEW: Helper to populate item name dropdown
-    function populateLogisticItemNameDropdown(selectedCategory) {
-        const logisticItemNameSelect = document.getElementById('logistic_item_name');
-        logisticItemNameSelect.innerHTML = '<option value="">Pilih Nama Barang</option>';
-        logisticItemNameSelect.disabled = true;
-
-        if (selectedCategory && logisticItemNames[selectedCategory]) {
-            logisticItemNames[selectedCategory].forEach(itemName => {
-                const option = document.createElement('option');
-                option.value = itemName;
-                option.textContent = itemName;
-                logisticItemNameSelect.appendChild(option);
-            });
-            const otherOption = document.createElement('option');
-            otherOption.value = 'other';
-            otherOption.textContent = 'Lainnya (Tuliskan)';
-            logisticItemNameSelect.appendChild(otherOption);
-            logisticItemNameSelect.disabled = false;
-        }
-    }
-
-    // NEW: Event handler for logistic category change
-    function handleLogisticCategoryChange() {
-        const logisticCategorySelect = document.getElementById('logistic_category');
-        const selectedCategory = logisticCategorySelect.value;
-        const otherItemNameContainer = document.getElementById('other_item_name_container');
-        const otherItemNameInput = document.getElementById('other_item_name');
-
-        populateLogisticItemNameDropdown(selectedCategory);
-        
-        // Hide "other" input if category changes
-        if (otherItemNameContainer) otherItemNameContainer.classList.add('hidden');
-        if (otherItemNameInput) otherItemNameInput.value = '';
-    }
-
-    // NEW: Event handler for logistic item name change
-    function handleLogisticItemNameChange() {
-        const logisticItemNameSelect = document.getElementById('logistic_item_name');
-        const otherItemNameContainer = document.getElementById('other_item_name_container');
-        const otherItemNameInput = document.getElementById('other_item_name');
-
-        if (logisticItemNameSelect.value === 'other') {
-            if (otherItemNameContainer) otherItemNameContainer.classList.remove('hidden');
-            if (otherItemNameInput) otherItemNameInput.setAttribute('required', 'true');
-        } else {
-            if (otherItemNameContainer) otherItemNameContainer.classList.add('hidden');
-            if (otherItemNameInput) {
-                otherItemNameInput.removeAttribute('required');
-                otherItemNameInput.value = '';
-            }
-        }
-    }
-
-    // NEW: Handle Logistic Form Submission
-    async function handleLogisticFormSubmission(event) {
-        event.preventDefault(); // Prevent default form submission
-
-        const formElement = event.target;
-        const category = formElement.querySelector('[name="category"]').value;
-        let itemName = formElement.querySelector('[name="item_name"]').value;
-        const quantity = formElement.querySelector('[name="quantity"]').value;
-        const transactionType = formElement.querySelector('[name="transaction_type"]').value;
-        const notes = formElement.querySelector('[name="notes"]').value;
-
-        // If 'other' is selected for item name, use the text input value
-        if (itemName === 'other') {
-            const otherInput = formElement.querySelector('[name="other_item_name"]');
-            itemName = otherInput ? otherInput.value : '';
-            if (!itemName) {
-                alert('Nama barang baru tidak boleh kosong!');
-                return;
-            }
-        }
-
-        if (!category || !itemName || !quantity || !transactionType) {
-            alert('Harap lengkapi semua kolom yang wajib diisi (Kategori, Nama Barang, Jumlah, Jenis Transaksi)!');
-            return;
-        }
-
-        const submitBtn = formElement.querySelector('#submitLogisticBtn');
-        try {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
-            showLoading();
-
-            const response = await fetch('/api/v1/logistics/process-transaction', {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    category: category,
-                    item_name: itemName,
-                    quantity: parseInt(quantity),
-                    transaction_type: transactionType,
-                    notes: notes,
-                })
-            });
-
-            const responseData = await response.json();
-
-            if (!response.ok) {
-                throw new Error(responseData.message || 'Gagal menyimpan transaksi logistik');
-            }
-
-            alert(responseData.message);
-            formElement.reset();
-            // Re-fetch all logistics data to update summary and tables
-            await loadDataForTab('logistik'); 
-
-        } catch (error) {
-            console.error('Error in logistic transaction:', error);
-            alert(`Error: ${error.message}`);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Transaksi';
-            hideLoading();
-        }
-    }
-
 
     function renderPpiData() {
         const ppiContent = document.getElementById('ppi');
