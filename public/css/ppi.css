@@ -237,3 +237,122 @@ html, body {
     max-height: 90vh; /* Adjust max height to fit screen */
     object-fit: contain; /* Ensures image fits within bounds without cropping */
 }
+
+/* Modal-specific styles - won't affect other elements */
+#detailModal {
+    position: fixed;
+    z-index: 50;
+    inset: 0;
+    overflow-y: auto;
+}
+
+#detailModal .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(107, 114, 128, 0.75); /* bg-gray-500/75 */
+}
+
+#detailModal .modal-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+    text-align: center;
+}
+
+#detailModal .modal-align-helper {
+    display: inline-block;
+    height: 100vh;
+    vertical-align: middle;
+}
+
+#detailModal .modal-content {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 42rem; /* max-w-2xl */
+    margin-left: auto;
+    margin-right: auto;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+    #detailModal .modal-container {
+        padding: 0;
+    }
+    
+    #detailModal .modal-align-helper {
+        display: none;
+    }
+}
+
+/* Modal content sections */
+#detailModal .modal-header {
+    padding: 1.25rem 1rem;
+}
+
+#detailModal .modal-body {
+    padding: 1rem;
+}
+
+#detailModal .modal-footer {
+    padding: 0.75rem 1rem;
+    background-color: #f9fafb; /* bg-gray-50 */
+}
+
+/* Close button styles */
+#detailModal .modal-close-btn {
+    margin-top: 0.75rem;
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db; /* border-gray-300 */
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151; /* text-gray-700 */
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 640px) {
+    #detailModal .modal-close-btn {
+        margin-top: 0;
+        margin-left: 0.75rem;
+        width: auto;
+    }
+}
+
+/* Custom scrollbar for modal */
+#detailModal .overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+#detailModal .overflow-y-auto::-webkit-scrollbar {
+    width: 8px;
+}
+
+#detailModal .overflow-y-auto::-webkit-scrollbar-track {
+    background: #f7fafc;
+    border-radius: 4px;
+}
+
+#detailModal .overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 4px;
+    border: 2px solid #f7fafc;
+}
+
+#detailModal .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background-color: #a0aec0;
+}

@@ -30,69 +30,75 @@ body {
             animation: fadeIn 0.6s ease-out forwards;
         }
 
-        .shift-badge {
-            font-size: 0.7rem;
-            padding: 0.4rem;
-            border-radius: 0.25rem;
-            display: inline-block;
-            margin: 0.1rem;
-            width: 100%;
-            box-sizing: border-box;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            /* white-space: nowrap; */
-        }
-        .shift-badge-legend {
-            font-size: 0.7rem;
-            padding: 0.4rem;
-            border-radius: 0.25rem;
-            display: inline-block;
-            margin: 0.1rem;
-            box-sizing: border-box;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            /* white-space: nowrap; */
-        }
-        .shift-pagi {
-            background-color: #FEF3C7;
-            color: #92400E;
-        }
+        /* dinas.css */
 
-        .shift-sore {
-            background-color: #DBEAFE;
-            color: #1E40AF;
-        }
+/* ... (Your existing CSS before this conversation started) ... */
 
-        .shift-malam {
-            background-color: #E5E7EB;
-            color: #4B5563;
-        }
+.shift-badge {
+    font-size: 0.7rem;
+    padding: 0.4rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+    margin: 0.1rem;
+    width: 100%;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    /* white-space: nowrap; */ /* You had this commented out */
+}
+.shift-badge-legend {
+    font-size: 0.7rem;
+    padding: 0.4rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+    margin: 0.1rem;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    /* white-space: nowrap; */ /* You had this commented out */
+}
+.shift-pagi {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
 
-        /* FullCalendar custom styles */
-        .fc-event {
-            cursor: pointer;
-            font-size: 0.8em;
-            padding: 2px 4px;
-            margin: 1px 2px;
-        }
+.shift-sore {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+}
 
-        .fc-event-pagi {
-            background-color: #FEF3C7;
-            border-color: #F59E0B;
-            color: #92400E;
-        }
+.shift-malam {
+    background-color: #E5E7EB; /* This is the grey you mentioned */
+    color: #4B5563;
+}
 
-        .fc-event-sore {
-            background-color: #DBEAFE;
-            border-color: #3B82F6;
-            color: #1E40AF;
-        }
+/* FullCalendar custom styles */
+.fc-event {
+    cursor: pointer;
+    font-size: 0.8em;
+    padding: 2px 4px;
+    margin: 1px 2px;
+}
 
-        .fc-event-malam {
-            background-color: #E5E7EB;
-            border-color: #6B7280;
-            color: #4B5563;
-        }
+.fc-event-pagi {
+    background-color: #FEF3C7;
+    border-color: #F59E0B;
+    color: #92400E;
+}
+
+.fc-event-sore {
+    background-color: #DBEAFE;
+    border-color: #3B82F6;
+    color: #1E40AF;
+}
+
+.fc-event-malam {
+    background-color: #E5E7EB; /* This is the grey for the FC event itself */
+    border-color: #6B7280;
+    color: #4B5563;
+}
+
+/* ... (rest of your CSS) ... */
 
         .fc-toolbar-title {
             font-size: 1.1em;

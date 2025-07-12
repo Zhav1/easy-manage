@@ -595,14 +595,11 @@ function getRatingTextColor(rating) {
 }
 
 function getRatingDescription(rating) {
-    switch(rating) {
-        case 86-100: return 'Sangat Baik';
-        case 76-85: return 'Baik';
-        case 61-75: return 'Cukup';
-        case 31-60: return 'Kurang';
-        case 10-30: return 'Sangat Kurang';
-        default: return '';
-    }
+    
+ if (rating >= 86) return 'Sangat Baik';
+    if (rating >= 76) return 'Baik';
+    if (rating >= 61) return 'Cukup';
+    return 'Kurang';
 }
 
 

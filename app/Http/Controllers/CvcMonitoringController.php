@@ -821,12 +821,6 @@ class CvcMonitoringController extends Controller
             ->orderByDesc('count')
             ->get();
 
-
-        // Placeholder for CLABSI Rate.
-        // To calculate accurately, you'd need CVC device-days data which isn't currently tracked.
-        // It's (number of CLABSIs / total CVC device-days) * 1000.
-        $clabsiRate = 0.0; // Placeholder
-
         return response()->json([
             'total_insertions_today' => $totalInsertionsToday,
             'total_maintenances_today' => $totalMaintenancesToday,
@@ -836,7 +830,6 @@ class CvcMonitoringController extends Controller
             'insertion_compliance_rate' => $insertionComplianceRate,
             'maintenance_compliance_rate' => $maintenanceComplianceRate,
             'needlestick_rate_30_days' => $totalNeedlestickLast30Days,
-            'clabsi_rate' => $clabsiRate,
             'infection_trend' => $infectionTrend,
             'infection_by_location' => $infectionByLocation,
             'infection_by_microorganism' => $infectionByMicroorganism,

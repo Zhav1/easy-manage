@@ -79,7 +79,7 @@
                             </div>
                             <div class="ml-3">
                                 <p class="text-xs md:text-sm text-gray-500">ID Pegawai</p>
-                                <p class="font-semibold text-gray-800 text-sm md:text-base">{{ Auth::user()->id }}</p>
+                                <p class="font-semibold text-gray-800 text-sm md:text-base">{{ Auth::user()->id_pegawai }}</p>
                             </div>
                         </div>
 

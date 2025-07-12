@@ -12,7 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('js/laporan.js') }}"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </head>
 <body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 text-gray-800">
     {{-- Pass the authentication token to JavaScript --}}
@@ -44,10 +43,6 @@
                             <div class="text-xl sm:text-2xl font-bold text-green-600" id="activeStaffCount">Loading...</div>
                             <div class="text-xs sm:text-sm text-green-700">Staf Aktif</div>
                         </div>
-                        {{-- <div class="text-center p-4 bg-blue-100 rounded-lg">
-                            <div class="text-2xl font-bold text-blue-600" id="complianceRate">Loading...</div>
-                            <div class="text-sm text-blue-700">Kepatuhan</div>
-                        </div> --}}
                     </div>
                 </div>
             </div>

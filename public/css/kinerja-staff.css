@@ -160,3 +160,120 @@
             font-size: 18px;
             margin-top: 20px; /* Space below the spinner */
         }
+        /* Hide scrollbars but keep functionality */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Mobile optimizations */
+        /* Navbar mobile optimization */
+/* Mobile optimization */
+@media (max-width: 768px) {
+    /* Adjust the main content spacing */
+    main {
+        padding-top: 1rem !important; /* Reduce top padding */
+    }
+
+    /* Header card adjustments */
+    .glass-effect {
+        margin-top: 0.5rem !important;
+        padding: 1rem !important;
+    }
+
+    /* Stats cards grid */
+    .grid.grid-cols-2 {
+        gap: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Section titles */
+    h2.text-xl {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    /* Reduce space between sections */
+    .card-hover {
+        margin-bottom: 1rem !important;
+    }
+
+    /* Table adjustments */
+    table {
+        font-size: 0.8rem !important;
+    }
+
+    /* Navbar fixes */
+    .navbar {
+        height: 50px !important;
+        padding: 0 1rem !important;
+    }
+
+    /* Content adjustments to compensate for navbar */
+    .mt-12 {
+        margin-top: 3rem !important;
+    }
+}
+
+/* Ensure navbar stays fixed on mobile */
+@media (max-width: 768px) {
+    .navbar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+    }
+}
+        
+        /* Global scrollbar hiding */
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        /* Animation improvements */
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Card hover effect */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        /* Navbar date fix - keep date inline */
+.navbar-date-container {
+    display: flex;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 0.5rem;
+}
+        /* Button animations */
+        .animated-button {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .animated-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .animated-button:active {
+            transform: translateY(0);
+        }
