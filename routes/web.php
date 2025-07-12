@@ -99,13 +99,13 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
     Route::get('/reports/export/tna/pdf', [ReportController::class, 'exportTnaRecordsPdf'])->name('reports.tna.pdf');
     Route::get('/reports/export/quality-indicators/pdf', [ReportController::class, 'exportQualityIndicatorsPdf'])->name('reports.quality_indicators.pdf');
 
-    Route::get('/password/change', [PasswordChangeController::class, 'edit'])
-        ->name('password.change');
-    Route::patch('/password/change', [PasswordChangeController::class, 'update'])
-        ->name('password.update');
+        // Route::get('/password/change', [PasswordChangeController::class, 'edit'])
+        //     ->name('password.change');
+        // Route::patch('/password/change', [PasswordChangeController::class, 'update'])
+        //     ->name('password.update');
 });
 
-Route::get('/forgot', function () {
-   return view('auth.forgot-password');
+// Route::get('/forgot', function () {
+//    return view('auth.forgot-password');
 
-});
+// });
