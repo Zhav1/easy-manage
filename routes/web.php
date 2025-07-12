@@ -10,6 +10,10 @@ use App\Http\Controllers\PasswordChangeController;
 Route::get('/', function () {
     return view('landing-page');
 });
+Route::get('/forgot', function () {
+   return view('auth.forgot-password');
+
+});
 Route::put('/logistics/{id}/use', [LogisticController::class, 'useItem'])->name('logistics.use');
 Route::middleware(['auth', 'web', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);

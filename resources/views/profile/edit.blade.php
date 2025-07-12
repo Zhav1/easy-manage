@@ -248,7 +248,7 @@
 
                 <div class="px-4 py-4 md:px-6 md:py-4 space-y-3">
                     {{-- Ganti Password --}}
-                    <a href="{{ route('password.change') }}"
+                    <a href="/forgot"
                        class="w-full flex items-center p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
                         <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                             <i class="fas fa-key text-blue-600 text-sm md:text-base"></i>
