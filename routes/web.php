@@ -105,3 +105,7 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
         ->name('password.update');
 });
 
+Route::get('/forgot', function () {
+   return view('auth.forgot-password');
+
+});
