@@ -12,7 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('schedules', function (Blueprint $table) {
-             $table->foreignId('user_id')->constrained()->nullable()->onDelete('cascade')->after('id');
+            // Cek dulu apakah kolom user_id sudah ada
+            if (!Schema::hasColumn('schedules', 'user_id')) {
+                $table->foreignId('user_id')
+                      ->nullable()
+                      ->constrained()
+                      ->onDelete('cascade')
+                      ->after('id');
+            }
         });
     }
 
@@ -22,7 +29,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('schedules', function (Blueprint $table) {
-             $table->dropColumn('user_id');
+            // Drop foreign key dulu baru drop column
+            if (Schema::hasColumn('schedules', 'user_id')) {
+                $table->dropForeign(['user_id']);
+                $table->dropColumn('user_id');
+            }
         });
     }
 };

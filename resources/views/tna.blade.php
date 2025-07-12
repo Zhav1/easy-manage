@@ -102,12 +102,6 @@
                 <button onclick="openAddStaffModal()" id="openAddStaffModalBtn" class="btn-blue-tna btn-mobile">
                     <i class="fas fa-user-plus mr-2"></i>Tambah Staff
                 </button>
-                <button onclick="exportToExcel()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl font-semibold shadow-lg card-hover flex items-center btn-mobile">
-                    <i class="fas fa-download mr-2"></i>Export Excel
-                </button>
-                <button onclick="exportToPdf()" class="bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl font-semibold shadow-lg card-hover flex items-center btn-mobile">
-                    <i class="fas fa-file-pdf mr-2"></i>Export PDF
-                </button>
             </div>
 
             <!-- Manajemen Staff table -->

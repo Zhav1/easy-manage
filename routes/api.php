@@ -16,7 +16,8 @@
     use App\Http\Controllers\TrainingNeedController;
     use App\Http\Controllers\CvcMonitoringController;
     use App\Http\Controllers\NotificationController;
-    
+    use App\Http\Controllers\LogisticController;
+
 
     Route::middleware('auth:sanctum')->post('/token', function (Request $request) {
         $token = $request->user()->createToken('api-token')->plainTextToken;
@@ -38,7 +39,9 @@
 
             return response()->json($items);
     })->middleware('auth:sanctum');
-
+Route::prefix('v1/logistics')->group(function () {
+    Route::post('/process-transaction', [LogisticController::class, 'processTransaction']);
+});
 
     Route::middleware(['auth:sanctum'])->prefix('v1')->group(function() {
         // Departments
@@ -149,3 +152,6 @@
         //Dashboard
         Route::get('/dashboard-data', [DashboardController::class, 'index']);
     });
+    Route::delete('/logistics/delete-all', [LogisticController::class, 'hapusSemua'])
+    ->name('logistics.deleteAll')
+    ->middleware('auth');

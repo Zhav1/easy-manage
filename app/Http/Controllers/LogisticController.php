@@ -21,6 +21,11 @@ class LogisticController extends Controller
     /**
      * Get distinct items by category
      */
+    public function processTransaction(Request $request)
+    {
+        // Logika proses transaksi logistik di sini
+        return response()->json(['message' => 'Transaction processed.']);
+    }
     public function getItems()
     {
         $items = [

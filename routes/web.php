@@ -11,10 +11,6 @@ use App\Http\Controllers\PasswordChangeController;
 Route::get('/', function () {
     return view('landing-page');
 });
-Route::get('/forgot', function () {
-   return view('auth.forgot-password');
-
-});
 Route::get('/tentang-kami', function () {
         return view('tentang-kami');
     });
