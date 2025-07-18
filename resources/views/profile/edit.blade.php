@@ -247,18 +247,6 @@
                 </div>
 
                 <div class="px-4 py-4 md:px-6 md:py-4 space-y-3">
-                    {{-- Ganti Password --}}
-                    <a href="/forgot"
-                       class="w-full flex items-center p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
-                        <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-key text-blue-600 text-sm md:text-base"></i>
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <p class="font-medium text-gray-800 text-sm md:text-base">Ganti Password</p>
-                            <p class="text-xs md:text-sm text-gray-500">Ubah password untuk keamanan</p>
-                        </div>
-                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
-                    </a>
 
                     {{-- Logout --}}
                     <form action="{{ route('logout') }}" method="POST" class="w-full">

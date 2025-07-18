@@ -103,9 +103,13 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
     //     ->name('password.change');
     // Route::patch('/password/change', [PasswordChangeController::class, 'update'])
     //     ->name('password.update');
+        // Route::get('/password/change', [PasswordChangeController::class, 'edit'])
+        //     ->name('password.change');
+        // Route::patch('/password/change', [PasswordChangeController::class, 'update'])
+        //     ->name('password.update');
 });
 
-Route::get('/forgot', function () {
-   return view('auth.forgot-password');
+// Route::get('/forgot', function () {
+//    return view('auth.forgot-password');
 
-});
+// });

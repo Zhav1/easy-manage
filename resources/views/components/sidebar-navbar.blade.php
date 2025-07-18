@@ -172,10 +172,11 @@
                 </a>
             </li>
         </ul>
-        <div class="flex justify-start items-end mt-20">
+        <div class="flex justify-start items-start mt-32">
             <div class="flex flex-col items-end">
                 <img src="{{ asset('images/logo wahid.png') }}" alt="Logo Wahid" class="w-12 h-12 object-contain opacity-70 hover:opacity-100 transition-opacity duration-300">
             </div>
+        </div>
     </div>
 </aside>
 
