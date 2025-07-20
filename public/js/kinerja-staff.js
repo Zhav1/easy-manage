@@ -579,6 +579,7 @@ function getPerformanceBadgeColor(status) {
     }
 }
 
+
 // Helper functions for rating colors and descriptions for Rekapitulasi Penilaian Staff table
 function getRatingColor(rating) {
     if (rating >= 86) return '#10b981'; // Green for high (Excellent/Good)

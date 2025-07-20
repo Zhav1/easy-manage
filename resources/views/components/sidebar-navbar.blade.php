@@ -2,9 +2,13 @@
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 text-base">
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
     <div class="grid grid-cols-3 items-center justify-center">
-      <div class="flex items-center justify-start rtl:justify-end">
-        <div class="text-xl font-bold text-[#0CC0DF]">EasyManage</div>
-      </div>
+     <!-- Tambahkan ini di bagian awal div grid (sebelum logo) -->
+<div class="flex items-center justify-start rtl:justify-end">
+    <button id="sidebarToggle" class="mr-2 text-gray-500 hover:text-gray-700">
+        <i class="fas fa-bars text-lg"></i>
+    </button>
+    <div class="text-xl font-bold text-[#0CC0DF]">EasyManage</div>
+</div>
       <div class="space-x-4 hidden flex md:flex justify-center text-sm gap-8">
         @php $current = Request::path(); @endphp
         @if(Str::contains($current, 'dinas'))
@@ -31,7 +35,7 @@
       </div>
       <div class="flex items-center gap-4 justify-end ms-auto pr-4">
         <!-- Tanggal Realtime -->
-        <div class="text-sm text-gray-600 font-medium">
+        <div class="text-sm text-gray-600 font-medium text-end">
           <script>
             document.addEventListener("DOMContentLoaded", function () {
               const now = new Date();
@@ -71,9 +75,66 @@
     </div>
   </div>
 </nav>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('logo-sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    
+    // Cek state dari localStorage
+    const sidebarState = localStorage.getItem('sidebarState');
+    if (sidebarState === 'hidden') {
+        sidebar.classList.add('-translate-x-full');
+    } else if (sidebarState === 'visible') {
+        sidebar.classList.remove('-translate-x-full');
+    }
+    
+    // Toggle sidebar
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('-translate-x-full');
+        
+        // Simpan state ke localStorage
+        if (sidebar.classList.contains('-translate-x-full')) {
+            localStorage.setItem('sidebarState', 'hidden');
+        } else {
+            localStorage.setItem('sidebarState', 'visible');
+        }
+    });
+    
+    // Tutup sidebar saat klik di luar (opsional)
+    document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && 
+            !sidebarToggle.contains(event.target) &&
+            window.innerWidth < 640) { // Hanya untuk mobile
+            sidebar.classList.add('-translate-x-full');
+            localStorage.setItem('sidebarState', 'hidden');
+        }
+    });
+});
+</script>
+<style>
+#logo-sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+@media (max-width: 767px) {
+  /* Pastikan navbar tidak overflow di mobile */
+  nav {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  /* Perkecil logo di mobile */
+  .text-xl {
+    font-size: 1.1rem;
+  }
+  
+  /* Sembunyikan tanggal di mobile jika perlu */
+  .hidden-sm {
+    display: none;
+  }
+}
+</style>
 
-
-  <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
+ <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
         <!-- Search Bar -->
         <div class="relative mb-4">

@@ -149,7 +149,7 @@ class PerformanceEvaluationController extends Controller
         } elseif ($averageRating >= 30) {
             return 'Kurang';
         } else {
-            return 'Sangat Kurang';
+            return '';
         }
     }
 }

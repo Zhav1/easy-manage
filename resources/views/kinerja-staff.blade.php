@@ -135,10 +135,12 @@
                         </div>
                         <select id="rekaptitulasiFilterSelect" class="px-3 py-2 md:px-4 md:py-2 border border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full">
                             <option>Semua Status</option>
-                            <option>Excellent Performance</option>
-                            <option>Good Performance</option>
-                            <option>Need Mentoring</option>
-                            <option>Need Improvement</option>
+                            <option>Sangat Baik</option>
+                            <option>Baik</option>
+                            <option>Cukup</option>
+                            <option>Kurang</option>
+                            <option>Sangat Kurang
+                            </option>
                         </select>
                     </div>
                 </div>
