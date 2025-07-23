@@ -2,7 +2,9 @@
 <html lang="en" class="h-full bg-white w-screen">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Ganti viewport meta untuk kontrol yang lebih baik -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Schedule - Catatan Pribadi</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
@@ -59,8 +61,8 @@
     </script>
     @include('components.sidebar-navbar')
     <div class="p-4">
-        <main class="pl-60 pr-5 flex-1 px-6 py-8 mt-8">
-            <div class="glass-effect rounded-3xl p-8 mb-8 shadow-xl animate-fade-in">
+      <main class="md:pl-60 pr-5 flex-1 px-4 sm:px-6 py-4 sm:py-8 mt-8">
+           <div class="glass-effect rounded-3xl p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8 shadow-xl animate-fade-in">
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-4xl font-bold text-black mb-3">
@@ -86,7 +88,7 @@
                 </div>
                 
                 <form class="space-y-8" id="privateScheduleForm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div class="grid grid-cols-1 gap-4 sm:gap-6 md:gap-8 md:grid-cols-2">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 <i class="fas fa-clock mr-2 text-blue-500"></i>Tanggal & Jam

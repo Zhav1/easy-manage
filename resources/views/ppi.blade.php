@@ -19,7 +19,7 @@
     </script>
     @include('components.sidebar-navbar')
 
-    <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
+  <div class="p-4 pt-20 md:pl-60 pr-5 animate-fadeIn">
         <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
             <div class="text-center mb-10">
                 <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-md border border-blue-100 flex items-center hover:shadow-lg transition-shadow duration-300">
                     <div class="bg-blue-100 p-3 rounded-full mr-4">
                         <i class="fas fa-check-circle text-blue-800 text-xl"></i>
@@ -118,7 +118,7 @@
 
                                 <form id="needlestickReportForm" enctype="multipart/form-data">
                                     <input type="hidden" id="needlestickReportId">
-                                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
                                         <div>
                                             <label for="needlestickDate" class="block text-sm font-medium text-gray-700">Tanggal Kejadian</label>
                                             <input type="date" name="incident_date" id="needlestickDate" class="mt-1 focus:ring-emerald-500 text-black focus:border-emerald-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" required>
