@@ -18,12 +18,6 @@
     use App\Http\Controllers\NotificationController;
     use App\Http\Controllers\LogisticController;
 
-
-    Route::middleware('auth:sanctum')->post('/token', function (Request $request) {
-        $token = $request->user()->createToken('api-token')->plainTextToken;
-        return ['token' => $token];
-    });
-
     Route::get('/logistics/items', function (Request $request) {
             $category = $request->query('category');
             
@@ -39,9 +33,12 @@
 
             return response()->json($items);
     })->middleware('auth:sanctum');
+
+
 Route::prefix('v1/logistics')->group(function () {
+
     Route::post('/process-transaction', [LogisticController::class, 'processTransaction']);
-});
+    Route::get('/transactions', [LogisticController::class, 'getTransactions']);});
 
     Route::middleware(['auth:sanctum'])->prefix('v1')->group(function() {
         // Departments
@@ -60,9 +57,12 @@ Route::prefix('v1/logistics')->group(function () {
 
         // Quality Inspection / Indikator Mutu
         Route::get('/quality-inspection/{formType}/current', [QualityInspectionController::class, 'getCurrentWeekForm']);
+        Route::get('/quality-inspection/all-indicators/all', [App\Http\Controllers\QualityInspectionController::class, 'getAllIndicatorsData']);
         Route::get('/quality-inspection/{formType}/all', [QualityInspectionController::class, 'getAllFormData']);
         Route::post('/quality-inspection/{formType}', [QualityInspectionController::class, 'submitForm']);
         Route::get('/quality-inspection/{formType}/history', [QualityInspectionController::class, 'getFormHistory']);
+        Route::post('/reports/export/quality-indicators/pdf', [QualityInspectionController::class, 'exportQualityIndicatorsPdf']);
+        Route::get('/reports/export/quality-indicators/excel', [QualityInspectionController::class, 'exportQualityIndicatorsExcel']);
 
         // Staff
         Route::get('/staff', [StaffController::class, 'index']);
@@ -75,6 +75,7 @@ Route::prefix('v1/logistics')->group(function () {
         Route::post('/schedules', [ScheduleController::class, 'store']);
         Route::delete('/schedules/{schedule}', [ScheduleController::class, 'destroy']);
         Route::put('/schedules/{schedule}', [ScheduleController::class, 'update']);
+        
 
         // Private Schedules
         Route::get('/private-schedules', [PrivateScheduleController::class, 'indexPrivateSchedules']);
@@ -142,6 +143,9 @@ Route::prefix('v1/logistics')->group(function () {
         Route::get('/reports/staff-performance', [ReportController::class, 'getStaffPerformance']);
         Route::get('/reports/tna-data', [ReportController::class, 'getTnaData']);
         Route::get('/reports/quality-indicators', [ReportController::class, 'getQualityIndicators']);
+        Route::get('/reports/monthly-staff-schedules', [ReportController::class, 'getMonthlyStaffSchedules']);
+        Route::post('/reports/export/ppi/pdf-with-charts', [ReportController::class, 'exportPpiReportsPdfWithCharts']);
+        Route::get('/reports/export/ppi/excel', [ReportController::class, 'exportPpiReportsExcel']);
 
         // Notifications
         Route::get('/notifications', [NotificationController::class, 'index']);
@@ -151,7 +155,6 @@ Route::prefix('v1/logistics')->group(function () {
 
         //Dashboard
         Route::get('/dashboard-data', [DashboardController::class, 'index']);
+
+
     });
-    Route::delete('/logistics/delete-all', [LogisticController::class, 'hapusSemua'])
-    ->name('logistics.deleteAll')
-    ->middleware('auth');

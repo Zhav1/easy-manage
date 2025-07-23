@@ -29,6 +29,9 @@
     let ppiNeedlestickByDepartmentChartInstance = null;
     let ppiNeedlestickByPositionChartInstance = null;
 
+    let currentExportSettings = { reportNameSlug: '', exportType: '' };
+    let currentJadwalDinasExportSettings = { month: null, year: null, exportType: '' };
+
 
     // --- Helper Functions ---
     function formatDate(dateString) {
@@ -51,6 +54,41 @@
             console.warn('Invalid datetime string for formatDateTime:', dateTimeString);
             return '-';
         }
+    }
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const template = document.getElementById('toast-template');
+        if (!container || !template) return;
+
+        const newToast = template.cloneNode(true);
+        newToast.id = '';
+        newToast.classList.remove('hidden');
+        newToast.classList.add('flex');
+
+        const iconDiv = newToast.querySelector('#toast-icon');
+        const messageDiv = newToast.querySelector('#toast-message');
+        iconDiv.innerHTML = ''; // Clear previous icon
+        messageDiv.textContent = message;
+
+        if (type === 'success') {
+            iconDiv.innerHTML = '<i class="fas fa-check"></i>';
+            iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg';
+        } else if (type === 'error') {
+            iconDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg';
+        } else { // Info
+            iconDiv.innerHTML = '<i class="fas fa-info-circle"></i>';
+            iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg';
+        }
+
+        container.appendChild(newToast);
+
+        setTimeout(() => {
+            newToast.style.transition = 'opacity 0.5s ease';
+            newToast.style.opacity = '0';
+            setTimeout(() => newToast.remove(), 500);
+        }, 5000);
     }
 
     function capitalizeFirstLetter(string) {
@@ -145,6 +183,131 @@
         }
         document.getElementById('catatan').classList.add('active');
 
+        // Initialize Pikaday for general date range modal
+        const modalStartDateInput = document.getElementById('modal_start_date');
+        const modalEndDateInput = document.getElementById('modal_end_date');
+        const allTimeCheckbox = document.getElementById('all_time_checkbox');
+        const dateRangeExportForm = document.getElementById('dateRangeExportForm');
+
+        if (modalStartDateInput) {
+            new Pikaday({ field: modalStartDateInput, format: 'YYYY-MM-DD' });
+        }
+        if (modalEndDateInput) {
+            new Pikaday({ field: modalEndDateInput, format: 'YYYY-MM-DD' });
+        }
+
+        if (allTimeCheckbox && modalStartDateInput && modalEndDateInput) {
+            allTimeCheckbox.addEventListener('change', function() {
+                modalStartDateInput.disabled = this.checked;
+                modalEndDateInput.disabled = this.checked;
+                if (this.checked) {
+                    modalStartDateInput.value = '';
+                    modalEndDateInput.value = '';
+                }
+            });
+        }
+
+        if (dateRangeExportForm) {
+            dateRangeExportForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const startDate = modalStartDateInput.value;
+                const endDate = modalEndDateInput.value;
+                const isAllTime = allTimeCheckbox.checked;
+
+                window.hideDateRangeExportModal();
+
+                window._downloadReportWithDates(
+                    currentExportSettings.exportType,
+                    currentExportSettings.reportNameSlug,
+                    isAllTime ? null : startDate,
+                    isAllTime ? null : endDate
+                );
+            });
+        }
+
+        // Initialize inputs for Jadwal Dinas modal (Month Range)
+        const jadwalFromMonthSelect = document.getElementById('jadwal_from_month');
+        const jadwalFromYearSelect = document.getElementById('jadwal_from_year');
+        const jadwalToMonthSelect = document.getElementById('jadwal_to_month');
+        const jadwalToYearSelect = document.getElementById('jadwal_to_year');
+        const jadwalDinasExportForm = document.getElementById('jadwalDinasExportForm');
+
+        // Populate years for Jadwal Dinas modal selects
+        const currentYear = new Date().getFullYear();
+        const yearsToShow = 5; // e.g., currentYear - 2 to currentYear + 3
+        for (let i = currentYear - yearsToShow; i <= currentYear + yearsToShow; i++) {
+            const fromOption = document.createElement('option');
+            fromOption.value = i;
+            fromOption.textContent = i;
+            if (i === currentYear) fromOption.selected = true;
+            if (jadwalFromYearSelect) jadwalFromYearSelect.appendChild(fromOption);
+
+            const toOption = document.createElement('option');
+            toOption.value = i;
+            toOption.textContent = i;
+            if (i === currentYear) toOption.selected = true;
+            if (jadwalToYearSelect) jadwalToYearSelect.appendChild(toOption);
+        }
+        // Set default month to current month for both 'from' and 'to'
+        const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
+        if (jadwalFromMonthSelect) jadwalFromMonthSelect.value = currentMonth;
+        if (jadwalToMonthSelect) jadwalToMonthSelect.value = currentMonth;
+
+
+        // Handle Jadwal Dinas modal form submission
+        if (jadwalDinasExportForm) {
+            jadwalDinasExportForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const fromMonth = jadwalFromMonthSelect.value;
+                const fromYear = jadwalFromYearSelect.value;
+                const toMonth = jadwalToMonthSelect.value;
+                const toYear = jadwalToYearSelect.value;
+
+                // Basic validation: from date must be <= to date
+                const fromDate = new Date(fromYear, fromMonth - 1, 1);
+                const toDate = new Date(toYear, toMonth - 1, 1);
+                if (fromDate > toDate) {
+                    showToast('Tanggal "Dari Bulan" tidak boleh lebih besar dari "Sampai Bulan".', 'error');
+                    return;
+                }
+
+                window.hideJadwalDinasExportModal();
+
+                // --- CORRECTED LOGIC ---
+                // Build the URL with the correct parameters directly
+                showLoading();
+                const exportType = currentJadwalDinasExportSettings.exportType;
+                const reportNameSlug = currentJadwalDinasExportSettings.reportNameSlug;
+                
+                let url = `/reports/export/${reportNameSlug}/${exportType}`;
+                const params = new URLSearchParams();
+                params.append('token', currentAuthToken);
+                params.append('from_month', fromMonth);
+                params.append('from_year', fromYear);
+                params.append('to_month', toMonth);
+                params.append('to_year', toYear);
+
+                const fullUrl = `${url}?${params.toString()}`;
+
+                const link = document.createElement('a');
+                link.href = fullUrl;
+                link.target = '_blank'; // Open in a new tab for download
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                console.log(`Attempting to download ${exportType} report for ${reportNameSlug} from ${fullUrl}`);
+
+                setTimeout(() => {
+                    hideLoading();
+                    showToast(`Laporan sedang diunduh. Mohon cek unduhan browser Anda.`, 'success');
+                }, 1500); // A short delay to allow the download to initiate
+            });
+        }
+
         await loadDataForTab('catatan');
         setupTabNavigation();
     });
@@ -157,19 +320,32 @@
             return;
         }
 
+        // Remove existing buttons to prevent duplicates on re-render
+        const existingButtonsDiv = targetElement.querySelector('.export-buttons-container');
+        if (existingButtonsDiv) {
+            existingButtonsDiv.remove();
+        }
+
+        let excelOnClickFunction = `window.showDateRangeExportModal('excel', '${reportNameSlug}')`;
+        let pdfOnClickFunction = `window.showDateRangeExportModal('pdf', '${reportNameSlug}')`;
+
+        if (reportNameSlug === 'staff-schedules') {
+            excelOnClickFunction = `window.showJadwalDinasExportModal('excel', '${reportNameSlug}')`;
+            pdfOnClickFunction = `window.showJadwalDinasExportModal('pdf', '${reportNameSlug}')`;
+        }
+
         const buttonsHtml = `
-            <div class="flex flex-wrap gap-2 mt-4 mb-6 justify-end">
-                <button onclick="downloadReport('excel', '${reportNameSlug}')"
+            <div class="flex flex-wrap gap-2 mt-4 mb-6 justify-end export-buttons-container">
+                <button onclick="${excelOnClickFunction}"
                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                     <i class="fas fa-file-excel mr-2"></i> Export Excel
                 </button>
-                <button onclick="downloadReport('pdf', '${reportNameSlug}')"
+                <button onclick="${pdfOnClickFunction}"
                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                     <i class="fas fa-file-pdf mr-2"></i> Export PDF
                 </button>
             </div>
         `;
-        // Prepend buttons to ensure they appear at the top of the content area
         targetElement.insertAdjacentHTML('afterbegin', buttonsHtml);
     }
 
@@ -242,7 +418,7 @@
         }
     }
 
-    async function fetchDailyLogs() {
+    async function fetchDailyLogs() { // Removed parameters
         try {
             const response = await fetch('/api/v1/reports/daily-logs', { headers: getAuthHeaders() });
             if (handleUnauthorized(response)) return;
@@ -250,11 +426,12 @@
                 const errorBody = await response.json();
                 throw new Error(`Failed to fetch daily logs: ${errorBody.message || response.statusText}`);
             }
-            dailyLogs = await response.json();
+            dailyLogs = await response.json(); // This will now contain private_schedules and special_cases directly
             console.log('Combined Daily Logs & Special Cases for Laporan:', dailyLogs);
         } catch (error) {
             console.error('Error fetching daily logs for Laporan:', error);
-            dailyLogs = [];
+            // Ensure default structure matches expected (object with two arrays)
+            dailyLogs = { private_schedules: [], special_cases: [] };
         }
     }
 
@@ -392,7 +569,7 @@
 
             switch (tabId) {
                 case 'catatan':
-                    await fetchDailyLogs();
+                    await fetchDailyLogs(); // No date params for in-page display
                     renderCatatanHarian();
                     renderExportButtons('catatan', 'daily-logs');
                     break;
@@ -424,7 +601,6 @@
                 case 'mutu':
                     await fetchQualityIndicators();
                     renderIndikatorMutu();
-                    renderExportButtons('mutu', 'quality-indicators');
                     break;
                 default:
                     console.warn(`Unknown tab ID: ${tabId}. Defaulting to Catatan Harian.`);
@@ -480,110 +656,111 @@
     // --- Render Functions for Each Tab Content ---
 
     function renderCatatanHarian() {
-        const catatanContent = document.getElementById('catatan');
-        let privateSchedulesHtml = '';
-        let specialCasesHtml = '';
+    const catatanContent = document.getElementById('catatan');
+    let privateSchedulesHtml = '';
+    let specialCasesHtml = '';
 
-        const privateSchedules = dailyLogs.filter(log => log.type === 'private_schedule');
-        const specialCases = dailyLogs.filter(log => log.type === 'special_case');
+    // dailyLogs now directly contains separate private_schedules and special_cases arrays
+    const privateSchedules = dailyLogs.private_schedules || [];
+    const specialCases = dailyLogs.special_cases || [];
 
-        privateSchedulesHtml = `
-            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-4">Catatan Harian Kegiatan</h3>
-            <div class="overflow-x-auto mb-8">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-100 text-gray-700">
-                        <tr>
-                            <th class="px-4 py-3 text-left">Tanggal & Jam</th>
-                            <th class="px-4 py-3 text-center">Briefing</th>
-                            <th class="px-4 py-3 text-center">Rapat</th>
-                            <th class="px-4 py-3 text-center">Supervisi</th>
-                            <th class="px-4 py-3 text-center">Handover</th>
-                            <th class="px-4 py-3 text-left">Tugas Luar</th>
-                            <th class="px-4 py-3 text-left">Catatan</th>
+    privateSchedulesHtml = `
+        <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-4">Catatan Harian Kegiatan (Jadwal Pribadi)</h3>
+        <div class="overflow-x-auto shadow-md rounded-lg mb-8">
+            <table class="min-w-full text-sm divide-y divide-gray-200">
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Tanggal & Jam</th>
+                        <th class="px-4 py-3 text-center">Briefing</th>
+                        <th class="px-4 py-3 text-center">Rapat</th>
+                        <th class="px-4 py-3 text-center">Supervisi</th>
+                        <th class="px-4 py-3 text-center">Handover</th>
+                        <th class="px-4 py-3 text-left">Tugas Luar</th>
+                        <th class="px-4 py-3 text-left">Catatan</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${privateSchedules.length > 0 ? privateSchedules.map(log => `
+                        <tr class="border-t hover:bg-gray-50">
+                            <td class="px-4 py-3">${formatDateTime(log.date)}</td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="${log.briefing_conducted === 'Ya' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.briefing_conducted}</span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="${log.meeting_held === 'Ya' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.meeting_held}</span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="${log.supervision_conducted === 'Ya' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.supervision_conducted}</span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="${log.handover_done === 'Ya' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.handover_done}</span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-700">${log.external_task || '-'}</td>
+                            <td class="px-4 py-3 text-gray-700">${log.notes || '-'}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${privateSchedules.length > 0 ? privateSchedules.map(log => `
+                    `).join('') : `
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-gray-500">Tidak ada catatan kegiatan harian.</td>
+                        </tr>
+                    `}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    specialCasesHtml = `
+        <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-4">Kasus Perhatian Khusus (Semua Data)</h3>
+        <div class="overflow-x-auto shadow-md rounded-lg">
+            <table class="min-w-full text-sm divide-y divide-gray-200">
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Tanggal Kasus</th>
+                        <th class="px-4 py-3 text-left">Nama Pasien</th>
+                        <th class="px-4 py-3 text-left">Jenis Kasus</th>
+                        <th class="px-4 py-3 text-left">Detail</th>
+                        <th class="px-4 py-3 text-left">Tindakan</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${specialCases.length > 0 ? specialCases.map(log => {
+                        let caseTypeClass = '';
+                        switch (log.case_type) {
+                            case 'Resiko Tinggi':
+                                caseTypeClass = 'bg-red-100 text-red-800';
+                                break;
+                            case 'Kompleks':
+                                caseTypeClass = 'bg-yellow-100 text-yellow-800';
+                                break;
+                            case 'Kasus Langka':
+                                caseTypeClass = 'bg-purple-100 text-purple-800';
+                                break;
+                            default:
+                                caseTypeClass = 'bg-gray-100 text-gray-800';
+                                break;
+                        }
+                        return `
                             <tr class="border-t hover:bg-gray-50">
                                 <td class="px-4 py-3">${formatDateTime(log.date)}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="${log.briefing_conducted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.briefing_conducted ? 'Ya' : 'Tidak'}</span>
+                                <td class="px-4 py-3 font-medium text-gray-900">${log.patient_name || '-'}</td>
+                                <td class="px-4 py-3">
+                                    <span class="${caseTypeClass} px-2 py-1 rounded text-xs">${log.case_type || '-'}</span>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="${log.meeting_held ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.meeting_held ? 'Ya' : 'Tidak'}</span>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="${log.supervision_conducted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.supervision_conducted ? 'Ya' : 'Tidak'}</span>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="${log.handover_done ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.handover_done ? 'Ya' : 'Tidak'}</span>
-                                </td>
-                                <td class="px-4 py-3 text-gray-700">${log.external_task || '-'}</td>
-                                <td class="px-4 py-3 text-gray-700">${log.notes || '-'}</td>
+                                <td class="px-4 py-3 text-gray-700">${log.details || '-'}</td>
+                                <td class="px-4 py-3 text-gray-700">${log.action_taken || '-'}</td>
                             </tr>
-                        `).join('') : `
-                            <tr>
-                                <td colspan="7" class="text-center py-4 text-gray-500">Tidak ada catatan kegiatan harian.</td>
-                            </tr>
-                        `}
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        specialCasesHtml = `
-            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-4">Kasus Perhatian Khusus</h3>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-100 text-gray-700">
+                        `;
+                    }).join('') : `
                         <tr>
-                            <th class="px-4 py-3 text-left">Tanggal Kasus</th>
-                            <th class="px-4 py-3 text-left">Nama Pasien</th>
-                            <th class="px-4 py-3 text-left">Jenis Kasus</th>
-                            <th class="px-4 py-3 text-left">Detail</th>
-                            <th class="px-4 py-3 text-left">Tindakan</th>
+                            <td colspan="5" class="text-center py-4 text-gray-500">Tidak ada kasus perhatian khusus.</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${specialCases.length > 0 ? specialCases.map(log => {
-                            let caseTypeClass = '';
-                            switch (log.case_type) {
-                                case 'Resiko Tinggi':
-                                    caseTypeClass = 'bg-red-100 text-red-800';
-                                    break;
-                                case 'Kompleks':
-                                    caseTypeClass = 'bg-yellow-100 text-yellow-800';
-                                    break;
-                                case 'Kasus Langka':
-                                    caseTypeClass = 'bg-purple-100 text-purple-800';
-                                    break;
-                                default:
-                                    caseTypeClass = 'bg-gray-100 text-gray-800';
-                                    break;
-                            }
-                            return `
-                                <tr class="border-t hover:bg-gray-50">
-                                    <td class="px-4 py-3">${formatDateTime(log.date)}</td>
-                                    <td class="px-4 py-3 font-medium text-gray-900">${log.patient_name || '-'}</td>
-                                    <td class="px-4 py-3">
-                                        <span class="${caseTypeClass} px-2 py-1 rounded text-xs">${log.case_type || '-'}</span>
-                                    </td>
-                                    <td class="px-4 py-3 text-gray-700">${log.details || '-'}</td>
-                                    <td class="px-4 py-3 text-gray-700">${log.action_taken || '-'}</td>
-                                </tr>
-                            `;
-                        }).join('') : `
-                            <tr>
-                                <td colspan="5" class="text-center py-4 text-gray-500">Tidak ada kasus perhatian khusus.</td>
-                            </tr>
-                        `}
-                    </tbody>
-                </table>
-            </div>
-        `;
+                    `}
+                </tbody>
+            </table>
+        </div>
+    `;
 
-        catatanContent.innerHTML = privateSchedulesHtml + specialCasesHtml;
-    }
+    catatanContent.innerHTML = privateSchedulesHtml + specialCasesHtml;
+}
 
     function renderJadwalDinas() {
         const jadwalContent = document.getElementById('jadwal');
@@ -829,7 +1006,17 @@
         const overallPassRate = qualityIndicators.overall_pass_rate || 0;
 
         mutuContent.innerHTML = `
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Indikator Mutu</h2>
+            <div class="disclaimer-box">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong style="font-size: 1.1em;">Laporan Detail Indikator Mutu</strong>
+                    <p style="margin-top: 5px;">
+                        Untuk mengunduh laporan PDF dan Excel yang lengkap (termasuk semua data input dan grafik), silakan akses halaman utama Indikator Mutu.
+                    </p>
+                    <a href="{{ url('/indikator-mutu') }}" class="disclaimer-link">Buka Halaman Indikator Mutu</a>
+                </div>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-8">Ringkasan Indikator Mutu</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
@@ -845,22 +1032,21 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-lg font-semibold">Total Form Terisi (Unik)</h3>
-                            <p class="text-2xl font-bold">${qualityIndicators.recent_inspections.length > 0 ? new Set(qualityIndicators.recent_inspections.map(item => item.form_name)).size : 0}</p>
+                            <p class="text-2xl font-bold">${recentInspections.length > 0 ? new Set(recentInspections.map(item => item.form_name)).size : 0}</p>
                         </div>
                         <i class="fas fa-file-alt text-3xl opacity-70"></i>
                     </div>
                 </div>
             </div>
 
-            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-6">Inspeksi Mutu Terbaru (Semua Formulir)</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-6">Inspeksi Mutu Terbaru (Ringkasan)</h3>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-100 text-gray-700">
                         <tr>
-                            <th scope="col" class="px-4 py-3 text-left">Mulai Minggu Aktivitas</th>
+                            <th scope="col" class="px-4 py-3 text-left">Tanggal Aktivitas</th>
                             <th scope="col" class="px-4 py-3 text-left">Jenis Formulir</th>
-                            <th scope="col" class="px-4 py-3 text-left">Pasien/Entitas</th> <th scope="col" class="px-4 py-3 text-center">Skor/Kepatuhan</th>
-                            <th scope="col" class="px-4 py-3 text-left">Catatan Ringkas</th>
+                            <th scope="col" class="px-4 py-3 text-center">Skor/Kepatuhan</th>
                             <th scope="col" class="px-4 py-3 text-left">Waktu Input</th>
                         </tr>
                     </thead>
@@ -869,13 +1055,12 @@
                             <tr class="border-t hover:bg-gray-50">
                                 <td class="px-4 py-3">${formatDate(inspection.activity_date)}</td>
                                 <td class="px-4 py-3">${inspection.form_name || 'N/A'}</td>
-                                <td class="px-4 py-3">${inspection.patient_name || inspection.medical_record_number || 'N/A'}</td> <td class="px-4 py-3 text-center">${inspection.score || 'N/A'}</td>
-                                <td class="px-4 py-3">${inspection.notes || 'Tidak ada'}</td>
+                                <td class="px-4 py-3 text-center">${inspection.score || 'N/A'}</td>
                                 <td class="px-4 py-3">${formatDateTime(inspection.submitted_at)}</td>
                             </tr>
                         `).join('') : `
                             <tr>
-                                <td colspan="6" class="text-center py-4">Tidak ada data inspeksi mutu terbaru.</td>
+                                <td colspan="4" class="text-center py-4">Tidak ada data inspeksi mutu terbaru.</td>
                             </tr>
                         `}
                     </tbody>
@@ -889,8 +1074,12 @@
         const totalStock = logisticsData.total_stock_available || 0;
         const limitedStock = logisticsData.limited_stock || 0;
         const lowStock = logisticsData.low_stock || 0;
-        const categorizedItems = logisticsData.categorized_items || {};
         const categoriesOverview = logisticsData.categories_overview || [];
+
+        // For in-page display of specific categories, use the fetched `categorizedItems`
+        // IMPORTANT: Changed from 'alat-medis' to 'alat-kesehatan'
+        const alatKesehatanItems = logisticsData.categorized_items?.['alat-kesehatan'] || [];
+        const barangHabisPakaiItems = logisticsData.categorized_items?.['barang-habis-pakai'] || [];
 
         logistikContent.innerHTML = `
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Manajemen Logistik</h2>
@@ -936,116 +1125,90 @@
                 </div>
             </div>
 
-            <div class="space-y-6" id="logisticsCategoriesContainer">
-                ${categoriesOverview.map(category => `
-                    ${category.count > 0 ? `
-                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                            <div class="p-6 cursor-pointer" onclick="toggleSection('${category.slug}')">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mr-4 shadow-sm">
-                                            <i class="fas ${category.icon_class} text-blue-600 text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <span class="text-lg font-semibold text-gray-900">${category.name}</span>
-                                            <div class="text-sm text-gray-500 mt-1">${category.description_text}</div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-3">
-                                        <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">${category.count} Items</div>
-                                        <i class="fas fa-chevron-down text-gray-400 transform transition-transform duration-300" id="arrow-${category.slug}"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="${category.slug}" class="hidden border-t border-gray-100">
-                                <div class="p-4">
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full divide-y divide-gray-200">
-                                            <thead class="bg-gray-50">
-                                                <tr>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Barang</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merk</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satuan</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terakhir Diperbarui</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="bg-white divide-y divide-gray-200">
-                                                ${categorizedItems[category.slug].length > 0 ? categorizedItems[category.slug].map(item => `
-                                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.item_name || '-'}</td>
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.brand || '-'}</td>
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.stock || '0'}</td>
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.unit_of_measure || '-'}</td>
-                                                        <td class="px-6 py-4 whitespace-nowrap">
-                                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                                item.status === 'Tersedia' ? 'bg-green-100 text-green-800' :
-                                                                item.status === 'Terbatas' ? 'bg-yellow-100 text-yellow-800' :
-                                                                item.status === 'Menipis' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
-                                                            }">
-                                                                ${item.status || '-'}
-                                                            </span>
-                                                        </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDateTime(item.last_updated)}</td>
-                                                    </tr>
-                                                `).join('') : `
-                                                    <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada item dalam kategori ini.</td></tr>
-                                                `}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    ${category.count > 5 ? `
-                                        <div class="mt-4 text-center">
-                                            <a href="/mltable?category=${category.slug}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                Lihat semua ${category.count} item <i class="fas fa-arrow-right ml-1"></i>
-                                            </a>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    ` : ''}
-                `).join('')}
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-6">Inventaris Alat Kesehatan</h3> <div class="overflow-x-auto shadow-md rounded-lg mb-8">
+                <table class="min-w-full text-sm divide-y divide-gray-200">
+                    <thead class="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Nama Barang</th>
+                            <th class="px-4 py-3 text-left">Merk</th>
+                            <th class="px-4 py-3 text-left">Stok</th>
+                            <th class="px-4 py-3 text-left">Satuan</th>
+                            <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-left">Terakhir Diperbarui</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${alatKesehatanItems.length > 0 ? alatKesehatanItems.map(item => `
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.item_name || '-'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.brand || '-'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.stock || '0'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.unit_of_measure || '-'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                        item.status === 'Tersedia' ? 'bg-green-100 text-green-800' :
+                                        item.status === 'Terbatas' ? 'bg-yellow-100 text-yellow-800' :
+                                        item.status === 'Menipis' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                                    }">
+                                        ${item.status || '-'}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDateTime(item.last_updated)}</td>
+                            </tr>
+                        `).join('') : `
+                            <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada item Alat Kesehatan.</td></tr>
+                        `}
+                    </tbody>
+                </table>
             </div>
+
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-6">Inventaris Barang Habis Pakai</h3>
+            <div class="overflow-x-auto shadow-md rounded-lg mb-8">
+                <table class="min-w-full text-sm divide-y divide-gray-200">
+                    <thead class="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Nama Barang</th>
+                            <th class="px-4 py-3 text-left">Merk</th>
+                            <th class="px-4 py-3 text-left">Stok</th>
+                            <th class="px-4 py-3 text-left">Satuan</th>
+                            <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-left">Terakhir Diperbarui</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${barangHabisPakaiItems.length > 0 ? barangHabisPakaiItems.map(item => `
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.item_name || '-'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.brand || '-'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.stock || '0'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.unit_of_measure || '-'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                        item.status === 'Tersedia' ? 'bg-green-100 text-green-800' :
+                                        item.status === 'Terbatas' ? 'bg-yellow-100 text-yellow-800' :
+                                        item.status === 'Menipis' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                                    }">
+                                        ${item.status || '-'}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDateTime(item.last_updated)}</td>
+                            </tr>
+                        `).join('') : `
+                            <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada item Barang Habis Pakai.</td></tr>
+                        `}
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="text-gray-600 mt-8 mb-4">Laporan konsumsi dan detail lainnya tersedia dalam format Ekspor Excel/PDF.</p>
         `;
 
-        logistikContent.querySelectorAll('.p-6.cursor-pointer').forEach(header => {
-            header.onclick = function() {
-                const sectionId = this.getAttribute('onclick').match(/toggleSection\('(.+?)'\)/)[1];
-                toggleSection(sectionId);
-            };
-        });
-
-        // --- Initialize Logistic Form Dropdowns and Handlers ---
-        const logisticCategorySelect = document.getElementById('logistic_category');
-        const logisticItemNameSelect = document.getElementById('logistic_item_name');
-        const otherItemNameContainer = document.getElementById('other_item_name_container');
-        const otherItemNameInput = document.getElementById('other_item_name');
-        const logisticForm = document.getElementById('logisticForm');
-
-        if (logisticCategorySelect && logisticItemNameSelect && otherItemNameContainer && otherItemNameInput && logisticForm) {
-            // Re-bind event listeners for dynamically added content
-            logisticCategorySelect.removeEventListener('change', handleLogisticCategoryChange); // Prevent multiple bindings
-            logisticCategorySelect.addEventListener('change', handleLogisticCategoryChange);
-
-            logisticItemNameSelect.removeEventListener('change', handleLogisticItemNameChange); // Prevent multiple bindings
-            logisticItemNameSelect.addEventListener('change', handleLogisticItemNameChange);
-
-            logisticForm.removeEventListener('submit', handleLogisticFormSubmission); // Prevent multiple bindings
-            logisticForm.addEventListener('submit', handleLogisticFormSubmission);
-
-            // Populate initial item name dropdown based on current category selection, if any
-            if (logisticCategorySelect.value) {
-                populateLogisticItemNameDropdown(logisticCategorySelect.value);
-            }
-        }
-
-        // Re-initialize Flowbite components for dynamically added content
+        // No changes needed for dropdowns/forms here, as they are part of the original logistics page form.
+        // Re-initialize Flowbite components if needed (as per your original code)
         if (typeof initFlowbite === 'function') {
-             initFlowbite();
+            initFlowbite();
         } else {
-             console.warn('Flowbite initFlowbite function not found. Ensure Flowbite JS is loaded.');
+            console.warn('Flowbite initFlowbite function not found. Ensure Flowbite JS is loaded.');
         }
     }
 
@@ -1112,12 +1275,14 @@
                     <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
                         <div class="text-blue-800 font-medium">Kepatuhan Insersi</div>
                         <div class="text-2xl font-bold text-blue-900">${ppiData.insertion_compliance_rate || 0}%</div>
-                        <div class="text-sm text-blue-600">dari ${ppiData.total_insertions_today || 0} form</div>
+                        
+                        <div class="text-sm text-blue-600">dari ${ppiData.total_insertions_last_30_days || 0} form</div>
                     </div>
                     <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
                         <div class="text-purple-800 font-medium">Kepatuhan Maintenance</div>
                         <div class="text-2xl font-bold text-purple-900">${ppiData.maintenance_compliance_rate || 0}%</div>
-                        <div class="text-sm text-purple-600">dari ${ppiData.total_maintenances_today || 0} form</div>
+                        
+                        <div class="text-sm text-purple-600">dari ${ppiData.total_maintenances_last_30_days || 0} form</div>
                     </div>
                     <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
                         <div class="text-emerald-800 font-medium">Laporan Tertusuk Jarum</div>
@@ -1476,33 +1641,197 @@
         await loadDataForTab(tabId);
     };
 
-    // NEW: Global function for report download
-    window.downloadReport = function(type, reportNameSlug) {
-        showLoading(); // Show global loading indicator
+    // NEW: Function to show the date range modal
+    window.showDateRangeExportModal = function(exportType, reportNameSlug) {
+        currentExportSettings = { exportType: exportType, reportNameSlug: reportNameSlug };
+
+        // Reset modal inputs to default state
+        document.getElementById('modal_start_date').value = '';
+        document.getElementById('modal_end_date').value = '';
+        document.getElementById('all_time_checkbox').checked = false;
+        document.getElementById('modal_start_date').disabled = false;
+        document.getElementById('modal_end_date').disabled = false;
+
+        const modalElement = document.getElementById('exportDateRangeModal');
+        if (modalElement) {
+            // Show the modal
+            modalElement.classList.remove('hidden');
+            modalElement.setAttribute('aria-hidden', 'false');
+            // Ensure modal is centered and positioned correctly
+            modalElement.classList.add('flex', 'justify-center', 'items-center');
+
+            // Add backdrop programmatically
+            const backdrop = document.createElement('div');
+            backdrop.id = 'exportDateRangeModal-backdrop';
+            backdrop.classList.add(
+                'bg-gray-900', 'bg-opacity-75', 'dark:bg-opacity-80', // Darken effect
+                'fixed', 'inset-0', 'z-[9998]' // Position and z-index below modal but above content
+            );
+            document.body.appendChild(backdrop);
+
+            // Add event listener to close modal on backdrop click
+            backdrop.addEventListener('click', () => {
+                window.hideDateRangeExportModal();
+            });
+
+        } else {
+            console.error("Modal element 'exportDateRangeModal' not found. Attempting direct download fallback.");
+            window._downloadReportWithDates(exportType, reportNameSlug, null, null);
+        }
+    };
+
+// NEW: Function to hide the date range modal
+window.hideDateRangeExportModal = function() {
+    const modalElement = document.getElementById('exportDateRangeModal');
+    if (modalElement) {
+        modalElement.classList.add('hidden');
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.classList.remove('flex', 'justify-center', 'items-center'); // Remove flex positioning
+    }
+    const backdrop = document.getElementById('exportDateRangeModal-backdrop');
+    if (backdrop) {
+        backdrop.remove(); // Remove the backdrop
+    }
+};
+
+    // NEW: Function to hide the date range modal
+    window.hideDateRangeExportModal = function() {
+        const modalElement = document.getElementById('exportDateRangeModal');
+        if (modalElement) {
+            modalElement.classList.add('hidden');
+            modalElement.setAttribute('aria-hidden', 'true');
+            modalElement.classList.remove('flex', 'justify-center', 'items-center');
+        }
+        const backdrop = document.getElementById('exportDateRangeModal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+    };
+
+    window._downloadReportWithDates = async function(type, reportNameSlug, startDate = null, endDate = null) {
+        showLoading();
+
+        // SPECIAL HANDLING for PPI PDF with Charts
+        if (reportNameSlug === 'ppi' && type === 'pdf') {
+            const chartImages = {
+                infectionTrend: ppiInfectionTrendChartInstance ? ppiInfectionTrendChartInstance.toBase64Image() : null,
+                needlestickTrend: ppiNeedlestickTrendChartInstance ? ppiNeedlestickTrendChartInstance.toBase64Image() : null,
+                infectionLocation: ppiInfectionLocationChartInstance ? ppiInfectionLocationChartInstance.toBase64Image() : null,
+                microorganism: ppiMicroorganismChartInstance ? ppiMicroorganismChartInstance.toBase64Image() : null,
+                needlestickDepartment: ppiNeedlestickByDepartmentChartInstance ? ppiNeedlestickByDepartmentChartInstance.toBase64Image() : null,
+                needlestickPosition: ppiNeedlestickByPositionChartInstance ? ppiNeedlestickByPositionChartInstance.toBase64Image() : null
+            };
+
+            try {
+                const response = await fetch('/api/v1/reports/export/ppi/pdf-with-charts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/pdf',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Authorization': `Bearer ${currentAuthToken}`
+                    },
+                    body: JSON.stringify({
+                        start_date: startDate,
+                        end_date: endDate,
+                        chart_images: chartImages
+                    })
+                });
+
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Laporan_PPI_Lengkap_${new Date().toISOString().slice(0, 10)}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+            } catch (error) {
+                console.error('Error exporting PPI PDF:', error);
+                showToast('Gagal membuat laporan PDF.', 'error');
+            } finally {
+                hideLoading();
+            }
+            return; // End execution here for the special case
+        }
+
+        // --- DEFAULT HANDLING FOR ALL OTHER REPORTS (No changes here) ---
         let url = `/reports/export/${reportNameSlug}/${type}`;
+        const params = new URLSearchParams();
+        params.append('token', currentAuthToken);
 
-        // Append the auth token as a query parameter for direct browser downloads
-        // This is crucial for authentication on web routes that aren't handling AJAX tokens automatically.
-        const fullUrl = `${url}?token=${currentAuthToken}`;
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
 
-        // Create a temporary link element to trigger the download
+        const fullUrl = `${url}?${params.toString()}`;
         const link = document.createElement('a');
         link.href = fullUrl;
-        link.target = '_blank'; // Open in a new tab, especially good for PDFs
-        link.style.display = 'none'; // Hide the link element
+        link.target = '_blank';
+        link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link); // Clean up the temporary link
+        document.body.removeChild(link);
 
-        console.log(`Attempting to download ${type} report for ${reportNameSlug} from ${fullUrl}`);
-
-        // Set a timeout to hide the loading indicator.
-        // We can't know precisely when the browser finishes the file download,
-        // so a short delay is a heuristic for better UX.
         setTimeout(() => {
             hideLoading();
-            alert(`Laporan ${reportNameSlug.replace(/-/g, ' ').toUpperCase()} (${type.toUpperCase()}) sedang diunduh. Mohon cek unduhan browser Anda.`);
-        }, 1500); // 1.5 seconds delay
+            showToast(`Laporan sedang diunduh.`, 'success');
+        }, 1500);
+    };
+
+    window.handleMutuPdfExport = async function() {
+        showLoading();
+
+        // Gather all 13 chart images from their instances
+        const chartImages = {
+            'hand-hygiene': handHygieneChartInstance ? handHygieneChartInstance.toBase64Image() : null,
+            'apd': apdChartInstance ? apdChartInstance.toBase64Image() : null,
+            'identifikasi': identifikasiChartInstance ? identifikasiChartInstance.toBase64Image() : null,
+            'wtri': wtriChartInstance ? wtriChartInstance.toBase64Image() : null,
+            'kritis-lab': kritisLabChartInstance ? kritisLabChartInstance.toBase64Image() : null,
+            'fornas': fornasChartInstance ? fornasChartInstance.toBase64Image() : null,
+            'visite': visiteChartInstance ? visiteChartInstance.toBase64Image() : null,
+            'jatuh': jatuhChartInstance ? jatuhChartInstance.toBase64Image() : null,
+            'cp': cpChartInstance ? cpChartInstance.toBase64Image() : null,
+            'kepuasan': kepuasanChartInstance ? kepuasanChartInstance.toBase64Image() : null,
+            'krk': krkChartInstance ? krkChartInstance.toBase64Image() : null,
+            'poe': poeChartInstance ? poeChartInstance.toBase64Image() : null,
+            'sc': scChartInstance ? scChartInstance.toBase64Image() : null,
+        };
+
+        try {
+            const response = await fetch('/api/v1/reports/export/quality-indicators/pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/pdf',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Authorization': `Bearer ${currentAuthToken}`
+                },
+                body: JSON.stringify({ chart_images: chartImages })
+            });
+
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_Indikator_Mutu_${new Date().toISOString().slice(0,10)}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Error exporting Indikator Mutu PDF:', error);
+            showToast('Gagal membuat laporan PDF Indikator Mutu.', 'error');
+        } finally {
+            hideLoading();
+        }
     };
 
     // --- Expose global functions (for onclick attributes in HTML) ---
@@ -1529,5 +1858,56 @@
         await loadDataForTab(tabId);
     };
 
+    // Expose hide function globally for modal close button
+    window.hideDateRangeExportModal = hideDateRangeExportModal;
 
+    // NEW: Function to show the Jadwal Dinas month/year modal
+    window.showJadwalDinasExportModal = function(exportType, reportNameSlug) {
+        currentJadwalDinasExportSettings = { exportType: exportType, reportNameSlug: reportNameSlug };
+
+        // Open the modal (assuming you have Flowbite's JS loaded)
+        const modalElement = document.getElementById('jadwalDinasExportModal');
+        if (modalElement) {
+            modalElement.classList.remove('hidden');
+            modalElement.setAttribute('aria-hidden', 'false');
+            modalElement.classList.add('flex', 'justify-center', 'items-center');
+
+            // Add backdrop programmatically (same as existing modal)
+            const backdrop = document.createElement('div');
+            backdrop.id = 'jadwalDinasExportModal-backdrop'; // Unique ID for this backdrop
+            backdrop.classList.add(
+                'bg-gray-900', 'bg-opacity-75', 'dark:bg-opacity-80',
+                'fixed', 'inset-0', 'z-[9998]'
+            );
+            document.body.appendChild(backdrop);
+
+            // Add event listener to close modal on backdrop click
+            backdrop.addEventListener('click', () => {
+                window.hideJadwalDinasExportModal();
+            });
+
+        } else {
+            console.error("Jadwal Dinas Modal element 'jadwalDinasExportModal' not found.");
+            // Fallback: Directly try to download for current month/year if modal fails
+            const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
+            const currentYear = new Date().getFullYear().toString();
+            window._downloadReportWithDates(exportType, reportNameSlug, null, null, currentMonth, currentYear);
+        }
+    };
+
+    // NEW: Function to hide the Jadwal Dinas month/year modal
+    window.hideJadwalDinasExportModal = function() {
+        const modalElement = document.getElementById('jadwalDinasExportModal');
+        if (modalElement) {
+            modalElement.classList.add('hidden');
+            modalElement.setAttribute('aria-hidden', 'true');
+            modalElement.classList.remove('flex', 'justify-center', 'items-center');
+        }
+        const backdrop = document.getElementById('jadwalDinasExportModal-backdrop'); // Use unique ID
+        if (backdrop) {
+            backdrop.remove();
+        }
+    };
+    // Expose hide function globally for modal close button
+    window.hideJadwalDinasExportModal = hideJadwalDinasExportModal; // Ensure this is global
 })(); // --- End of IIFE

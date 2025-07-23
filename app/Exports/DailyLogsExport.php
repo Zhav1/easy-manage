@@ -13,55 +13,90 @@ use Carbon\Carbon;
 
 class DailyLogsExport implements FromCollection, WithHeadings, ShouldAutoSize, WithMapping
 {
+    protected $startDate;
+    protected $endDate;
+
+    public function __construct($startDate = null, $endDate = null)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
+
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $user = Auth::user();
 
-        // Fetch all private schedules for the authenticated user
-        $privateSchedules = PrivateSchedule::where('user_id', $user->id)
-            ->orderBy('scheduled_at', 'asc') // Order chronologically for report
-            ->get();
+        // 1. Query for Private Schedules (filtered by date range)
+        $privateSchedulesQuery = PrivateSchedule::where('user_id', $user->id);
+        if ($this->startDate && $this->endDate) {
+            $privateSchedulesQuery->whereBetween('scheduled_at', [$this->startDate, Carbon::parse($this->endDate)->endOfDay()]);
+        } elseif ($this->startDate) {
+            $privateSchedulesQuery->where('scheduled_at', '>=', $this->startDate);
+        } elseif ($this->endDate) {
+            $privateSchedulesQuery->where('scheduled_at', '<=', Carbon::parse($this->endDate)->endOfDay());
+        }
+        $privateSchedules = $privateSchedulesQuery->orderBy('scheduled_at', 'asc')->get();
 
-        // Fetch all special cases for the authenticated user
+        // 2. Query for Special Cases (ALL data, NOT filtered by date)
         $specialCases = SpecialCase::where('user_id', $user->id)
-            ->orderBy('case_date', 'asc') // Order chronologically for report
-            ->get();
+                                   ->orderBy('case_date', 'asc')
+                                   ->get();
 
-        // Map and combine them into a single collection
-        $combinedLogs = $privateSchedules->map(function ($log) {
-            return [
+        // Prepare a combined collection
+        $combinedData = collect();
+
+        // Add private schedules
+        foreach ($privateSchedules as $log) {
+            $combinedData->push([
                 'type' => 'Catatan Harian Kegiatan',
                 'date' => $log->scheduled_at,
-                'patient_name' => '', // Not applicable for PrivateSchedule
-                'case_type' => '', // Not applicable for PrivateSchedule
-                'details' => $log->note, // Using 'note' from PrivateSchedule
-                'action_taken' => '', // Not applicable for PrivateSchedule
+                'patient_name' => '', // Not applicable
+                'case_type' => '', // Not applicable
+                'details' => $log->note,
+                'action_taken' => '', // Not applicable
                 'briefing_conducted' => $log->briefing ? 'Ya' : 'Tidak',
                 'meeting_held' => $log->meeting ? 'Ya' : 'Tidak',
                 'supervision_conducted' => $log->supervision ? 'Ya' : 'Tidak',
                 'handover_done' => $log->handover ? 'Ya' : 'Tidak',
                 'external_task' => $log->external_task,
-            ];
-        })->concat($specialCases->map(function ($case) {
-            return [
+                'section' => 'Private Schedules' // Internal flag for mapping if needed
+            ]);
+        }
+
+        // Add a blank row (or multiple) as separator
+        // Add as many blank lines as you want, each one is an empty array
+        $combinedData->push([
+            'type' => '', 'date' => '', 'patient_name' => '', 'case_type' => '',
+            'details' => '----------- Separate Data -----------', // A visual marker
+            'action_taken' => '', 'briefing_conducted' => '', 'meeting_held' => '',
+            'supervision_conducted' => '', 'handover_done' => '', 'external_task' => '',
+            'section' => 'Separator'
+        ]);
+        $combinedData->push([ /* empty row */ ]); // Another blank row
+
+        // Add special cases
+        foreach ($specialCases as $case) {
+            $combinedData->push([
                 'type' => 'Kasus Perhatian Khusus',
                 'date' => $case->case_date,
                 'patient_name' => $case->patient_name,
                 'case_type' => $case->case_type,
                 'details' => $case->details,
                 'action_taken' => $case->action_taken,
-                'briefing_conducted' => '', // Not applicable for SpecialCase
-                'meeting_held' => '', // Not applicable for SpecialCase
-                'supervision_conducted' => '', // Not applicable for SpecialCase
-                'handover_done' => '', // Not applicable for SpecialCase
-                'external_task' => '', // Not applicable for SpecialCase
-            ];
-        }))->sortBy('date'); // Sort by date overall
+                'briefing_conducted' => '', // Not applicable
+                'meeting_held' => '', // Not applicable
+                'supervision_conducted' => '', // Not applicable
+                'handover_done' => '', // Not applicable
+                'external_task' => '', // Not applicable
+                'section' => 'Special Cases'
+            ]);
+        }
 
-        return $combinedLogs;
+        // No overall sorting here if you want sections to stay together
+        return $combinedData->values(); // Reset array keys after pushing
     }
 
     /**
@@ -70,6 +105,7 @@ class DailyLogsExport implements FromCollection, WithHeadings, ShouldAutoSize, W
      */
     public function headings(): array
     {
+        // Use a comprehensive set of headings for both types
         return [
             'Tipe Log',
             'Tanggal & Waktu',
@@ -92,18 +128,19 @@ class DailyLogsExport implements FromCollection, WithHeadings, ShouldAutoSize, W
      */
     public function map($row): array
     {
+        // Ensure values are safe for Excel and match headings order
         return [
-            $row['type'],
-            Carbon::parse($row['date'])->format('d-m-Y H:i'),
-            $row['patient_name'],
-            $row['case_type'],
-            $row['details'],
-            $row['action_taken'],
-            $row['briefing_conducted'],
-            $row['meeting_held'],
-            $row['supervision_conducted'],
-            $row['handover_done'],
-            $row['external_task'],
+            $row['type'] ?? '',
+            ($row['date'] ?? '') ? Carbon::parse($row['date'])->format('d-m-Y H:i') : '',
+            $row['patient_name'] ?? '-',
+            $row['case_type'] ?? '-',
+            $row['details'] ?? '-',
+            $row['action_taken'] ?? '-',
+            $row['briefing_conducted'] ?? '-',
+            $row['meeting_held'] ?? '-',
+            $row['supervision_conducted'] ?? '-',
+            $row['handover_done'] ?? '-',
+            $row['external_task'] ?? '-',
         ];
     }
 }

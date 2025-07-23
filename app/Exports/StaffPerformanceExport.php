@@ -2,38 +2,43 @@
 
 namespace App\Exports;
 
+use App\Models\PerformanceEvaluation;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
-use App\Models\PerformanceEvaluation;
 use Carbon\Carbon;
 
 class StaffPerformanceExport implements FromCollection, WithHeadings, ShouldAutoSize, WithMapping
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
+    protected $startDate;
+    protected $endDate;
+
+    public function __construct($startDate, $endDate)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
+
     public function collection()
     {
         $user = Auth::user();
+        $query = PerformanceEvaluation::with('staff.position')
+            ->whereHas('staff', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
 
-        // Fetch all performance evaluations for staff managed by the authenticated user
-        return PerformanceEvaluation::with('staff.position') // Eager load staff and its position
-            ->whereHas('staff', function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->where('department_id', $user->department_id)
-                    ->where('hospital_id', $user->hospital_id);
-            })
-            ->orderBy('created_at', 'asc') // Order chronologically
-            ->get();
+        if ($this->startDate) {
+            $query->whereDate('created_at', '>=', $this->startDate);
+        }
+        if ($this->endDate) {
+            $query->whereDate('created_at', '<=', $this->endDate);
+        }
+
+        return $query->orderBy('created_at', 'asc')->get();
     }
 
-    /**
-     * Define the column headings for the Excel file.
-     * @return array
-     */
     public function headings(): array
     {
         return [
@@ -42,7 +47,7 @@ class StaffPerformanceExport implements FromCollection, WithHeadings, ShouldAuto
             'Jabatan',
             'Kedisiplinan (%)',
             'Komunikasi (%)',
-            'Komplain (Skor Konversi)', // Clarify heading since it's a score
+            'Komplain (Skor)',
             'Kepatuhan (%)',
             'Pencapaian Target (%)',
             'Skor Rata-rata Akhir (%)',
@@ -52,14 +57,8 @@ class StaffPerformanceExport implements FromCollection, WithHeadings, ShouldAuto
         ];
     }
 
-    /**
-     * Map the data row to the columns.
-     * @param mixed $evaluation
-     * @return array
-     */
     public function map($evaluation): array
     {
-        // Replicate the logic from your PerformanceEvaluationController to get status
         $getPerformanceStatus = function ($averageRating) {
             if ($averageRating >= 90) return 'Sangat Baik';
             if ($averageRating >= 70) return 'Baik';
@@ -70,15 +69,15 @@ class StaffPerformanceExport implements FromCollection, WithHeadings, ShouldAuto
 
         return [
             $evaluation->id,
-            $evaluation->staff->name ?? 'N/A', // Access staff name
-            $evaluation->staff->position->name ?? 'N/A', // Access staff position name
+            $evaluation->staff->name ?? 'N/A',
+            $evaluation->staff->position->name ?? 'N/A',
             $evaluation->kedisiplinan,
             $evaluation->komunikasi,
-            $evaluation->komplain, // This is the score from the table
+            $evaluation->komplain,
             $evaluation->kepatuhan,
             $evaluation->target_kerja,
-            $evaluation->overall_score, // This is already calculated on the model via accessor or mutator
-            $getPerformanceStatus($evaluation->overall_score), // Use the determined status
+            $evaluation->overall_score, // Now correctly calculated by the model
+            $getPerformanceStatus($evaluation->overall_score),
             $evaluation->notes ?? '-',
             Carbon::parse($evaluation->created_at)->format('Y-m-d H:i:s'),
         ];

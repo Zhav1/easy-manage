@@ -76,7 +76,7 @@ function getAuthHeaders() {
 async function apiCall(endpoint, method = 'GET', data = null, isFormData = false) {
     showLoading();
     if (!currentUserToken) {
-        console.error('Authentication token is not available. Redirecting to login.');
+        showToast('Token autentikasi tidak ditemukan. Harap login kembali.', 'error');
         window.location.href = '/login';
         hideLoading();
         return Promise.reject(new Error('Authentication token missing.'));
@@ -97,28 +97,130 @@ async function apiCall(endpoint, method = 'GET', data = null, isFormData = false
     try {
         const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
             method: method,
-            headers: isFormData ? { 'Authorization': `Bearer ${currentUserToken}` } : headers,
+            headers: isFormData ? { 'Authorization': `Bearer ${currentUserToken}`, 'Accept': 'application/json' } : headers,
             body: body,
         });
 
-        if (response.status === 204) {
-            return null;
-        }
-
+        if (response.status === 204) return null;
+        
         const responseData = await response.json();
 
         if (!response.ok) {
-            console.error('API Error:', response.status, responseData.message || response.statusText, responseData.errors);
-            throw new Error(responseData.message || `API error: ${response.status}`);
+            const errorMessage = responseData.message || `API error: ${response.status}`;
+            throw new Error(errorMessage);
         }
 
         return responseData;
     } catch (error) {
-        console.error('Fetch Error:', error);
-        alert(`Error: ${error.message}`);
+        showToast(`Error: ${error.message}`, 'error');
         throw error;
     } finally {
         hideLoading();
+    }
+}
+
+// --- NEW HELPER FUNCTIONS ---
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const template = document.getElementById('toast-template');
+    if (!container || !template) return;
+
+    const newToast = template.cloneNode(true);
+    newToast.id = '';
+    newToast.classList.remove('hidden');
+    newToast.classList.add('flex');
+
+    const iconDiv = newToast.querySelector('#toast-icon');
+    const messageDiv = newToast.querySelector('#toast-message');
+    iconDiv.innerHTML = ''; // Clear previous icon
+    messageDiv.textContent = message;
+
+    if (type === 'success') {
+        iconDiv.innerHTML = '<i class="fas fa-check"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg';
+    } else if (type === 'error') {
+        iconDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg';
+    } else { // Info
+        iconDiv.innerHTML = '<i class="fas fa-info-circle"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg';
+    }
+
+    container.appendChild(newToast);
+
+    setTimeout(() => {
+        newToast.style.transition = 'opacity 0.5s ease';
+        newToast.style.opacity = '0';
+        setTimeout(() => newToast.remove(), 500);
+    }, 5000);
+}
+
+function showConfirmationModal({ title, message, confirmText = 'Ya, Hapus', cancelText = 'Batal' }) {
+    const modal = document.getElementById('myConfirmationModal');
+    const modalBox = document.getElementById('confirmationModalBox');
+    const titleEl = document.getElementById('confirmationTitle');
+    const messageEl = document.getElementById('confirmationMessage');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+
+    titleEl.textContent = title;
+    messageEl.innerHTML = message;
+    confirmBtn.textContent = confirmText;
+    cancelBtn.textContent = cancelText;
+
+    // To SHOW, we just add our new class
+    modal.classList.add('modal-visible');
+
+    setTimeout(() => {
+       modalBox.classList.remove('scale-95', 'opacity-0');
+       modalBox.classList.add('scale-100', 'opacity-100');
+    }, 10);
+
+    return new Promise((resolve) => {
+        const closeModal = (result) => {
+            // To HIDE, we just remove our new class
+            modal.classList.remove('modal-visible');
+            modalBox.classList.add('scale-95', 'opacity-0');
+            resolve(result);
+        };
+
+        confirmBtn.onclick = () => closeModal(true);
+        cancelBtn.onclick = () => closeModal(false);
+        modal.onclick = (e) => {
+             if(e.target === modal) {
+                closeModal(false);
+             }
+        }
+    });
+}
+
+async function deleteEntry(formType, formId) {
+    const isConfirmed = await showConfirmationModal({
+        title: `Konfirmasi Hapus Data`,
+        message: `Anda yakin ingin menghapus data ${formType.replace('-', ' ')} ini? Tindakan ini tidak dapat dibatalkan.`
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+        const endpointMap = {
+            'insertion': `cvc-insertions/${formId}`,
+            'maintenance': `cvc-maintenances/${formId}`,
+            'infection': `cvc-infections/${formId}`,
+            'needlestick': `needlestick-reports/${formId}`
+        };
+        const endpoint = endpointMap[formType];
+        if (!endpoint) throw new Error('Jenis form tidak valid');
+        
+        await apiCall(endpoint, 'DELETE');
+        showToast(`Data ${formType.replace('-', ' ')} berhasil dihapus.`, 'success');
+
+        // Refresh relevant parts of the UI
+        await window[`load${capitalizeFirstLetter(formType)}History`]();
+        await loadDashboardStats(true); // Force refresh analytics
+    } catch (error) {
+        // The error toast is already shown in apiCall
+        console.error(`Error deleting ${formType} data:`, error);
     }
 }
 
@@ -203,7 +305,6 @@ window.editFormFromModal = async function(formType, id) {
         }
     } catch (error) {
         console.error(`Error loading ${formType} form for edit:`, error);
-        alert(`Gagal memuat form ${formType} untuk diedit.`);
     }
     // No need for hideLoading() here, as apiCall handles it.
 };
@@ -338,7 +439,6 @@ window.removePhoto = function(formType, index) {
 
 // --- Main Application Flow and Event Handlers ---
 
-// This function runs when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', async function() {
     currentUserToken = window.authToken;
     if (!currentUserToken) {
@@ -349,128 +449,68 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Initial load/setup
     initTabs();
-    // Call loadDashboardStats first so that KPIs and charts are ready
-    await loadDashboardStats(); // This already handles its own loading
-
-    setupFormEventListeners(); // Now this is a top-level function
-
+    await loadDashboardStats();
+    setupFormEventListeners();
+    
+    // Setup photo previews
     setupMainFormPhotoPreview('infectionFileUpload', 'infectionPhotoPreview', 'infectionPhotoPlaceholder', 'removeInfectionPhoto');
     setupMainFormPhotoPreview('needlestickFileUpload', 'needlestickPhotoPreview', 'needlestickPhotoPlaceholder', 'removeNeedlestickPhoto');
 
+    // Reset all forms initially
     resetInsertionForm();
     resetMaintenanceForm();
     resetInfectionForm();
     resetNeedlestickForm();
 
     // Load initial history tables
-    // showLoading() and hideLoading() are already within load...History functions,
-    // so no need to wrap them here.
-    await loadInsertionHistory();
-    await loadMaintenanceHistory();
-    await loadInfectionHistory();
-    await loadNeedlestickHistory();
+    await Promise.all([
+        loadInsertionHistory(),
+        loadMaintenanceHistory(),
+        loadInfectionHistory(),
+        loadNeedlestickHistory()
+    ]);
 
-    const closeDetailModalButton = document.getElementById('closeModalBtn');
-    if (closeDetailModalButton) {
-        closeDetailModalButton.addEventListener('click', () => window.closeModal('detailModal'));
-    }
-    const detailModal = document.getElementById('detailModal');
-    if (detailModal) {
-        detailModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                window.closeModal('detailModal');
-            }
-        });
-    }
+    // Setup modal close listeners
+    document.getElementById('closeModalBtn')?.addEventListener('click', () => window.closeModal('detailModal'));
+    document.getElementById('detailModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'detailModal') window.closeModal('detailModal');
+    });
 
-    const confirmationModal = document.getElementById('confirmationModal');
-    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-    if (confirmationModal) {
-        confirmationModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                confirmationModal.classList.add('hidden');
-            }
-        });
-    }
-    if (cancelDeleteBtn) {
-        cancelDeleteBtn.addEventListener('click', function() {
-            document.getElementById('confirmationModal').classList.add('hidden');
-        });
-    }
-
+    // Main event delegation for detail and delete buttons
+    // This is the clean way to handle clicks without conflicts
     document.body.addEventListener('click', async function(event) {
-        const target = event.target;
+        // Use .closest() to find the button, even if the icon inside is clicked
+        const target = event.target.closest('.detail-button, .delete-button');
+        if (!target) return; // Exit if the click wasn't on one of our buttons
+
+        const formId = target.dataset.id;
+        const formType = target.dataset.type;
 
         if (target.classList.contains('detail-button')) {
-            const formId = target.dataset.id;
-            const formType = target.dataset.type;
-
             try {
-                // showLoading() and hideLoading() are already inside show...DetailModal functions
-                if (formType === 'insertion') {
-                    await showInsertionDetailModal(formId);
-                } else if (formType === 'maintenance') {
-                    await showMaintenanceDetailModal(formId);
-                } else if (formType === 'infection') {
-                    await showInfectionDetailModal(formId);
-                } else if (formType === 'needlestick') {
-                    await showNeedlestickDetailModal(formId);
-                }
+                await window[`show${capitalizeFirstLetter(formType)}DetailModal`](formId);
             } catch (error) {
-                console.error(`Error opening detail modal for ${formType} ID ${formId}:`, error);
-                alert(`Gagal menampilkan detail untuk data ${formType}.`);
+                console.error(`Error showing detail for ${formType} ID ${formId}:`, error);
             }
-        }
-
-        if (target.classList.contains('delete-button')) {
-            const formId = target.dataset.id;
-            const formType = target.dataset.type;
-
-            document.getElementById('confirmationModal').classList.remove('hidden');
-            document.getElementById('confirmationModalTitle').textContent = 'Konfirmasi Hapus Data';
-            document.getElementById('confirmationModalMessage').textContent = `Apakah Anda yakin ingin menghapus data ${formType} ini?`;
-
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            // Recreate element to remove old event listeners to prevent multiple firings on subsequent clicks
-            confirmDeleteBtn.replaceWith(confirmDeleteBtn.cloneNode(true));
-            document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
-                document.getElementById('confirmationModal').classList.add('hidden');
-                // showLoading() is now inside delete...Entry functions
-                try {
-                    if (formType === 'insertion') {
-                        await deleteInsertionEntry(formId);
-                    } else if (formType === 'maintenance') {
-                        await deleteMaintenanceEntry(formId);
-                    } else if (formType === 'infection') {
-                        await deleteInfectionReport(formId);
-                    } else if (formType === 'needlestick') {
-                        await deleteNeedlestickReport(formId);
-                    }
-                } catch (error) {
-                    console.error(`Error deleting ${formType} ID ${formId}:`, error);
-                    alert(`Gagal menghapus data ${formType}.`);
-                }
-                // hideLoading() is now inside delete...Entry functions
-            });
+        } else if (target.classList.contains('delete-button')) {
+            await deleteEntry(formType, formId);
         }
     });
 
-    const otherImmediateActionCheckbox = document.getElementById('immediateAction4');
-    const otherImmediateActionInput = document.getElementById('otherImmediateAction');
-
-    if (otherImmediateActionCheckbox && otherImmediateActionInput) {
-        otherImmediateActionCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                otherImmediateActionInput.classList.remove('hidden');
-                otherImmediateActionInput.setAttribute('required', 'true');
-            } else {
-                otherImmediateActionInput.classList.add('hidden');
-                otherImmediateActionInput.removeAttribute('required');
-                otherImmediateActionInput.value = '';
-            }
-        });
-    }
+    // Listener for "Lainnya" checkbox in Needlestick form
+    document.getElementById('immediateAction4')?.addEventListener('change', function() {
+        const otherInput = document.getElementById('otherImmediateAction');
+        if (this.checked) {
+            otherInput.classList.remove('hidden');
+            otherInput.setAttribute('required', 'true');
+        } else {
+            otherInput.classList.add('hidden');
+            otherInput.removeAttribute('required');
+            otherInput.value = '';
+        }
+    });
 });
+
 
 
 // --- Functions for tab switching and section toggling ---
@@ -581,34 +621,43 @@ window.switchTab = async function(section, tabId, event) {
 
 
 // --- Dashboard Stats Loading (MAIN ANALYTICS FUNCTION) ---
-async function loadDashboardStats() {
+async function loadDashboardStats(forceRefresh = false) {
     showLoading();
+    let stats; // <-- FIX #2: Declare 'stats' once at the top level of the function
+
     try {
-        const stats = await apiCall('cvc-infections/analytics');
+        const cachedAnalytics = sessionStorage.getItem('prefetched_ppi_analytics');
+        
+        if (cachedAnalytics && !forceRefresh) { 
+            console.log('⚡️ Loading PPI analytics data from cache.');
+            stats = JSON.parse(cachedAnalytics); // Use the top-level 'stats'
+        } else {
+            if (forceRefresh) {
+                console.log('🔄 Forcing refresh of PPI analytics data from API...');
+            } else {
+                console.log('No cache found. Fetching PPI analytics data from API...');
+            }
+            stats = await apiCall('cvc-infections/analytics');
+            if (stats) sessionStorage.setItem('prefetched_ppi_analytics', JSON.stringify(stats));
+        }
 
+        if (!stats) {
+            throw new Error("Analytics data is null or undefined after fetching/caching.");
+        }
+
+        // --- The rest of the function (rendering UI and charts) remains unchanged ---
+        // It will now use the correct 'stats' object (either fresh or cached).
+        
         // Update top cards
-        const insertionComplianceElem = document.getElementById('insertionCompliance');
-        if (insertionComplianceElem) insertionComplianceElem.textContent = `${stats.total_insertions_today || 0} Form`;
-
-        const maintenanceComplianceElem = document.getElementById('maintenanceCompliance');
-        if (maintenanceComplianceElem) maintenanceComplianceElem.textContent = `${stats.total_maintenances_today || 0} Form`;
-
-        const totalInfectionsElem = document.getElementById('totalInfections');
-        if (totalInfectionsElem) totalInfectionsElem.textContent = `${stats.total_infections_today || 0} Kasus`;
-
-        const totalNeedlestickCasesElem = document.getElementById('totalNeedlestickCases');
-        if (totalNeedlestickCasesElem) totalNeedlestickCasesElem.textContent = `${stats.total_needlestick_cases_today || 0} Kasus`;
+        document.getElementById('insertionCompliance').textContent = `${stats.total_insertions_today || 0} Form`;
+        document.getElementById('maintenanceCompliance').textContent = `${stats.total_maintenances_today || 0} Form`;
+        document.getElementById('totalInfections').textContent = `${stats.total_infections_today || 0} Kasus`;
+        document.getElementById('totalNeedlestickCases').textContent = `${stats.total_needlestick_cases_today || 0} Kasus`;
 
         // Update KPI section for analytics
-
-        const insertionComplianceRateElem = document.getElementById('insertionComplianceRate');
-        if (insertionComplianceRateElem) insertionComplianceRateElem.textContent = `${stats.insertion_compliance_rate || 0}%`;
-
-        const maintenanceComplianceRateElem = document.getElementById('maintenanceComplianceRate');
-        if (maintenanceComplianceRateElem) maintenanceComplianceRateElem.textContent = `${stats.maintenance_compliance_rate || 0}%`;
-
-        const needlestickRateElem = document.getElementById('needlestickRate');
-        if (needlestickRateElem) needlestickRateElem.textContent = `${stats.needlestick_rate_30_days || 0}`;
+        document.getElementById('insertionComplianceRate').textContent = `${stats.insertion_compliance_rate || 0}%`;
+        document.getElementById('maintenanceComplianceRate').textContent = `${stats.maintenance_compliance_rate || 0}%`;
+        document.getElementById('needlestickRate').textContent = `${stats.needlestick_rate_30_days || 0}`;
 
         // Destroy all previous chart instances
         if (insertionComplianceChartInstance) insertionComplianceChartInstance.destroy();
@@ -1213,243 +1262,77 @@ window.resetNeedlestickForm = function() {
 // --- Form Submission Handlers ---
 async function handleInsertionFormSubmit(event) {
     event.preventDefault();
-    showLoading();
     const formId = currentActiveInsertionFormId;
     const method = formId ? 'POST' : 'POST';
     const endpoint = formId ? `cvc-insertions/${formId}` : 'cvc-insertions';
-
-    const formData = new FormData();
-    const patientNameElem = document.getElementById('insertionPatientName');
-    if (patientNameElem) formData.append('patient_name', patientNameElem.value);
-    const medicalRecordNumberElem = document.getElementById('insertionMedicalRecordNumber');
-    if (medicalRecordNumberElem) formData.append('medical_record_number', medicalRecordNumberElem.value);
-    const insertionDateElem = document.getElementById('insertionDate');
-    if (insertionDateElem) formData.append('insertion_date', insertionDateElem.value);
-    const insertionLocationElem = document.getElementById('insertionLocation');
-    if (insertionLocationElem) formData.append('insertion_location', insertionLocationElem.value);
-    const operatorNameElem = document.getElementById('insertionOperatorName');
-    if (operatorNameElem) formData.append('operator_name', operatorNameElem.value);
-
-    INSERTION_ELEMENTS.forEach((elementDef, index) => {
-        const statusElem = document.querySelector(`[name="elements_data[${index}][status]"]`);
-        const notesElem = document.querySelector(`[name="elements_data[${index}][notes]"]`);
-        const photoInput = document.getElementById(`insertion-photo-${index}`);
-        const photoPathInput = document.querySelector(`input[name="elements_data[${index}][photo_path]"]`);
-        const photoRemovedInput = document.querySelector(`input[name="elements_data[${index}][photo_path_removed]"]`);
-
-
-        formData.append(`elements_data[${index}][description]`, elementDef.description);
-        formData.append(`elements_data[${index}][detail]`, elementDef.detail);
-        if (statusElem) formData.append(`elements_data[${index}][status]`, statusElem.value);
-        if (notesElem) formData.append(`elements_data[${index}][notes]`, notesElem.value);
-
-        if (photoInput && photoInput.files.length > 0) {
-            formData.append(`elements_data[${index}][photo]`, photoInput.files[0]);
-        } else if (photoPathInput && photoRemovedInput?.value !== 'true') {
-            formData.append(`elements_data[${index}][photo_path]`, photoPathInput.value);
-        } else if (photoRemovedInput?.value === 'true') {
-            formData.append(`elements_data[${index}][photo_path_removed]`, 'true');
-        }
-    });
-
-    if (formId) {
-        formData.append('_method', 'PUT');
-    }
+    const formData = new FormData(document.getElementById('insertionForm'));
+    if (formId) formData.append('_method', 'PUT');
 
     try {
         const result = await apiCall(endpoint, method, formData, true);
-        alert(result.message);
-        await loadDashboardStats();
+        showToast(result.message, 'success');
+        await loadDashboardStats(true);
         resetInsertionForm();
         await loadInsertionHistory();
     } catch (error) {
         console.error('Error submitting insertion form:', error);
-    } finally {
-        hideLoading();
     }
 }
 
 async function handleMaintenanceFormSubmit(event) {
     event.preventDefault();
-    showLoading();
     const formId = currentActiveMaintenanceFormId;
     const method = formId ? 'POST' : 'POST';
     const endpoint = formId ? `cvc-maintenances/${formId}` : 'cvc-maintenances';
-
-    const formData = new FormData();
-    const patientNameElem = document.getElementById('maintenancePatientName');
-    if (patientNameElem) formData.append('patient_name', patientNameElem.value);
-    const medicalRecordNumberElem = document.getElementById('maintenanceMedicalRecordNumber');
-    if (medicalRecordNumberElem) formData.append('medical_record_number', medicalRecordNumberElem.value);
-    const maintenanceDateElem = document.getElementById('maintenanceDate');
-    if (maintenanceDateElem) formData.append('maintenance_date', maintenanceDateElem.value);
-    const maintenanceLocationElem = document.getElementById('maintenanceLocation');
-    if (maintenanceLocationElem) formData.append('maintenance_location', maintenanceLocationElem.value);
-    const daysInsertedElem = document.getElementById('maintenanceDaysInserted');
-    if (daysInsertedElem) formData.append('days_inserted', daysInsertedElem.value);
-    const nurseNameElem = document.getElementById('maintenanceNurseName');
-    if (nurseNameElem) formData.append('nurse_name', nurseNameElem.value);
-
-    MAINTENANCE_ELEMENTS.forEach((elementDef, index) => {
-        const statusElem = document.querySelector(`[name="elements_data[${index}][status]"]`);
-        const notesElem = document.querySelector(`[name="elements_data[${index}][notes]"]`);
-        const photoInput = document.getElementById(`maintenance-photo-${index}`);
-        const photoPathInput = document.querySelector(`input[name="elements_data[${index}][photo_path]"]`);
-        const photoRemovedInput = document.querySelector(`input[name="elements_data[${index}][photo_path_removed]"]`);
-
-        formData.append(`elements_data[${index}][description]`, elementDef.description);
-        formData.append(`elements_data[${index}][detail]`, elementDef.detail);
-        if (statusElem) formData.append(`elements_data[${index}][status]`, statusElem.value);
-        if (notesElem) formData.append(`elements_data[${index}][notes]`, notesElem.value);
-
-        if (photoInput && photoInput.files.length > 0) {
-            formData.append(`elements_data[${index}][photo]`, photoInput.files[0]);
-        } else if (photoPathInput && photoRemovedInput?.value !== 'true') {
-            formData.append(`elements_data[${index}][photo_path]`, photoPathInput.value);
-        } else if (photoRemovedInput?.value === 'true') {
-            formData.append(`elements_data[${index}][photo_path_removed]`, 'true');
-        }
-    });
-
-    if (formId) {
-        formData.append('_method', 'PUT');
-    }
+    const formData = new FormData(document.getElementById('maintenanceForm'));
+    if (formId) formData.append('_method', 'PUT');
 
     try {
         const result = await apiCall(endpoint, method, formData, true);
-        alert(result.message);
-        await loadDashboardStats();
+        showToast(result.message, 'success');
+        await loadDashboardStats(true);
         resetMaintenanceForm();
         await loadMaintenanceHistory();
     } catch (error) {
         console.error('Error submitting maintenance form:', error);
-    } finally {
-        hideLoading();
     }
 }
 
 async function handleInfectionReportFormSubmit(event) {
     event.preventDefault();
-    showLoading();
     const reportId = currentActiveInfectionReportId;
     const method = reportId ? 'POST' : 'POST';
     const endpoint = reportId ? `cvc-infections/${reportId}` : 'cvc-infections';
-
-    const formData = new FormData();
-    const patientNameElem = document.getElementById('infectionPatientName');
-    if (patientNameElem) formData.append('patient_name', patientNameElem.value);
-    const medicalRecordNumberElem = document.getElementById('infectionMedicalRecordNumber');
-    if (medicalRecordNumberElem) formData.append('medical_record_number', medicalRecordNumberElem.value);
-    const infectionDateElem = document.getElementById('infectionDate');
-    if (infectionDateElem) {
-        formData.append('insertion_date', infectionDateElem.value); // If insertion_date is not a separate input, use this
-        formData.append('infection_diagnosis_date', infectionDateElem.value);
-    }
-    const infectionTypeElem = document.getElementById('infectionType');
-    if (infectionTypeElem) formData.append('infection_type', infectionTypeElem.value);
-    const infectionLocationElem = document.getElementById('infectionLocation');
-    if (infectionLocationElem) formData.append('insertion_location', infectionLocationElem.value);
-    const infectionDaysInsertedElem = document.getElementById('infectionDaysInserted');
-    if (infectionDaysInsertedElem) formData.append('days_inserted', infectionDaysInsertedElem.value);
-    const infectionSymptomsElem = document.getElementById('infectionSymptoms');
-    if (infectionSymptomsElem) formData.append('clinical_symptoms', infectionSymptomsElem.value);
-    const infectionLabResultsElem = document.getElementById('infectionLabResults');
-    if (infectionLabResultsElem) formData.append('microorganism', infectionLabResultsElem.value);
-    const infectionTreatmentElem = document.getElementById('infectionTreatment');
-    if (infectionTreatmentElem) formData.append('management', infectionTreatmentElem.value);
-
-    const photoInput = document.getElementById('infectionFileUpload');
-    if (photoInput && photoInput.files.length > 0) {
-        formData.append('photo', photoInput.files[0]);
-    } else if (reportId && document.getElementById('infectionPhotoPreview')?.classList.contains('hidden')) { // Defensive check
-        formData.append('photo', '');
-    }
-
-    if (reportId) {
-        formData.append('_method', 'PUT');
-    }
+    const formData = new FormData(document.getElementById('infectionReportForm'));
+    if (reportId) formData.append('_method', 'PUT');
 
     try {
         const result = await apiCall(endpoint, method, formData, true);
-        alert(result.message);
-        await loadDashboardStats();
+        showToast(result.message, 'success');
+        await loadDashboardStats(true);
         resetInfectionForm();
         await loadInfectionHistory();
     } catch (error) {
         console.error('Error submitting infection report:', error);
-    } finally {
-        hideLoading();
     }
 }
 
 async function handleNeedlestickReportFormSubmit(event) {
     event.preventDefault();
-    showLoading();
     const reportId = currentActiveNeedlestickReportId;
     const method = reportId ? 'POST' : 'POST';
     const endpoint = reportId ? `needlestick-reports/${reportId}` : 'needlestick-reports';
-
-    const formData = new FormData();
-    const needlestickDateElem = document.getElementById('needlestickDate');
-    if (needlestickDateElem) formData.append('incident_date', needlestickDateElem.value);
-    const needlestickTimeElem = document.getElementById('needlestickTime');
-    if (needlestickTimeElem) formData.append('incident_time', needlestickTimeElem.value);
-    const needlestickLocationElem = document.getElementById('needlestickLocation');
-    if (needlestickLocationElem) formData.append('location', needlestickLocationElem.value);
-    const needlestickDepartmentElem = document.getElementById('needlestickDepartment');
-    if (needlestickDepartmentElem) formData.append('department', needlestickDepartmentElem.value);
-    const injuredPersonNameElem = document.getElementById('injuredPersonName');
-    if (injuredPersonNameElem) formData.append('injured_person_name', injuredPersonNameElem.value);
-    const injuredPersonPositionElem = document.getElementById('injuredPersonPosition');
-    if (injuredPersonPositionElem) formData.append('injured_person_position', injuredPersonPositionElem.value);
-    const injuredPersonAgeElem = document.getElementById('injuredPersonAge');
-    if (injuredPersonAgeElem) formData.append('injured_person_age', injuredPersonAgeElem.value);
-    const injuredPersonGenderElem = document.getElementById('injuredPersonGender');
-    if (injuredPersonGenderElem) formData.append('injured_person_gender', injuredPersonGenderElem.value);
-    const incidentDescriptionElem = document.getElementById('incidentDescription');
-    if (incidentDescriptionElem) formData.append('incident_description', incidentDescriptionElem.value);
-    const sourcePatientStatusElem = document.getElementById('sourcePatientStatus');
-    if (sourcePatientStatusElem) formData.append('source_patient_status', sourcePatientStatusElem.value);
-
-    const immediateActions = [];
-    document.querySelectorAll('#needlestickReportForm input[name="immediate_actions[]"]:checked').forEach(checkbox => {
-        if (checkbox.value === 'Lainnya') {
-            const otherAction = document.getElementById('otherImmediateAction')?.value; // Defensive check
-            if (otherAction) {
-                immediateActions.push(otherAction);
-            }
-        } else {
-            immediateActions.push(checkbox.value);
-        }
-    });
-    immediateActions.forEach((action, index) => {
-        formData.append(`immediate_actions[${index}]`, action);
-    });
-
-    const followUpActionsElem = document.getElementById('followUpActions');
-    if (followUpActionsElem) formData.append('follow_up_actions', followUpActionsElem.value);
-
-    const photoInput = document.getElementById('needlestickFileUpload');
-    if (photoInput && photoInput.files.length > 0) {
-        formData.append('photo', photoInput.files[0]);
-    } else if (reportId && document.getElementById('needlestickPhotoPreview')?.classList.contains('hidden')) { // Defensive check
-        formData.append('photo', '');
-    }
-
-    if (reportId) {
-        formData.append('_method', 'PUT');
-    }
-
+    const formData = new FormData(document.getElementById('needlestickReportForm'));
+    if (reportId) formData.append('_method', 'PUT');
+    
     try {
         const result = await apiCall(endpoint, method, formData, true);
-        alert(result.message);
-        await loadDashboardStats();
+        showToast(result.message, 'success');
+        await loadDashboardStats(true);
         resetNeedlestickForm();
         await loadNeedlestickHistory();
     } catch (error) {
         console.error('Error submitting needlestick report:', error);
-    } finally {
-        hideLoading();
     }
 }
 
@@ -1540,22 +1423,9 @@ window.showInsertionDetailModal = async function(formId) {
         window.showDetailModal('detailModal');
     } catch (error) {
         console.error('Error showing insertion detail modal:', error);
-        alert('Gagal memuat detail form insersi.');
     }
 };
-async function deleteInsertionEntry(formId) {
-    showLoading();
-    try {
-        await apiCall(`cvc-insertions/${formId}`, 'DELETE');
-        alert('Data insersi berhasil dihapus.');
-        await loadInsertionHistory();
-        await loadDashboardStats();
-    } catch (error) {
-        console.error('Error deleting insertion data:', error);
-    } finally {
-        hideLoading();
-    }
-}
+
 
 async function loadInsertionHistory(page = 1) {
     showLoading();
@@ -1657,22 +1527,9 @@ window.showMaintenanceDetailModal = async function(formId) {
         window.showDetailModal('detailModal');
     } catch (error) {
         console.error('Error showing maintenance detail modal:', error);
-        alert('Gagal memuat detail form maintenance.');
     }
 };
-async function deleteMaintenanceEntry(formId) {
-    showLoading();
-    try {
-        await apiCall(`cvc-maintenances/${formId}`, 'DELETE');
-        alert('Data maintenance berhasil dihapus.');
-        await loadMaintenanceHistory();
-        await loadDashboardStats();
-    } catch (error) {
-        console.error('Error deleting maintenance data:', error);
-    } finally {
-        hideLoading();
-    }
-}
+
 
 async function loadMaintenanceHistory(page = 1) {
     showLoading();
@@ -1762,23 +1619,10 @@ window.showInfectionDetailModal = async function(reportId) {
         window.showDetailModal('detailModal');
     } catch (error) {
         console.error('Error showing infection detail modal:', error);
-        alert('Gagal memuat detail laporan infeksi.');
     }
 };
 
-async function deleteInfectionReport(formId) {
-    showLoading();
-    try {
-        await apiCall(`cvc-infections/${formId}`, 'DELETE');
-        alert('Data infeksi berhasil dihapus.');
-        await loadInfectionHistory();
-        await loadDashboardStats();
-    } catch (error) {
-        console.error('Error deleting infections data:', error);
-    } finally {
-        hideLoading();
-    }
-}
+
 
 function renderNeedlestickHistoryTable(data) {
     const tbody = document.getElementById('needlestickHistoryTableBody');
@@ -1852,24 +1696,11 @@ window.showNeedlestickDetailModal = async function(reportId) {
         `;
         window.showDetailModal('detailModal');
     } catch (error) {
-        console.error('Error showing needlestick detail modal:', error);
-        alert('Gagal memuat detail laporan tertusuk jarum.');
+        console.error('Error showing needlestick detail modal:', error)
     }
 };
 
-async function deleteNeedlestickReport(reportId) {
-    showLoading();
-    try {
-        await apiCall(`needlestick-reports/${reportId}`, 'DELETE');
-        alert('Data pelaporan tertusuk jarum berhasil dihapus.');
-        await loadNeedlestickHistory();
-        await loadDashboardStats();
-    } catch (error) {
-        console.error('Error deleting needlestick report:', error);
-    } finally {
-        hideLoading();
-    }
-}
+
 
 function renderPagination(links, meta, section) {
     const paginationContainer = document.getElementById(`${section}Pagination`);

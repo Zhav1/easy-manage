@@ -22,6 +22,80 @@ function hideLoading() {
 }
 // --- End Global Loading Functions ---
 
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const template = document.getElementById('toast-template');
+    if (!container || !template) return;
+
+    const newToast = template.cloneNode(true);
+    newToast.id = '';
+    newToast.classList.remove('hidden');
+    newToast.classList.add('flex');
+
+    const iconDiv = newToast.querySelector('#toast-icon');
+    const messageDiv = newToast.querySelector('#toast-message');
+    messageDiv.textContent = message;
+
+    if (type === 'success') {
+        iconDiv.innerHTML = '<i class="fas fa-check"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg';
+    } else if (type === 'error') {
+        iconDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg';
+    } else { // Info
+        iconDiv.innerHTML = '<i class="fas fa-info-circle"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg';
+    }
+
+    container.appendChild(newToast);
+
+    setTimeout(() => {
+        newToast.style.transition = 'opacity 0.5s ease';
+        newToast.style.opacity = '0';
+        setTimeout(() => newToast.remove(), 500);
+    }, 5000);
+}
+
+function showConfirmationModal({ title, message, confirmText = 'Ya, Hapus', cancelText = 'Batal' }) {
+    const modal = document.getElementById('confirmationModal');
+    const modalBox = document.getElementById('confirmationModalBox');
+    const titleEl = document.getElementById('confirmationTitle');
+    const messageEl = document.getElementById('confirmationMessage');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+
+    titleEl.textContent = title;
+    messageEl.innerHTML = message;
+    confirmBtn.textContent = confirmText;
+    cancelBtn.textContent = cancelText;
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+       modalBox.classList.remove('scale-95', 'opacity-0');
+       modalBox.classList.add('scale-100', 'opacity-100');
+    }, 10);
+
+    return new Promise((resolve) => {
+        confirmBtn.onclick = () => {
+            modal.classList.add('hidden');
+            modalBox.classList.add('scale-95', 'opacity-0');
+            resolve(true);
+        };
+        cancelBtn.onclick = () => {
+            modal.classList.add('hidden');
+            modalBox.classList.add('scale-95', 'opacity-0');
+            resolve(false);
+        };
+        modal.onclick = (e) => {
+             if(e.target === modal) {
+                modal.classList.add('hidden');
+                modalBox.classList.add('scale-95', 'opacity-0');
+                resolve(false);
+             }
+        }
+    });
+}
+
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -107,17 +181,49 @@ function initializeCalendar() {
     calendar.render();
 }
 
+function cacheDinasData(data) {
+    sessionStorage.setItem('prefetched_dinas_userInfo', JSON.stringify(data.userInfo));
+    sessionStorage.setItem('prefetched_dinas_departments', JSON.stringify(data.departments));
+    sessionStorage.setItem('prefetched_dinas_positions', JSON.stringify(data.positions));
+    sessionStorage.setItem('prefetched_dinas_staff', JSON.stringify(data.staffMembers));
+    sessionStorage.setItem('prefetched_dinas_shifts', JSON.stringify(data.shifts));
+    console.log('✅ Dinas page data has been cached.');
+}
 
-// Load initial data from API
+
 async function loadInitialData() {
     showLoading();
+    
+    // **MODIFIED**: Check for cached data first
+    const cachedUserInfo = sessionStorage.getItem('prefetched_dinas_userInfo');
+    const cachedDepts = sessionStorage.getItem('prefetched_dinas_departments');
+    const cachedPos = sessionStorage.getItem('prefetched_dinas_positions');
+    const cachedStaff = sessionStorage.getItem('prefetched_dinas_staff');
+    const cachedShifts = sessionStorage.getItem('prefetched_dinas_shifts');
+    
+    if (cachedUserInfo && cachedDepts && cachedPos && cachedStaff && cachedShifts) {
+        console.log('⚡️ Loading Dinas data from cache.');
+        userInfo = JSON.parse(cachedUserInfo);
+        departments = JSON.parse(cachedDepts);
+        positions = JSON.parse(cachedPos);
+        staffMembers = JSON.parse(cachedStaff);
+        shifts = JSON.parse(cachedShifts);
+        
+        // Render UI with cached data
+        updateStaffDropdown();
+        updatePositionDropdown();
+        updateShiftDropdown();
+        renderStaffTable();
+        updateTotalStaffCount();
+        hideLoading();
+        return; // Exit function, no need to fetch from API
+    }
+    
+    // Fallback: If no cache, fetch from API
+    console.log('No cache found. Fetching Dinas data from API...');
     try {
-        const token = window.authToken || document.getElementById('auth_token')?.value;
-        console.log('Current Auth Token:', token ? 'Token exists' : 'Token is missing!'); 
-        if (!token) {
-            hideLoading();
-            throw new Error('No authentication token found');
-        }
+        const token = window.authToken;
+        if (!token) throw new Error('No authentication token found');
         
         const headers = {
             'Accept': 'application/json',
@@ -125,31 +231,24 @@ async function loadInitialData() {
             'Authorization': `Bearer ${token}`
         };
         
-        const userInfoResponse = await fetch('/api/v1/user/info', {headers});
-        if (!userInfoResponse.ok) {
-            const errorData = await userInfoResponse.json();
-            throw new Error(errorData.message || 'Failed to fetch user info');
-        }
-        userInfo = await userInfoResponse.json();
-        console.log('User Info from API:', userInfo);
-
-        const [deptsResponse, posResponse, staffResponse, shiftResponse] = await Promise.all([
+        const [userInfoResponse, deptsResponse, posResponse, staffResponse, shiftResponse] = await Promise.all([
+            fetch('/api/v1/user/info', {headers}),
             fetch('/api/v1/departments', {headers}),
             fetch('/api/v1/positions', {headers}),
             fetch('/api/v1/staff', {headers}), 
             fetch('/api/v1/shifts', {headers})
         ]);
         
+        userInfo = await userInfoResponse.json();
         departments = await deptsResponse.json();
         positions = await posResponse.json();
-        console.log('Positions from API:', positions);
-        
         staffMembers = await staffResponse.json(); 
-        console.log('Staff from API (should be filtered by backend StaffController):', staffMembers);
-        
         shifts = await shiftResponse.json();
-        console.log('Shifts from API:', shifts);
 
+        // **NEW**: Cache the freshly fetched data
+        cacheDinasData({ userInfo, departments, positions, staffMembers, shifts });
+
+        // Render UI
         updateStaffDropdown();
         updatePositionDropdown();
         updateShiftDropdown();
@@ -157,7 +256,7 @@ async function loadInitialData() {
         updateTotalStaffCount(); 
     } catch (error) {
         console.error('Error loading initial data:', error);
-        alert('Gagal memuat data awal: ' + error.message);
+        showToast('Gagal memuat data awal: ' + error.message, 'error');
     } finally {
         hideLoading();
     }
@@ -242,7 +341,6 @@ window.openAddStaffModal = function() {
     document.getElementById('staffFullName').value = '';
     document.getElementById('staffPosition').value = '';
     document.getElementById('staffStatus').value = 'Aktif';
-    document.getElementById('deleteStaffBtn').classList.add('hidden');
     document.getElementById('staffModal').classList.remove('hidden');
     document.getElementById('staffModal').classList.add('flex');
     updatePositionDropdown();
@@ -257,7 +355,6 @@ window.openEditStaffModal = function(staffId) {
     document.getElementById('staffFullName').value = staff.name;
     document.getElementById('staffPosition').value = staff.position_id;
     document.getElementById('staffStatus').value = staff.status;
-    document.getElementById('deleteStaffBtn').classList.remove('hidden');
     document.getElementById('staffModal').classList.remove('hidden');
     document.getElementById('staffModal').classList.add('flex');
     updatePositionDropdown();
@@ -329,34 +426,25 @@ async function handleStaffFormSubmit() {
     };
     
     try {
-        const token = window.authToken || document.getElementById('auth_token')?.value;
-        if (!token) throw new Error('No authentication token found');
-        
-        const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
-
+        const token = window.authToken;
+        const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
         const url = formData.id ? `/api/v1/staff/${formData.id}` : '/api/v1/staff';
         const method = formData.id ? 'PUT' : 'POST';
         
-        const response = await fetch(url, {
-            method: method,
-            headers,
-            body: JSON.stringify(formData)
-        });
+        const response = await fetch(url, { method, headers, body: JSON.stringify(formData) });
+        if (!response.ok) throw new Error((await response.json()).message || 'Gagal menyimpan data');
         
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || response.statusText);
-        }
+        const updatedStaffResponse = await fetch('/api/v1/staff', { headers });
+        staffMembers = await updatedStaffResponse.json();
+        sessionStorage.setItem('prefetched_dinas_staff', JSON.stringify(staffMembers));
         
-        await loadInitialData();
+        renderStaffTable();
+        updateStaffDropdown();
+        updateTotalStaffCount();
         closeStaffModal();
+        showToast('Data staff berhasil disimpan!', 'success');
     } catch (error) {
-        console.error('Error saving staff:', error);
-        alert('Gagal menyimpan data staff: ' + error.message);
+        showToast(`Gagal menyimpan data staff: ${error.message}`, 'error');
     } finally {
         hideLoading();
     }
@@ -371,33 +459,20 @@ async function handlePositionFormSubmit() {
     };
     
     try {
-        const token = window.authToken || document.getElementById('auth_token')?.value;
-        if (!token) throw new Error('No authentication token found');
-        
-        const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+        const token = window.authToken;
+        const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
         const url = formData.id ? `/api/v1/positions/${formData.id}` : '/api/v1/positions';
         const method = formData.id ? 'PUT' : 'POST';
         
-        const response = await fetch(url, {
-            method: method,
-            headers,
-            body: JSON.stringify(formData)
-        });
+        const response = await fetch(url, { method, headers, body: JSON.stringify(formData) });
+        if (!response.ok) throw new Error((await response.json()).message || 'Gagal menyimpan data');
         
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || response.statusText);
-        }
-        
-        await loadInitialData();
+        // Reload all data since positions can affect staff rendering
+        await loadInitialData(true); // Force refresh from API
         closePositionModal();
+        showToast('Data jabatan berhasil disimpan!', 'success');
     } catch (error) {
-        console.error('Error saving position:', error);
-        alert('Gagal menyimpan data jabatan: ' + error.message);
+        showToast(`Gagal menyimpan data jabatan: ${error.message}`, 'error');
     } finally {
         hideLoading();
     }
@@ -409,119 +484,30 @@ async function handleScheduleFormSubmit() {
         id: document.getElementById('eventId').value,
         staff_id: document.getElementById('staffName').value,
         shift_id: document.getElementById('shiftType').value,
-        start: document.getElementById('startDate').value, // YYYY-MM-DD
-        end: document.getElementById('endDate').value      // YYYY-MM-DD
+        start: document.getElementById('startDate').value,
+        end: document.getElementById('endDate').value
     };
+
+    if (!formData.staff_id || !formData.shift_id) {
+        showToast('Harap pilih staff dan jenis shift.', 'error');
+        hideLoading();
+        return;
+    }
     
     try {
-        const token = window.authToken || document.getElementById('auth_token')?.value;
-        if (!token) throw new Error('No authentication token found');
-        
-        const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+        const token = window.authToken;
+        const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
         const url = formData.id ? `/api/v1/schedules/${formData.id}` : '/api/v1/schedules';
         const method = formData.id ? 'PUT' : 'POST';
         
-        const response = await fetch(url, {
-            method: method,
-            headers,
-            body: JSON.stringify(formData)
-        });
-        
-        if (!response.ok) {
-             const errorData = await response.json();
-             throw new Error(errorData.message || response.statusText);
-        }
+        const response = await fetch(url, { method, headers, body: JSON.stringify(formData) });
+        if (!response.ok) throw new Error((await response.json()).message || 'Gagal menyimpan jadwal');
         
         calendar.refetchEvents();
         closeScheduleModal();
+        showToast('Jadwal dinas berhasil disimpan!', 'success');
     } catch (error) {
-        console.error('Error saving schedule:', error);
-        alert('Gagal menyimpan jadwal dinas: ' + error.message);
-    } finally {
-        hideLoading();
-    }
-}
-
-// Delete Functions
-window.deleteStaff = async function() {
-    showLoading();
-    const token = window.authToken || document.getElementById('auth_token')?.value;
-    if (!token) {
-        hideLoading();
-        throw new Error('No authentication token found');
-    }
-        
-    const headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
-    const staffId = document.getElementById('staffId').value;
-    if (!staffId || !confirm('Apakah Anda yakin ingin menghapus staff ini?')) {
-        hideLoading();
-        return;
-    }
-    
-    try {
-        const response = await fetch(`/api/v1/staff/${staffId}`, {
-            method: 'DELETE',
-            headers
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || response.statusText);
-        }
-        
-        await loadInitialData();
-        closeStaffModal();
-    } catch (error) {
-        console.error('Error deleting staff:', error);
-        alert('Gagal menghapus staff: ' + error.message);
-    } finally {
-        hideLoading();
-    }
-}
-
-window.deleteEvent = async function() {
-    showLoading();
-    const token = window.authToken || document.getElementById('auth_token')?.value;
-    if (!token) {
-        hideLoading();
-        throw new Error('No authentication token found');
-    }
-        
-    const headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
-    const eventId = document.getElementById('eventId').value;
-    if (!eventId || !confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) {
-        hideLoading();
-        return;
-    }
-    
-    try {
-        const response = await fetch(`/api/v1/schedules/${eventId}`, {
-            method: 'DELETE',
-            headers
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || response.statusText);
-        }
-        
-        calendar.refetchEvents();
-        closeScheduleModal();
-    } catch (error) {
-        console.error('Error deleting schedule:', error);
-        alert('Gagal menghapus jadwal: ' + error.message);
+        showToast(`Gagal menyimpan jadwal: ${error.message}`, 'error');
     } finally {
         hideLoading();
     }
@@ -568,7 +554,7 @@ function renderStaffTable() {
                 <button onclick="openEditStaffModal(${staff.id})" class="text-blue-600 hover:text-blue-800">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="confirmDeleteStaff(${staff.id})" class="text-red-600 hover:text-red-800">
+                <button onclick="deleteStaff(${staff.id})" class="text-red-600 hover:text-red-800">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </td>
@@ -651,14 +637,80 @@ function renderEventContent(arg) {
     
     return { domNodes: [shiftBadge] };
 }
-
-// Confirmation Dialog
-window.confirmDeleteStaff = function(staffId) {
-    if (confirm('Apakah Anda yakin ingin menghapus staff ini?')) {
-        document.getElementById('staffId').value = staffId;
-        deleteStaff(); 
+// --- REFACTORED Delete Functions ---
+async function deleteStaff(staffId) {
+    const staff = staffMembers.find(s => s.id === staffId);
+    if (!staff) {
+        showToast('Staff tidak ditemukan.', 'error');
+        return;
     }
-};
 
-// IMPORTANT: Ensure moment.js is included in your Blade file BEFORE dinas.js
-// <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    const isConfirmed = await showConfirmationModal({
+        title: 'Konfirmasi Hapus Staff',
+        message: `Anda akan menghapus staff: <strong>${staff.name}</strong>. Semua jadwal dinas terkait juga akan dihapus. <br><br> Tindakan ini tidak dapat dibatalkan.`
+    });
+
+    if (!isConfirmed) return;
+
+    showLoading();
+    try {
+        const token = window.authToken;
+        const headers = { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` };
+        const response = await fetch(`/api/v1/staff/${staffId}`, { method: 'DELETE', headers });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Gagal menghapus data');
+        }
+
+        // Refetch staff data and update cache
+        const updatedStaffResponse = await fetch('/api/v1/staff', { headers });
+        staffMembers = await updatedStaffResponse.json();
+        sessionStorage.setItem('prefetched_dinas_staff', JSON.stringify(staffMembers));
+
+        renderStaffTable();
+        updateStaffDropdown();
+        updateTotalStaffCount();
+        calendar.refetchEvents(); // Also refetch events as schedules might be deleted
+        closeStaffModal();
+        showToast('Data staff berhasil dihapus!', 'success');
+    } catch (error) {
+        showToast(`Gagal menghapus staff: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function deleteEvent() {
+    const eventId = document.getElementById('eventId').value;
+    if (!eventId) return;
+    
+    const event = calendar.getEventById(eventId);
+    const staffName = event ? event.extendedProps.staff_name : "jadwal ini";
+
+    const isConfirmed = await showConfirmationModal({
+        title: 'Konfirmasi Hapus Jadwal',
+        message: `Anda yakin ingin menghapus jadwal dinas untuk <strong>${staffName}</strong>?`
+    });
+
+    if (!isConfirmed) return;
+
+    showLoading();
+    try {
+        const token = window.authToken;
+        const headers = { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` };
+        const response = await fetch(`/api/v1/schedules/${eventId}`, { method: 'DELETE', headers });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Gagal menghapus jadwal');
+        }
+        
+        calendar.refetchEvents();
+        closeScheduleModal();
+        showToast('Jadwal dinas berhasil dihapus.', 'success');
+    } catch (error) {
+        showToast(`Gagal menghapus jadwal: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}

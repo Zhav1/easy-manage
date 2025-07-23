@@ -12,6 +12,40 @@
     <link rel="stylesheet" href="{{ asset('css/tna.css') }}">
     <script src="{{ asset('js/tna.js') }}"></script>
 </head>
+<div id="toast-container" class="fixed top-5 right-5 z-[10000] w-full max-w-xs space-y-3">
+    <div id="toast-template" class="hidden items-center w-full p-4 text-gray-500 bg-white rounded-lg shadow-lg" role="alert">
+        <div id="toast-icon" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg">
+            </div>
+        <div id="toast-message" class="ms-3 text-sm font-normal">Message goes here.</div>
+        <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8" onclick="this.parentElement.remove()">
+            <span class="sr-only">Close</span>
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            </svg>
+        </button>
+    </div>
+</div>
+<div id="confirmationModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform transition-all scale-95 opacity-0" id="confirmationModalBox">
+        <div class="text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg leading-6 font-bold text-gray-900 mt-4" id="confirmationTitle">Hapus Data</h3>
+            <div class="mt-2 px-2 text-sm text-gray-600">
+                <p id="confirmationMessage">Apakah Anda yakin? Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-center gap-3">
+            <button id="confirmCancelBtn" type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
+                Batal
+            </button>
+            <button id="confirmDeleteBtn" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:w-auto sm:text-sm">
+                Ya, Hapus
+            </button>
+        </div>
+    </div>
+</div>
 <body class="min-h-full bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 text-gray-800">
     <!-- Global auth vars (pakai sebelum JS lain) -->
     <script>
@@ -163,7 +197,7 @@
         <div class="bg-white rounded-lg p-5 w-full max-w-md">
             <div class="flex justify-between items-center mb-3">
                 <h3 id="staffModalTitle" class="text-base md:text-lg font-bold">Tambah Staff Baru</h3>
-                <button onclick="closeStaffModal()" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
+                <button onclick="tutupModalStaff()" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
             </div>
             <form id="staffForm">
                 <input type="hidden" id="staffId">
@@ -189,9 +223,8 @@
                     </select>
                 </div>
                 <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="closeStaffModal()" class="px-3 py-1 rounded-lg text-xs md:text-sm text-gray-700 hover:bg-gray-100">Batal</button>
+                    <button type="button" onclick="tutupModalStaff()" class="px-3 py-1 rounded-lg text-xs md:text-sm text-gray-700 hover:bg-gray-100">Batal</button>
                     <button type="submit" class="px-3 py-1 rounded-lg text-xs md:text-sm text-white bg-green-500 hover:bg-green-600">Simpan</button>
-                    <button type="button" id="deleteStaffBtn" onclick="deleteStaff()" class="px-3 py-1 rounded-lg text-xs md:text-sm text-white bg-red-500 hover:bg-red-600 hidden">Hapus</button>
                 </div>
             </form>
         </div>
@@ -202,7 +235,7 @@
         <div class="bg-white rounded-lg p-5 w-full max-w-md">
             <div class="flex justify-between items-center mb-3">
                 <h3 id="tnaModalTitle" class="text-lg md:text-xl font-bold text-gray-800">Tambah Data TNA</h3>
-                <button type="button" onclick="closeTnaModal()" class="text-gray-500 hover:text-gray-700 text-lg"><i class="fas fa-times"></i></button>
+                <button type="button" onclick="tutupModalTNA()" class="text-gray-500 hover:text-gray-700 text-lg"><i class="fas fa-times"></i></button>
             </div>
             <form id="tnaForm">
                 <input type="hidden" id="tnaId">
@@ -289,9 +322,8 @@
                 </div>
                 <!-- Buttons -->
                 <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="closeTnaModal()" class="animated-button bg-gray-200 text-gray-800 px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-gray-300 transition duration-300 text-xs md:text-sm">Batal</button>
+                    <button type="button" onclick="tutupModalTNA()" class="animated-button bg-gray-200 text-gray-800 px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-gray-300 transition duration-300 text-xs md:text-sm">Batal</button>
                     <button type="submit" class="animated-button bg-purple-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-purple-700 transition duration-300 text-xs md:text-sm">Simpan</button>
-                    <button type="button" id="deleteTnaBtn" onclick="deleteTnaRecord()" class="animated-button bg-red-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-red-700 transition duration-300 text-xs md:text-sm hidden">Hapus</button>
                 </div>
             </form>
         </div>

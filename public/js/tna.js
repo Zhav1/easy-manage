@@ -26,26 +26,58 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Memuat data awal dari API
-async function muatDataAwal() {
+async function muatDataAwal(forceRefresh = false) {
     tampilkanLoading();
+
+    const cacheKeys = {
+        staff: 'prefetched_dinas_staff',
+        tna: 'prefetched_tna_records',
+        positions: 'prefetched_dinas_positions',
+        departments: 'prefetched_dinas_departments'
+    };
+
+    const cachedStaff = sessionStorage.getItem(cacheKeys.staff);
+    const cachedTNA = sessionStorage.getItem(cacheKeys.tna);
+    const cachedPositions = sessionStorage.getItem(cacheKeys.positions);
+    const cachedDepartments = sessionStorage.getItem(cacheKeys.departments);
+
+    if (cachedStaff && cachedTNA && cachedPositions && cachedDepartments && !forceRefresh) {
+        console.log('⚡️ Memuat data TNA dari cache.');
+        try {
+            daftarStaff = JSON.parse(cachedStaff);
+            catatanTNA = JSON.parse(cachedTNA);
+            daftarJabatan = JSON.parse(cachedPositions);
+            daftarDepartemen = JSON.parse(cachedDepartments);
+
+            // Render UI immediately from cache
+            perbaruiDropdownStaffTNA();
+            renderTabelStaff();
+            renderTabelTNA();
+            perbaruiJumlahKartu();
+            sembunyikanLoading();
+            return;
+        } catch (e) {
+            console.error("Gagal mem-parsing data TNA dari cache, mengambil dari API.", e);
+        }
+    }
+
+    if (forceRefresh) console.log('🔄 Memaksa pembaruan data TNA dari API...');
+    else console.log('Cache tidak ditemukan. Mengambil data TNA dari API...');
+
     try {
         const token = window.authToken;
-        if (!token) {
-            console.error('Token autentikasi tidak ditemukan');
-            return;
-        }
+        if (!token) throw new Error('Token autentikasi tidak ditemukan');
 
         const headers = {
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
 
         const [responStaff, responTNA, responJabatan, responDepartemen] = await Promise.all([
-            fetch('/api/v1/staff', {headers}),
-            fetch('/api/v1/training-needs', {headers}),
-            fetch('/api/v1/positions', {headers}),
-            fetch('/api/v1/departments', {headers}),
+            fetch('/api/v1/staff', { headers }),
+            fetch('/api/v1/training-needs', { headers }),
+            fetch('/api/v1/positions', { headers }),
+            fetch('/api/v1/departments', { headers }),
         ]);
 
         daftarStaff = await responStaff.json();
@@ -53,6 +85,14 @@ async function muatDataAwal() {
         daftarJabatan = await responJabatan.json();
         daftarDepartemen = await responDepartemen.json();
 
+        // **NEW**: Cache the freshly fetched data
+        sessionStorage.setItem(cacheKeys.staff, JSON.stringify(daftarStaff));
+        sessionStorage.setItem(cacheKeys.tna, JSON.stringify(catatanTNA));
+        sessionStorage.setItem(cacheKeys.positions, JSON.stringify(daftarJabatan));
+        sessionStorage.setItem(cacheKeys.departments, JSON.stringify(daftarDepartemen));
+        console.log('✅ Data TNA berhasil disimpan di cache.');
+
+        // Render UI with fresh data
         perbaruiDropdownStaffTNA();
         renderTabelStaff();
         renderTabelTNA();
@@ -60,7 +100,7 @@ async function muatDataAwal() {
 
     } catch (error) {
         console.error('Gagal memuat data awal:', error);
-        alert('Gagal memuat data awal. Silakan coba lagi.');
+        showToast('Gagal memuat data awal. Silakan coba lagi.', 'error');
     } finally {
         sembunyikanLoading();
     }
@@ -134,7 +174,6 @@ window.bukaModalTambahStaff = function() {
 
     document.getElementById('staffPosition').value = '';
     document.getElementById('staffStatus').value = 'Aktif';
-    document.getElementById('deleteStaffBtn').classList.add('hidden');
     document.getElementById('staffModal').classList.remove('hidden');
     document.getElementById('staffModal').classList.add('flex');
     perbaruiDropdownJabatan();
@@ -149,7 +188,6 @@ window.bukaModalEditStaff = function(staffId) {
     document.getElementById('staffFullName').value = staff.name;
     document.getElementById('staffPosition').value = staff.position_id;
     document.getElementById('staffStatus').value = staff.status;
-    document.getElementById('deleteStaffBtn').classList.remove('hidden');
     document.getElementById('staffModal').classList.remove('hidden');
     document.getElementById('staffModal').classList.add('flex');
     perbaruiDropdownJabatan();
@@ -173,7 +211,6 @@ window.bukaModalTambahTNA = function() {
     document.getElementById('seminarWorkshopWebinar').value = '';
     document.getElementById('pelatihan').value = '';
     document.getElementById('pendidikanLanjutan').value = '';
-    document.getElementById('deleteTnaBtn').classList.add('hidden');
     document.getElementById('tnaModal').classList.remove('hidden');
     document.getElementById('tnaModal').classList.add('flex');
     perbaruiDropdownStaffTNA();
@@ -194,7 +231,6 @@ window.bukaModalEditTNA = function(tnaId) {
     document.getElementById('seminarWorkshopWebinar').value = tna.seminar_workshop_webinar || '';
     document.getElementById('pelatihan').value = tna.pelatihan || '';
     document.getElementById('pendidikanLanjutan').value = tna.pendidikan_lanjutan || '';
-    document.getElementById('deleteTnaBtn').classList.remove('hidden');
     document.getElementById('tnaModal').classList.remove('hidden');
     document.getElementById('tnaModal').classList.add('flex');
     perbaruiDropdownStaffTNA();
@@ -243,12 +279,12 @@ async function handleSubmitFormStaff() {
             throw new Error(pesanError);
         }
 
-        await muatDataAwal();
+        await muatDataAwal(true);
         tutupModalStaff();
-        alert('Data staff berhasil disimpan!');
+        showToast('Data staff berhasil disimpan!', 'success');
     } catch (error) {
         console.error('Gagal menyimpan staff:', error);
-        alert('Gagal menyimpan data staff: ' + error.message);
+        showToast('Gagal menyimpan data staff: ' + error.message, 'error');
     } finally {
         sembunyikanLoading();
     }
@@ -257,41 +293,37 @@ async function handleSubmitFormStaff() {
 async function handleSubmitFormTNA() {
     tampilkanLoading();
 
-    // Validasi field yang wajib diisi (existing code)
     const inputTanggal = document.getElementById('tanggal');
     const selectStaff = document.getElementById('tnaStaffName');
 
+    // --- REPLACEMENT for alert() ---
     if (!inputTanggal.value) {
-        alert('Harap isi tanggal terlebih dahulu!');
+        showToast('Harap isi tanggal terlebih dahulu!', 'error');
         inputTanggal.focus();
         sembunyikanLoading();
         return false;
     }
 
+    // --- REPLACEMENT for alert() ---
     if (!selectStaff.value) {
-        alert('Harap pilih staff terlebih dahulu!');
+        showToast('Harap pilih staff terlebih dahulu!', 'error');
         selectStaff.focus();
         sembunyikanLoading();
         return false;
     }
 
-    // Get the values from the dropdown and the text input
     const seminarWorkshopWebinarValue = document.getElementById('seminarWorkshopWebinar').value;
     const namaKegiatanValue = document.getElementById('namaKegiatan').value;
-
     let finalSeminarWorkshopWebinar = seminarWorkshopWebinarValue;
-
-    // Append namaKegiatan if the dropdown value is one of the specified types
     const perluInput = ['Seminar', 'Workshop', 'Webinar', 'Pelatihan Internal', 'Pelatihan Eksternal'];
     if (perluInput.includes(seminarWorkshopWebinarValue) && namaKegiatanValue) {
-        finalSeminarWorkshopWebinar = `${seminarWorkshopWebinarValue} ${namaKegiatanValue}`;
+        finalSeminarWorkshopWebinar = `${seminarWorkshopWebinarValue}: ${namaKegiatanValue}`;
     }
 
     const dataForm = {
         id: document.getElementById('tnaId').value,
         staff_id: selectStaff.value,
         tanggal: inputTanggal.value,
-        // Use the combined value here
         seminar_workshop_webinar: finalSeminarWorkshopWebinar,
         pelatihan: document.getElementById('pelatihan').value,
         pendidikan_lanjutan: document.getElementById('pendidikanLanjutan').value,
@@ -304,10 +336,8 @@ async function handleSubmitFormTNA() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
-
         const url = dataForm.id ? `/api/v1/training-needs/${dataForm.id}` : '/api/v1/training-needs';
         const method = dataForm.id ? 'PUT' : 'POST';
-
         const response = await fetch(url, {
             method: method,
             headers,
@@ -316,35 +346,43 @@ async function handleSubmitFormTNA() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            const pesanError = errorData.message || 
-                             errorData.errors?.join(', ') || 
-                             'Gagal menyimpan data';
+            const pesanError = errorData.message || errorData.errors?.join(', ') || 'Gagal menyimpan data';
             throw new Error(pesanError);
         }
 
-        await muatDataAwal();
+        await muatDataAwal(true);
         tutupModalTNA();
-        alert('Data TNA berhasil disimpan!');
+        // --- REPLACEMENT for alert() ---
+        showToast('Data TNA berhasil disimpan!', 'success');
     } catch (error) {
         console.error('Gagal menyimpan TNA:', error);
-        alert('Gagal menyimpan data TNA: ' + error.message);
+        // --- REPLACEMENT for alert() ---
+        showToast('Gagal menyimpan data TNA: ' + error.message, 'error');
     } finally {
         sembunyikanLoading();
     }
     return true;
 }
-
 // --- Fungsi Hapus Data ---
-window.hapusStaff = async function() {
-    const staffId = document.getElementById('staffId').value;
-    if (!staffId || !confirm('Apakah Anda yakin ingin menghapus staff ini? Semua data TNA terkait juga akan dihapus.')) return;
-    
+async function hapusStaff(staffId) {
+    const staff = daftarStaff.find(s => s.id === staffId);
+    if (!staff) {
+        showToast('Staff tidak ditemukan.', 'error');
+        return;
+    }
+
+    const isConfirmed = await showConfirmationModal({
+        title: 'Konfirmasi Hapus Staff',
+        message: `Anda akan menghapus staff: <strong>${staff.name}</strong>. Semua data TNA terkait juga akan dihapus. <br><br> Tindakan ini tidak dapat dibatalkan.`
+    });
+
+    if (!isConfirmed) return;
+
     tampilkanLoading();
     try {
         const token = window.authToken;
         const headers = {
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
 
@@ -358,27 +396,41 @@ window.hapusStaff = async function() {
             throw new Error(errorData.message || 'Gagal menghapus data');
         }
 
-        await muatDataAwal();
-        tutupModalStaff();
-        alert('Data staff berhasil dihapus!');
+        await muatDataAwal(true); // Refresh data from API
+        tutupModalStaff(); // Close modal if it was open
+        showToast('Data staff berhasil dihapus!', 'success');
     } catch (error) {
         console.error('Gagal menghapus staff:', error);
-        alert('Gagal menghapus staff: ' + error.message);
+        showToast('Gagal menghapus staff: ' + error.message, 'error');
     } finally {
         sembunyikanLoading();
     }
 }
 
-window.hapusDataTNA = async function() {
-    const tnaId = document.getElementById('tnaId').value;
-    if (!tnaId || !confirm('Apakah Anda yakin ingin menghapus data TNA ini?')) return;
+// --- REPLACEMENT for the old window.hapusDataTNA ---
+async function hapusDataTNA(tnaId) {
+    const tnaRecord = catatanTNA.find(t => t.id === tnaId);
+    if (!tnaRecord) {
+        showToast('Data TNA tidak ditemukan.', 'error');
+        return;
+    }
+    const staff = daftarStaff.find(s => s.id === tnaRecord.staff_id);
+    const staffName = staff ? staff.name : 'data ini';
+    const tanggal = tnaRecord.tanggal ? new Date(tnaRecord.tanggal).toLocaleDateString('id-ID') : 'N/A';
+
+    // --- REPLACEMENT for confirm() ---
+    const isConfirmed = await showConfirmationModal({
+        title: 'Konfirmasi Hapus Data TNA',
+        message: `Anda akan menghapus data TNA untuk staff <strong>${staffName}</strong> yang tercatat pada tanggal <strong>${tanggal}</strong>. <br><br> Tindakan ini tidak dapat dibatalkan.`
+    });
+
+    if (!isConfirmed) return;
 
     tampilkanLoading();
     try {
         const token = window.authToken;
         const headers = {
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
 
@@ -392,12 +444,14 @@ window.hapusDataTNA = async function() {
             throw new Error(errorData.message || 'Gagal menghapus data');
         }
 
-        await muatDataAwal();
+        await muatDataAwal(true);
         tutupModalTNA();
-        alert('Data TNA berhasil dihapus!');
+        // --- REPLACEMENT for alert() ---
+        showToast('Data TNA berhasil dihapus!', 'success');
     } catch (error) {
         console.error('Gagal menghapus TNA:', error);
-        alert('Gagal menghapus data TNA: ' + error.message);
+        // --- REPLACEMENT for alert() ---
+        showToast('Gagal menghapus TNA: ' + error.message, 'error');
     } finally {
         sembunyikanLoading();
     }
@@ -446,7 +500,7 @@ function renderTabelStaff() {
                 <button onclick="bukaModalEditStaff(${staff.id})" class="bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center border border-[#0CC0DF] mr-2">
                     <i class="fas fa-pen mr-1 text-[#0CC0DF]"></i>Edit
                 </button>
-                <button onclick="konfirmasiHapusStaff(${staff.id})" class="bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center border border-red-500">
+                <button onclick="hapusStaff(${staff.id})" class="bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center border border-red-500">
                     <i class="fas fa-trash mr-1 text-red-500"></i>Hapus
                 </button>
             </td>
@@ -493,7 +547,7 @@ function renderTabelTNA() {
                 <button onclick="bukaModalEditTNA(${tna.id})" class="bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center border border-[#0CC0DF] mr-2">
                     <i class="fas fa-pen mr-1 text-[#0CC0DF]"></i>Edit
                 </button>
-                <button onclick="konfirmasiHapusTNA(${tna.id})" class="bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center border border-red-500">
+                <button onclick="hapusDataTNA(${tna.id})" class="bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center border border-red-500">
                     <i class="fas fa-trash mr-1 text-red-500"></i>Hapus
                 </button>
             </td>
@@ -566,28 +620,13 @@ function perbaruiJumlahKartu() {
     if (elemTotalPendidikan) { elemTotalPendidikan.textContent = totalPendidikanLanjutan; }
 }
 
-// Fungsi Konfirmasi
-window.konfirmasiHapusStaff = function(staffId) {
-    if (confirm('Apakah Anda yakin ingin menghapus staff ini? Data TNA terkait juga akan terhapus.')) {
-        document.getElementById('staffId').value = staffId;
-        window.hapusStaff();
-    }
-};
-
-window.konfirmasiHapusTNA = function(tnaId) {
-    if (confirm('Apakah Anda yakin ingin menghapus data TNA ini?')) {
-        document.getElementById('tnaId').value = tnaId;
-        window.hapusDataTNA();
-    }
-};
-
 // --- Fungsi Export ---
 window.exportKeExcel = async function() {
     tampilkanLoading();
     try {
         const token = window.authToken;
         if (!token) {
-            alert('Token autentikasi tidak ditemukan.');
+            showToast('Token autentikasi tidak ditemukan.', 'error'); 
             return;
         }
 
@@ -629,11 +668,11 @@ window.exportKeExcel = async function() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        alert('Export Excel berhasil!');
+        showToast('Export Excel berhasil!', 'success');
 
     } catch (error) {
         console.error('Gagal export ke Excel:', error);
-        alert('Gagal export data ke Excel: ' + error.message);
+        showToast('Gagal export data ke Excel: ' + error.message, 'error');
     } finally {
         sembunyikanLoading();
     }
@@ -641,7 +680,7 @@ window.exportKeExcel = async function() {
 
 window.exportKePDF = async function() {
     tampilkanLoading();
-    alert('Fitur export PDF belum tersedia.');
+    showToast('Fitur export PDF belum tersedia.', 'info'); 
     sembunyikanLoading();
 };
 
@@ -664,3 +703,82 @@ document.addEventListener('click', function(event) {
         }
     }
 });
+
+// --- Fungsi Notifikasi Toast ---
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const template = document.getElementById('toast-template');
+    if (!container || !template) return;
+
+    const newToast = template.cloneNode(true);
+    newToast.id = ''; // Remove template ID
+    newToast.classList.remove('hidden');
+    newToast.classList.add('flex');
+
+    const iconDiv = newToast.querySelector('#toast-icon');
+    const messageDiv = newToast.querySelector('#toast-message');
+    messageDiv.textContent = message;
+
+    if (type === 'success') {
+        iconDiv.innerHTML = '<i class="fas fa-check"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg';
+    } else if (type === 'error') {
+        iconDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg';
+    } else { // Info
+        iconDiv.innerHTML = '<i class="fas fa-info-circle"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg';
+    }
+
+    container.appendChild(newToast);
+
+    // Automatically remove the toast after 5 seconds
+    setTimeout(() => {
+        newToast.style.transition = 'opacity 0.5s ease';
+        newToast.style.opacity = '0';
+        setTimeout(() => newToast.remove(), 500);
+    }, 5000);
+}
+
+// --- Fungsi Konfirmasi Modal ---
+function showConfirmationModal({ title, message, confirmText = 'Ya, Hapus', cancelText = 'Batal' }) {
+    const modal = document.getElementById('confirmationModal');
+    const modalBox = document.getElementById('confirmationModalBox');
+    const titleEl = document.getElementById('confirmationTitle');
+    const messageEl = document.getElementById('confirmationMessage');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+
+    titleEl.textContent = title;
+    messageEl.innerHTML = message; // Use innerHTML to allow for bolding, etc.
+    confirmBtn.textContent = confirmText;
+    cancelBtn.textContent = cancelText;
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+       modalBox.classList.remove('scale-95', 'opacity-0');
+       modalBox.classList.add('scale-100', 'opacity-100');
+    }, 10); // Small delay for transition to work
+
+    return new Promise((resolve) => {
+        confirmBtn.onclick = () => {
+            modal.classList.add('hidden');
+            modalBox.classList.add('scale-95', 'opacity-0');
+            resolve(true);
+        };
+
+        cancelBtn.onclick = () => {
+            modal.classList.add('hidden');
+            modalBox.classList.add('scale-95', 'opacity-0');
+            resolve(false);
+        };
+
+        modal.onclick = (e) => {
+             if(e.target === modal) {
+                modal.classList.add('hidden');
+                modalBox.classList.add('scale-95', 'opacity-0');
+                resolve(false);
+             }
+        }
+    });
+}

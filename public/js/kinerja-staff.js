@@ -19,59 +19,226 @@ function hideLoading() {
         overlay.classList.add('hidden');
     }
 }
+
+function showConfirmationModal({ title, message, confirmText = 'Ya, Hapus', cancelText = 'Batal' }) {
+    // Get all the modal elements
+    const modal = document.getElementById('myConfirmationModal');
+    const modalBox = document.getElementById('confirmationModalBox'); // The inner box for animation
+    const titleEl = document.getElementById('confirmationTitle');
+    const messageEl = document.getElementById('confirmationMessage');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+
+    if (!modal || !modalBox || !titleEl || !messageEl || !confirmBtn || !cancelBtn) {
+        console.error('One or more confirmation modal elements are missing from the HTML!');
+        return Promise.resolve(false); // Can't proceed
+    }
+
+    // Set the text content
+    titleEl.textContent = title;
+    messageEl.innerHTML = message; // Use innerHTML to allow for bolding or other tags
+    confirmBtn.textContent = confirmText;
+    cancelBtn.textContent = cancelText;
+
+    // Show the modal with animation
+    modal.classList.add('modal-visible'); 
+    setTimeout(() => { // A tiny delay allows the CSS transition to work
+        modal.style.opacity = '1';
+        modalBox.style.opacity = '1';
+        modalBox.style.transform = 'scale(1)';
+    }, 10);
+
+
+    return new Promise((resolve) => {
+        // Function to close the modal and resolve the promise
+        const closeModal = (result) => {
+            modal.style.opacity = '0';
+            modalBox.style.opacity = '0';
+            modalBox.style.transform = 'scale(0.95)';
+
+            // Wait for the animation to finish before adding 'hidden'
+            setTimeout(() => {
+                modal.classList.remove('modal-visible');
+                resolve(result);
+            }, 300); // Match this timeout to your CSS transition duration
+        };
+
+        // Assign clean, new onclick handlers
+        confirmBtn.onclick = () => closeModal(true);
+        cancelBtn.onclick = () => closeModal(false);
+
+        // Allow closing by clicking the background overlay
+        modal.onclick = (event) => {
+            if (event.target === modal) {
+                closeModal(false);
+            }
+        };
+    });
+}
+
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const template = document.getElementById('toast-template');
+    if (!template) return;
+
+    const newToast = template.cloneNode(true);
+    newToast.id = '';
+    newToast.classList.remove('hidden');
+    newToast.classList.add('flex');
+
+    const iconDiv = newToast.querySelector('#toast-icon');
+    const messageDiv = newToast.querySelector('#toast-message');
+    iconDiv.innerHTML = '';
+    messageDiv.textContent = message;
+
+    if (type === 'success') {
+        iconDiv.innerHTML = '<i class="fas fa-check"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg';
+    } else if (type === 'error') {
+        iconDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        iconDiv.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg';
+    }
+    container.appendChild(newToast);
+
+    setTimeout(() => {
+        newToast.style.transition = 'opacity 0.5s ease';
+        newToast.style.opacity = '0';
+        setTimeout(() => newToast.remove(), 500);
+    }, 5000);
+}
 // --- End Global Loading Functions ---
 
 
 // Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial data load
     loadInitialKinerjaStaffData();
-    setupKinerjaStaffEventListeners();
+
+    // Setup main event listener for all clicks on the page
+    document.body.addEventListener('click', (event) => {
+        const target = event.target.closest('button'); // Find the button that was clicked
+        if (!target) return; // Exit if the click wasn't on a button
+
+        // --- Handle Main Action Buttons ---
+        if (target.id === 'addPenilaianBtn') {
+            openAddPerformanceEvaluationModal();
+        }
+        if (target.id === 'addStaffBtn') {
+            openAddStaffModal();
+        }
+
+        // --- Handle Table Row Buttons ---
+        const staffId = target.dataset.staffId;
+        const evaluationId = target.dataset.evaluationId;
+        
+        if (target.matches('[data-action="edit-staff"]')) {
+            openEditStaffModal(staffId);
+        }
+        if (target.matches('[data-action="delete-staff"]')) {
+            deleteStaffManagement(staffId);
+        }
+        if (target.matches('[data-action="edit-evaluation"]')) {
+            openEditPerformanceEvaluationModal(evaluationId);
+        }
+        if (target.matches('[data-action="detail-evaluation"]')) {
+            openDetailPerformanceEvaluationModal(evaluationId);
+        }
+        if (target.matches('[data-action="delete-evaluation"]')) {
+            deletePerformanceEvaluation(evaluationId);
+        }
+    });
+
+    // --- Setup Listeners for Modals and Filters ---
+    document.getElementById('performanceEvaluationForm').addEventListener('submit', handlePerformanceEvaluationFormSubmit);
+    document.getElementById('staffManagementForm').addEventListener('submit', handleStaffManagementFormSubmit);
+    
+    document.getElementById('rekaptitulasiSearchInput')?.addEventListener('input', filterPerformanceEvaluations);
+    document.getElementById('rekaptitulasiFilterSelect')?.addEventListener('change', filterPerformanceEvaluations);
+
+    // Add other non-button listeners here if needed
 });
 
 // Load initial data for Kinerja Staff page
-async function loadInitialKinerjaStaffData() {
-    showLoading(); // Show loading for initial data fetch
+async function loadInitialKinerjaStaffData(forceRefresh = false) {
+    showLoading();
+
+    // Group keys for easier management
+    const cacheKeys = {
+        staff: 'prefetched_dinas_staff', // Re-use from dinas page
+        positions: 'prefetched_dinas_positions', // Re-use from dinas page
+        departments: 'prefetched_dinas_departments', // Re-use from dinas page
+        evaluations: 'prefetched_kinerja_evaluations'
+    };
+
+    const cachedStaff = sessionStorage.getItem(cacheKeys.staff);
+    const cachedPositions = sessionStorage.getItem(cacheKeys.positions);
+    const cachedDepartments = sessionStorage.getItem(cacheKeys.departments);
+    const cachedEvaluations = sessionStorage.getItem(cacheKeys.evaluations);
+
+    // Use cache if all data is available and not forcing a refresh
+    if (cachedStaff && cachedPositions && cachedDepartments && cachedEvaluations && !forceRefresh) {
+        console.log('⚡️ Loading Kinerja Staff data from cache.');
+        try {
+            staffMembers = JSON.parse(cachedStaff);
+            positions = JSON.parse(cachedPositions);
+            departments = JSON.parse(cachedDepartments);
+            performanceEvaluations = JSON.parse(cachedEvaluations);
+
+            // Render UI immediately from cache
+            renderStaffManagementTable();
+            renderPerformanceEvaluationTable();
+            updateStaffDropdownForEvaluation();
+            updatePositionDropdownForStaffManagement();
+            updateKinerjaStatistics();
+            hideLoading();
+            return;
+        } catch (e) {
+            console.error("Failed to parse cached Kinerja data, fetching from API.", e);
+        }
+    }
+    
+    // Fallback: If no cache or forceRefresh is true, fetch from API
+    if (forceRefresh) console.log('🔄 Forcing refresh of Kinerja Staff data...');
+    else console.log('No cache found. Fetching Kinerja Staff data from API...');
+
     try {
         const token = window.authToken;
-        if (!token) {
-            console.error('Bearer token missing');
-            return;
-        }
+        if (!token) throw new Error('Bearer token missing');
+        
+        const headers = { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` };
 
-        const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
-
-        // Fetch staff, positions, departments, and performance evaluations concurrently
         const [staffResponse, positionsResponse, departmentsResponse, evaluationsResponse] = await Promise.all([
             fetch('/api/v1/staff', { headers }),
             fetch('/api/v1/positions', { headers }),
-            fetch('/api/v1/departments', { headers }), // Fetch departments
+            fetch('/api/v1/departments', { headers }),
             fetch('/api/v1/performance-evaluations', { headers })
         ]);
 
         staffMembers = await staffResponse.json();
         positions = await positionsResponse.json();
-        departments = await departmentsResponse.json(); // Store departments
+        departments = await departmentsResponse.json();
         performanceEvaluations = await evaluationsResponse.json();
+        
+        // **NEW**: Cache the freshly fetched data
+        sessionStorage.setItem(cacheKeys.staff, JSON.stringify(staffMembers));
+        sessionStorage.setItem(cacheKeys.positions, JSON.stringify(positions));
+        sessionStorage.setItem(cacheKeys.departments, JSON.stringify(departments));
+        sessionStorage.setItem(cacheKeys.evaluations, JSON.stringify(performanceEvaluations));
+        console.log('✅ Kinerja Staff data has been cached.');
 
-        console.log('Staff Members:', staffMembers);
-        console.log('Positions:', positions);
-        console.log('Departments:', departments);
-        console.log('Performance Evaluations:', performanceEvaluations);
-
+        // Render UI with fresh data
         renderStaffManagementTable();
         renderPerformanceEvaluationTable();
         updateStaffDropdownForEvaluation();
-        updatePositionDropdownForStaffManagement(); // Call this to populate dropdowns in modals
+        updatePositionDropdownForStaffManagement();
         updateKinerjaStatistics();
+
     } catch (error) {
         console.error('Error loading initial data for Kinerja Staf:', error);
-        alert('Gagal memuat data. Silakan coba lagi.');
+        showToast('Gagal memuat data. Silakan coba lagi.', 'error');
     } finally {
-        hideLoading(); // Always hide loading
+        hideLoading();
     }
 }
 
@@ -118,7 +285,7 @@ function openAddPerformanceEvaluationModal() {
     document.getElementById('kepatuhan').value = '';
     document.getElementById('targetKerja').value = '';
     document.getElementById('notes').value = '';
-    document.getElementById('deleteEvaluationBtn').classList.add('hidden');
+    
     document.getElementById('performanceEvaluationModal').classList.remove('hidden');
     document.getElementById('performanceEvaluationModal').classList.add('flex');
     updateStaffDropdownForEvaluation(); // Ensure dropdown is populated when adding
@@ -137,7 +304,6 @@ function openEditPerformanceEvaluationModal(evaluationId) {
     document.getElementById('kepatuhan').value = evaluation.kepatuhan;
     document.getElementById('targetKerja').value = evaluation.target_kerja;
     document.getElementById('notes').value = evaluation.notes;
-    document.getElementById('deleteEvaluationBtn').classList.remove('hidden');
     document.getElementById('performanceEvaluationModal').classList.remove('hidden');
     document.getElementById('performanceEvaluationModal').classList.add('flex');
     updateStaffDropdownForEvaluation(); // Ensure dropdown is populated when editing
@@ -186,7 +352,6 @@ function openAddStaffModal() {
     document.getElementById('staffManagementFullName').value = '';
     document.getElementById('staffManagementPosition').value = '';
     document.getElementById('staffManagementStatus').value = 'Aktif';
-    document.getElementById('deleteStaffManagementBtn').classList.add('hidden'); // Hide delete for add
     document.getElementById('staffManagementModal').classList.remove('hidden');
     document.getElementById('staffManagementModal').classList.add('flex');
     updatePositionDropdownForStaffManagement(); // Populate position dropdown
@@ -201,7 +366,6 @@ function openEditStaffModal(staffId) {
     document.getElementById('staffManagementFullName').value = staff.name;
     document.getElementById('staffManagementPosition').value = staff.position_id;
     document.getElementById('staffManagementStatus').value = staff.status;
-    document.getElementById('deleteStaffManagementBtn').classList.remove('hidden'); // Show delete for edit
     document.getElementById('staffManagementModal').classList.remove('hidden');
     document.getElementById('staffManagementModal').classList.add('flex');
     updatePositionDropdownForStaffManagement(); // Populate position dropdown
@@ -254,12 +418,12 @@ async function handlePerformanceEvaluationFormSubmit(e) {
             throw new Error(errorData.message || 'Network response was not ok');
         }
 
-        await loadInitialKinerjaStaffData(); // Refresh data
+        await loadInitialKinerjaStaffData(true); // Refresh data
         closePerformanceEvaluationModal();
-        alert('Penilaian berhasil disimpan!');
+        showToast('Penilaian berhasil disimpan!', 'success');
     } catch (error) {
         console.error('Error saving performance evaluation:', error);
-        alert('Gagal menyimpan penilaian: ' + error.message);
+        showToast('Gagal menyimpan penilaian: ' + error.message, 'error');
     } finally {
         hideLoading(); // Hide loading
     }
@@ -307,12 +471,12 @@ async function handleStaffManagementFormSubmit(e) {
             throw new Error(errorData.message || 'Network response was not ok');
         }
 
-        await loadInitialKinerjaStaffData(); // Refresh data for both tables
+        await loadInitialKinerjaStaffData(true); // Refresh data for both tables
         closeStaffManagementModal();
-        alert('Data staff berhasil disimpan!');
+        showToast('Data staff berhasil disimpan!', 'success');
     } catch (error) {
         console.error('Error saving staff:', error);
-        alert('Gagal menyimpan data staff: ' + error.message);
+        showToast('Gagal menyimpan data staff: ' + error.message, 'error');
     } finally {
         hideLoading(); // Hide loading
     }
@@ -320,69 +484,59 @@ async function handleStaffManagementFormSubmit(e) {
 
 // --- Delete Functions ---
 
-window.deletePerformanceEvaluation = async function() {
-    const evaluationId = document.getElementById('evaluationId').value;
-    if (!evaluationId || !confirm('Apakah Anda yakin ingin menghapus penilaian ini?')) return;
-    
-    showLoading(); // Show loading
+async function deletePerformanceEvaluation (evaluationId) {
+    if (!evaluationId) return;
+
+    const isConfirmed = await showConfirmationModal({
+        title: 'Hapus Penilaian',
+        message: 'Apakah Anda yakin ingin menghapus penilaian ini?'
+    });
+
+    if (!isConfirmed) return;
+
+    showLoading();
     try {
         const token = window.authToken;
-        const headers = {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+        const headers = { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` };
+        const response = await fetch(`/api/v1/performance-evaluations/${evaluationId}`, { method: 'DELETE', headers });
 
-        const response = await fetch(`/api/v1/performance-evaluations/${evaluationId}`, {
-            method: 'DELETE',
-            headers
-        });
+        if (!response.ok) throw new Error((await response.json()).message || 'Gagal menghapus');
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Network response was not ok');
-        }
-
-        await loadInitialKinerjaStaffData(); // Refresh data
+        await loadInitialKinerjaStaffData(true);
         closePerformanceEvaluationModal();
-        alert('Penilaian berhasil dihapus!');
+        showToast('Penilaian berhasil dihapus!', 'success');
     } catch (error) {
-        console.error('Error deleting performance evaluation:', error);
-        alert('Gagal menghapus penilaian: ' + error.message);
+        showToast('Gagal menghapus penilaian: ' + error.message, 'error');
     } finally {
-        hideLoading(); // Hide loading
+        hideLoading();
     }
 }
 
-window.deleteStaffManagement = async function() {
-    const staffId = document.getElementById('staffManagementId').value;
-    if (!staffId || !confirm('Apakah Anda yakin ingin menghapus staff ini? Semua penilaian terkait juga akan terhapus.')) return;
-    
-    showLoading(); // Show loading
+async function deleteStaffManagement (staffId) {
+    if (!staffId) return;
+
+    const isConfirmed = await showConfirmationModal({
+        title: 'Hapus Staff',
+        message: 'Apakah Anda yakin ingin menghapus staff ini? Semua penilaian kinerja terkait juga akan dihapus.'
+    });
+
+    if (!isConfirmed) return;
+
+    showLoading();
     try {
         const token = window.authToken;
-        const headers = {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+        const headers = { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` };
+        const response = await fetch(`/api/v1/staff/${staffId}`, { method: 'DELETE', headers });
 
-        const response = await fetch(`/api/v1/staff/${staffId}`, {
-            method: 'DELETE',
-            headers
-        });
+        if (!response.ok) throw new Error((await response.json()).message || 'Gagal menghapus');
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Network response was not ok');
-        }
-
-        await loadInitialKinerjaStaffData(); // Refresh data
+        await loadInitialKinerjaStaffData(true); // Refresh all data
         closeStaffManagementModal();
-        alert('Data staff berhasil dihapus!');
+        showToast('Data staff berhasil dihapus!', 'success');
     } catch (error) {
-        console.error('Error deleting staff:', error);
-        alert('Gagal menghapus staff: ' + error.message);
+        showToast('Gagal menghapus staff: ' + error.message, 'error');
     } finally {
-        hideLoading(); // Hide loading
+        hideLoading();
     }
 }
 
@@ -425,10 +579,10 @@ function renderStaffManagementTable() {
             </td>
             <td class="px-6 py-4">
                 <div class="flex space-x-2">
-                    <button onclick="openEditStaffModal(${staff.id})" class="animated-button bg-white border border-blue-500 text-blue-500 px-4 py-2 rounded-lg text-xs font-semibold">
+                    <button data-action="edit-staff" data-staff-id="${staff.id}" class="animated-button bg-white border border-blue-500 text-blue-500 px-4 py-2 rounded-lg text-xs font-semibold">
                         <i class="fas fa-pen mr-1 text-blue-500"></i>Edit
                     </button>
-                    <button onclick="deleteStaffManagementById(${staff.id})" class="animated-button bg-white border border-red-500 text-red-500 px-4 py-2 rounded-lg text-xs font-semibold">
+                    <button data-action="delete-staff" data-staff-id="${staff.id}" class="animated-button bg-white border border-red-500 text-red-500 px-4 py-2 rounded-lg text-xs font-semibold">
                         <i class="fas fa-trash mr-1 text-red-500"></i>Hapus
                     </button>
                 </div>
@@ -517,11 +671,14 @@ function renderPerformanceEvaluationTable() {
             </td>
             <td class="px-6 py-4">
                 <div class="flex space-x-2">
-                    <button onclick="openEditPerformanceEvaluationModal(${evaluation.id})" class="animated-button bg-white border border-blue-500 text-blue-500 px-4 py-2 rounded-lg text-xs font-semibold">
+                    <button data-action="edit-evaluation" data-evaluation-id="${evaluation.id}" class="animated-button bg-white border border-blue-500 text-blue-500 px-4 py-2 rounded-lg text-xs font-semibold">
                         <i class="fas fa-pen mr-1 text-blue-500"></i>Edit
                     </button>
-                    <button onclick="openDetailPerformanceEvaluationModal(${evaluation.id})" class="animated-button bg-white border border-blue-500 text-blue-500 px-4 py-2 rounded-lg text-xs font-semibold">
+                    <button data-action="detail-evaluation" data-evaluation-id="${evaluation.id}" class="animated-button bg-white border border-blue-500 text-blue-500 px-4 py-2 rounded-lg text-xs font-semibold">
                         <i class="fas fa-eye mr-1 text-blue-500"></i>Detail
+                    </button>
+                    <button data-action="delete-evaluation" data-evaluation-id="${evaluation.id}" class="animated-button bg-white border border-red-500 text-red-500 px-4 py-2 rounded-lg text-xs font-semibold">
+                        <i class="fas fa-trash mr-1 text-red-500"></i>Hapus
                     </button>
                 </div>
             </td>
@@ -571,11 +728,12 @@ function updatePositionDropdownForStaffManagement() {
 
 function getPerformanceBadgeColor(status) {
     switch (status) {
-        case 'Excellent Performance': return '#10b981'; // Green
-        case 'Good Performance': return '#3b82f6';    // Blue
-        case 'Need Mentoring': return '#f59e0b';    // Yellow/Orange
-        case 'Need Improvement': return '#ef4444';  // Red
-        default: return '#6b7280'; // Gray
+        case 'Sangat Baik': return '#10b981'; // Green
+        case 'Baik': return '#3b82f6';      // Blue
+        case 'Cukup': return '#f59e0b';     // Yellow/Orange
+        case 'Kurang': return '#ef4444';    // Red
+        case 'Sangat Kurang': return '#b91c1c'; // Dark Red
+        default: return '#6b7280';          // Gray
     }
 }
 
@@ -604,28 +762,31 @@ function getRatingDescription(rating) {
 
 
 function updateKinerjaStatistics() {
-    let excellentCount = 0;
-    let goodCount = 0;
-    let mentoringCount = 0;
-    let improvementCount = 0;
+    // These variable names remain the same
+    let excellentCount = 0; // Represents "Sangat Baik"
+    let goodCount = 0;      // Represents "Baik"
+    let mentoringCount = 0; // Represents "Cukup"
+    let improvementCount = 0; // Represents "Kurang"
 
     performanceEvaluations.forEach(evaluation => {
+        // Correctly check for Indonesian status strings
         switch (evaluation.status_kinerja) {
-            case 'Excellent Performance':
+            case 'Sangat Baik':
                 excellentCount++;
                 break;
-            case 'Good Performance':
+            case 'Baik':
                 goodCount++;
                 break;
-            case 'Need Mentoring':
+            case 'Cukup':
                 mentoringCount++;
                 break;
-            case 'Need Improvement':
+            case 'Kurang':
                 improvementCount++;
                 break;
         }
     });
 
+    // The IDs here match the HTML, so this part is fine
     document.getElementById('excellentPerformanceCount').textContent = excellentCount;
     document.getElementById('goodPerformanceCount').textContent = goodCount;
     document.getElementById('needMentoringCount').textContent = mentoringCount;
@@ -636,14 +797,6 @@ function filterPerformanceEvaluations() {
     renderPerformanceEvaluationTable(); // Re-render table with current filters
 }
 
-// Helper function to call deleteStaffManagement with a specific ID
-// This is used by the inline onclick in the staff management table
-window.deleteStaffManagementById = function(staffId) {
-    // Set the staffId in the hidden input of the staff modal temporarily
-    // This mimics opening the edit modal and then hitting delete, but directly handles deletion.
-    document.getElementById('staffManagementId').value = staffId;
-    deleteStaffManagement(); // Call the main delete function
-}
 
 // Make functions globally accessible if needed by inline HTML event handlers
 window.openAddPerformanceEvaluationModal = openAddPerformanceEvaluationModal;
@@ -655,4 +808,4 @@ window.openAddStaffModal = openAddStaffModal;
 window.openEditStaffModal = openEditStaffModal;
 window.closeStaffManagementModal = closeStaffManagementModal;
 window.deletePerformanceEvaluation = deletePerformanceEvaluation;
-// deleteStaffManagementById is already global via window.deleteStaffManagementById
+window.deleteStaffManagement = deleteStaffManagement;

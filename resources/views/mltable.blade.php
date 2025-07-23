@@ -14,14 +14,9 @@
     <style>
         /* Remove any blue link colors */
         a {
-            color: inherit;
             text-decoration: none;
         }
         
-        a:hover {
-            color: inherit;
-            text-decoration: underline;
-        }
         html, body {
             background-color: #ffffff !important;
         }

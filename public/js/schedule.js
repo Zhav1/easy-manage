@@ -135,10 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(error.message || 'Gagal menyimpan catatan pribadi');
             }
 
-            const result = await response.json();
-            renderPrivateScheduleRow(result);
+            await loadPrivateSchedules(true); // This will refetch, re-cache, and re-render the entire table
             resetPrivateScheduleForm();
-            showNotification('Catatan pribadi berhasil disimpan!', 'success'); // Success notification
+            showNotification('Catatan pribadi berhasil disimpan!', 'success'); 
 
         } catch (error) {
             console.error('Error saving private schedule:', error);
@@ -168,17 +167,37 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    async function loadPrivateSchedules() {
+    async function loadPrivateSchedules(forceRefresh = false) {
+        const cacheKey = 'prefetched_schedule_private';
+        const cachedData = sessionStorage.getItem(cacheKey);
+
+        if (cachedData && !forceRefresh) {
+            console.log('⚡️ Loading private schedules from cache.');
+            try {
+                const schedules = JSON.parse(cachedData);
+                renderPrivateSchedules(schedules);
+                return;
+            } catch (e) {
+                console.error("Failed to parse cached private schedules, fetching from API.", e);
+            }
+        }
+
+        if (forceRefresh) console.log('🔄 Forcing refresh of private schedules...');
+        else console.log('No cache found. Fetching private schedules from API...');
+        
         try {
             showLoading();
             const response = await fetch(PRIVATE_SCHEDULE_API_BASE, { headers });
             if (!response.ok) throw new Error('Gagal mengambil data catatan pribadi');
-
             const schedules = await response.json();
+
+            // **NEW**: Cache the freshly fetched data
+            sessionStorage.setItem(cacheKey, JSON.stringify(schedules));
+            console.log('✅ Private schedules data has been cached.');
+
             renderPrivateSchedules(schedules);
         } catch (error) {
             console.error('Error loading private schedules:', error);
-            // No alert here, just render empty state gracefully
             renderEmptyPrivateScheduleState();
         } finally {
             hideLoading();
@@ -354,13 +373,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(error.message || 'Gagal memperbarui catatan pribadi');
                 }
 
-                const updatedSchedule = await response.json();
-
                 // Remove the old row
                 document.querySelector(`tr[data-id="${id}"]`)?.remove();
-                // Add the updated row (will be added in sorted position)
-                renderPrivateScheduleRow(updatedSchedule);
-                showNotification('Catatan pribadi berhasil diperbarui!', 'success'); // Success notification
+                // AFTER
+                await loadPrivateSchedules(true); // This line fetches fresh data, updates the cache, and re-renders the table.
+                showNotification('Catatan pribadi berhasil diperbarui!', 'success')
 
             } catch (error) {
                 console.error('Error updating private schedule:', error);
@@ -395,8 +412,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (scheduleTableBody.querySelectorAll('tr').length === 0) {
                 renderEmptyPrivateScheduleState();
             }
+            // REPLACE them with this single line:
+            await loadPrivateSchedules(true); // This will refetch, re-cache, and re-render everything
             closePrivateScheduleModal();
-            showNotification('Catatan pribadi berhasil dihapus!', 'success'); // Success notification
+            showNotification('Catatan pribadi berhasil dihapus!', 'success');
 
         } catch (error) {
             console.error('Error deleting private schedule:', error);
@@ -508,10 +527,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(error.message || 'Gagal menyimpan kasus khusus');
             }
 
-            const result = await response.json();
-            renderSpecialCaseRow(result);
+            await loadSpecialCases(true); // This will refetch, re-cache, and re-render the table
             resetSpecialCaseForm();
-            showNotification('Kasus khusus berhasil disimpan!', 'success'); // Success notification
+            showNotification('Kasus khusus berhasil disimpan!', 'success');
 
         } catch (error) {
             console.error('Error saving special case:', error);
@@ -533,17 +551,37 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    async function loadSpecialCases() {
+    async function loadSpecialCases(forceRefresh = false) {
+        const cacheKey = 'prefetched_schedule_special';
+        const cachedData = sessionStorage.getItem(cacheKey);
+
+        if (cachedData && !forceRefresh) {
+            console.log('⚡️ Loading special cases from cache.');
+            try {
+                const specialCases = JSON.parse(cachedData);
+                renderSpecialCases(specialCases);
+                return;
+            } catch (e) {
+                console.error("Failed to parse cached special cases, fetching from API.", e);
+            }
+        }
+        
+        if (forceRefresh) console.log('🔄 Forcing refresh of special cases...');
+        else console.log('No cache found. Fetching special cases from API...');
+        
         try {
             showLoading();
             const response = await fetch(SPECIAL_CASE_API_BASE, { headers });
             if (!response.ok) throw new Error('Gagal mengambil data kasus khusus');
-
             const specialCases = await response.json();
+
+            // **NEW**: Cache the freshly fetched data
+            sessionStorage.setItem(cacheKey, JSON.stringify(specialCases));
+            console.log('✅ Special cases data has been cached.');
+
             renderSpecialCases(specialCases);
         } catch (error) {
             console.error('Error loading special cases:', error);
-            // No alert here, just render empty state gracefully
             renderEmptySpecialCaseState();
         } finally {
             hideLoading();
@@ -716,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Remove the old row
                 document.querySelector(`#specialCasesTableBody tr[data-id="${id}"]`)?.remove();
                 // Add the updated row (will be added in sorted position)
-                renderSpecialCaseRow(updatedSpecialCase);
+                await loadSpecialCases(true);
                 showNotification('Kasus khusus berhasil diperbarui!', 'success'); // Success notification
 
             } catch (error) {
@@ -747,11 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) throw new Error('Gagal menghapus data kasus khusus');
 
-            document.querySelector(`#specialCasesTableBody tr[data-id="${id}"]`)?.remove();
-
-            if (specialCasesTableBody.querySelectorAll('tr').length === 0) {
-                renderEmptySpecialCaseState();
-            }
+            await loadSpecialCases(true);
             closeSpecialCaseModal();
             showNotification('Kasus khusus berhasil dihapus!', 'success'); // Success notification
 

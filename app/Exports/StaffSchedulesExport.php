@@ -2,117 +2,51 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Schedule;
-use App\Models\Staff;
-use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
-class StaffSchedulesExport implements FromCollection, WithHeadings, ShouldAutoSize, WithMapping
+class StaffSchedulesExport implements FromView, ShouldAutoSize, WithColumnWidths
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function collection()
+    protected $allMonthlySchedulesData;
+    protected $overallReportPeriodTitle;
+
+    public function __construct(array $allMonthlySchedulesDataFromController, string $overallReportPeriodTitle)
     {
-        $user = Auth::user();
-        
-        // Get the current week's start and end dates (Monday to Sunday)
-        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
-        $endOfWeek = Carbon::now()->endOfWeek(Carbon::SUNDAY);
-
-        // Fetch all schedules for staff managed by the authenticated user within this week
-        $schedules = Schedule::with(['staff', 'shift'])
-            ->whereHas('staff', function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->where('department_id', $user->department_id)
-                    ->where('hospital_id', $user->hospital_id);
-            })
-            ->whereBetween('start', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
-            ->orderBy('staff_id')
-            ->orderBy('start')
-            ->get();
-
-        // Get all relevant staff names for the rows
-        $allStaff = Staff::where('user_id', $user->id)
-                        ->where('department_id', $user->department_id)
-                        ->where('hospital_id', $user->hospital_id)
-                        ->orderBy('name')
-                        ->get();
-
-        $groupedSchedules = [];
-        // Initialize the structure with all staff and empty days
-        foreach ($allStaff as $staff) {
-            $groupedSchedules[$staff->id] = ['staff_name' => $staff->name];
-            for ($i = 0; $i < 7; $i++) {
-                $date = (clone $startOfWeek)->addDays($i);
-                $dayKey = strtolower($date->isoFormat('dddd')); // e.g., 'senin', 'selasa'
-                $groupedSchedules[$staff->id][$dayKey] = []; // To store multiple shifts for a day
-            }
-        }
-
-        // Populate the grouped schedules with actual shift data
-        foreach ($schedules as $schedule) {
-            $staffId = $schedule->staff_id;
-            $shiftCode = $schedule->shift->code ?? 'N/A';
-            // Map 'Sore' to 'Siang' for display consistency as per your JS
-            if ($shiftCode === 'Sore') {
-                $shiftCode = 'Siang';
-            }
-            $scheduleDate = Carbon::parse($schedule->start);
-            $dayKey = strtolower($scheduleDate->isoFormat('dddd'));
-
-            if (isset($groupedSchedules[$staffId][$dayKey])) {
-                $groupedSchedules[$staffId][$dayKey][] = $shiftCode;
-            }
-        }
-
-        // Transform the grouped data into a flat collection suitable for export
-        $exportData = collect();
-        foreach ($groupedSchedules as $staffRow) {
-            $row = [$staffRow['staff_name']]; // First column is staff name
-            for ($i = 0; $i < 7; $i++) {
-                $date = (clone $startOfWeek)->addDays($i);
-                $dayKey = strtolower($date->isoFormat('dddd'));
-                $shifts = $staffRow[$dayKey];
-                // Join multiple shifts for a day, if any
-                $row[] = empty($shifts) ? '-' : implode(', ', $shifts);
-            }
-            $exportData->push($row);
-        }
-
-        return $exportData;
+        $this->allMonthlySchedulesData = $allMonthlySchedulesDataFromController;
+        $this->overallReportPeriodTitle = $overallReportPeriodTitle;
     }
 
     /**
-     * Define the column headings for the Excel file.
-     * @return array
+     * This is the core change. The export now gets its content from a dedicated
+     * Blade view file, which is much more reliable for complex layouts.
+     * This does NOT affect your PDF view file.
      */
-    public function headings(): array
+    public function view(): View
     {
-        return [
-            'Nama Staff',
-            'Senin',
-            'Selasa',
-            'Rabu',
-            'Kamis',
-            'Jumat',
-            'Sabtu',
-            'Minggu',
-        ];
+        return view('reports.staff_schedules_excel', [
+            'all_monthly_schedules_data' => $this->allMonthlySchedulesData,
+            'report_period_title'      => $this->overallReportPeriodTitle,
+        ]);
     }
 
     /**
-     * Map the data row to the columns.
-     * @param mixed $row
-     * @return array
+     * Defines the column widths for the Excel file.
      */
-    public function map($row): array
+    public function columnWidths(): array
     {
-        // The collection method already prepares rows as arrays
-        return $row;
+        // Set a generous width for the staff name column
+        $widths = ['A' => 30]; 
+
+        // Set a small, fixed width for all the shift columns
+        for ($i = 1; $i <= 31; $i++) {
+            $colIndex = 1 + (($i - 1) * 3) + 1;
+            $widths[Coordinate::stringFromColumnIndex($colIndex)]     = 4; // P
+            $widths[Coordinate::stringFromColumnIndex($colIndex + 1)] = 4; // S
+            $widths[Coordinate::stringFromColumnIndex($colIndex + 2)] = 4; // M
+        }
+        return $widths;
     }
 }

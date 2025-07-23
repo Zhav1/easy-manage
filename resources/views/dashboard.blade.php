@@ -7,6 +7,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>EasyManage Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script>
+        window.authToken = "{{ session('token') }}";
+    </script>
+    <script src="{{ asset('js/dashboard.js') }}"></script>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
@@ -14,6 +18,7 @@
     
 </head>
 <body class="h-full overflow-hidden bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+    
     @include('components.sidebar-navbar')
     
     <div class="sm:ml-64 mt-3 h-full overflow-hidden">

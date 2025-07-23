@@ -21,6 +21,9 @@ use App\Models\KrkForm;
 use App\Models\PoeForm;
 use App\Models\ScForm;
 use Illuminate\Support\Str; 
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\QualityIndicatorsExport;
 
 class QualityInspectionController extends Controller
 {
@@ -92,6 +95,35 @@ class QualityInspectionController extends Controller
             'data' => array_merge($topLevelData, ['entries' => $combinedEntries]),
             'history' => $allDataRecords->toArray()
         ]);
+    }
+
+    public function getAllIndicatorsData()
+    {
+        $user = Auth::user();
+        $allIndicatorsData = [];
+
+        foreach ($this->formModels as $formType => $modelClass) {
+            $model = new $modelClass();
+            $records = $model::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+            
+            $combinedEntries = [];
+            foreach ($records as $record) {
+                if (isset($record->data['entries']) && is_array($record->data['entries'])) {
+                    $combinedEntries = array_merge($combinedEntries, $record->data['entries']);
+                }
+            }
+
+            $latestRecord = $records->first();
+            $topLevelData = $latestRecord ? $latestRecord->data : [];
+            unset($topLevelData['entries']);
+
+            $allIndicatorsData[$formType] = [
+                'data' => array_merge($topLevelData, ['entries' => $combinedEntries]),
+                'history' => $records->toArray()
+            ];
+        }
+
+        return response()->json($allIndicatorsData);
     }
 
     /**
@@ -365,5 +397,121 @@ class QualityInspectionController extends Controller
         }
         
         return $allQualityEntries->sortBy('submitted_at')->values(); // Sort by submission time for consistency
+    }
+
+    private function getUserInfoForPdf() {
+        return Auth::user()->load('department', 'hospital');
+    }
+
+    private function calculateFormCompliance($formType, $data)
+    {
+        if (!$data || !isset($data['entries']) || empty($data['entries'])) {
+            return 0;
+        }
+        $entries = collect($data['entries']);
+        $numerator = 0;
+        $denominator = $entries->count();
+        if ($denominator == 0) return 0;
+
+        switch ($formType) {
+            case 'hand-hygiene':
+                $numerator = $entries->sum('total_handwash') + $entries->sum('total_handrub');
+                $denominator = $entries->sum('total_kesempatan');
+                break;
+            case 'apd':
+                $numerator = $entries->where('kepatuhan', 'Patuh')->count();
+                break;
+            case 'jatuh':
+                $numerator = $entries->where('ketiga_upaya_ya', true)->count();
+                break;
+            case 'identifikasi':
+                $numerator = $entries->where('dilakukan', true)->count();
+                break;
+            case 'wtri':
+                $numerator = $entries->filter(fn($e) => (intval($e['respon_time_ca'] ?? 999)) <= 60)->count();
+                break;
+            case 'kritis-lab':
+                $numerator = $entries->where('pelaporan_status', '≤ 30 Menit')->count();
+                break;
+            case 'fornas':
+                $numerator = $entries->where('formularium_nasional', true)->count();
+                break;
+            case 'visite':
+                $numerator = $entries->filter(fn($e) => (intval(substr($e['jam'] ?? '99', 0, 2))) < 14)->count();
+                break;
+            case 'cp':
+                $totals = $data['totals'] ?? [];
+                $numerator = ($totals['asesmen_p'] ?? 0) + ($totals['fisik_p'] ?? 0) + ($totals['penunjang_p'] ?? 0) + ($totals['obat_p'] ?? 0);
+                $denominator = $numerator + ($totals['asesmen_n'] ?? 0) + ($totals['asesmen_c'] ?? 0) + ($totals['fisik_n'] ?? 0) + ($totals['fisik_c'] ?? 0) + ($totals['penunjang_n'] ?? 0) + ($totals['penunjang_c'] ?? 0) + ($totals['obat_n'] ?? 0) + ($totals['obat_c'] ?? 0);
+                break;
+            case 'kepuasan':
+                $numerator = $entries->filter(fn($e) => in_array($e['nilai_kepuasan'] ?? '', ['4 (Puas)', '5 (Sangat Puas)']))->count();
+                break;
+            case 'krk':
+                $numerator = $entries->where('penyelesaian_ya', true)->count();
+                break;
+            case 'poe':
+                $delayedCount = $entries->where('penundaan_gt_1hr', true)->count();
+                $numerator = $denominator - $delayedCount;
+                break;
+            case 'sc':
+                $numerator = $entries->filter(fn($e) => (intval($e['waktu_tanggap'] ?? 999)) <= 30)->count();
+                break;
+        }
+
+        return ($denominator > 0) ? round(($numerator / $denominator) * 100) : 0;
+    }
+
+    public function getQualityIndicatorsReportData()
+    {
+        $user = Auth::user();
+        $reportData = [];
+
+        foreach ($this->formModels as $formType => $modelClass) {
+            $records = $modelClass::where('user_id', $user->id)->get();
+            $allEntries = $records->pluck('data.entries')->flatten(1)->filter()->values();
+            
+            $latestRecordData = $records->sortByDesc('created_at')->first()->data ?? ['entries' => []];
+            $latestRecordData['entries'] = $allEntries->toArray();
+            
+            $reportData[$formType] = [
+                'name' => ucwords(str_replace('-', ' ', $formType)),
+                'data' => $latestRecordData,
+                'compliance' => $this->calculateFormCompliance($formType, $latestRecordData),
+            ];
+        }
+        return $reportData;
+    }
+
+    public function exportQualityIndicatorsPdf(Request $request)
+    {
+        $chartImages = $request->input('chart_images', []);
+
+        // START: ADD THIS SAFETY CHECK
+        // This loop ensures that any invalid or empty image data is removed
+        // before being sent to the view, preventing a server crash.
+        foreach ($chartImages as $key => $image) {
+            if (empty($image) || !is_string($image) || strpos($image, 'data:image/png;base64,') !== 0) {
+                $chartImages[$key] = null;
+            }
+        }
+        // END: ADD THIS SAFETY CHECK
+
+        $data = [
+            'title'         => 'Laporan Lengkap Indikator Mutu',
+            'date'          => \Carbon\Carbon::now()->format('d F Y H:i'),
+            'userInfo'      => $this->getUserInfoForPdf(),
+            'reportData'    => $this->getQualityIndicatorsReportData(),
+            'chartImages'   => $chartImages, // Pass the sanitized array
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.quality_indicators_pdf', $data)->setPaper('a4', 'portrait');
+        return $pdf->stream('Laporan_Indikator_Mutu.pdf');
+    }
+
+    public function exportQualityIndicatorsExcel()
+    {
+        $fileName = 'Laporan_Indikator_Mutu_' . Carbon::now()->format('Y-m-d') . '.xlsx';
+        return Excel::download(new QualityIndicatorsExport(), $fileName);
     }
 }

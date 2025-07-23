@@ -1,0 +1,1 @@
+<p class="no-data">Tampilan ringkasan untuk laporan ini belum tersedia.</p>

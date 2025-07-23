@@ -50,7 +50,7 @@
                 <div class="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 text-gray-700 shadow hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs md:text-sm font-medium text-gray-500">Excellent</p>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">Sangat Baik</p>
                             <p class="text-xl md:text-3xl font-bold text-gray-700" id="excellentPerformanceCount">0</p>
                         </div>
                         <div class="w-8 h-8 md:w-12 md:h-12 bg-gray-100 rounded-full flex items-center justify-center">
@@ -62,7 +62,7 @@
                 <div class="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 text-gray-700 shadow hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs md:text-sm font-medium text-gray-500">Good</p>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">Baik</p>
                             <p class="text-xl md:text-3xl font-bold text-gray-700" id="goodPerformanceCount">0</p>
                         </div>
                         <div class="w-8 h-8 md:w-12 md:h-12 bg-gray-100 rounded-full flex items-center justify-center">
@@ -74,7 +74,7 @@
                 <div class="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 text-gray-700 shadow hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs md:text-sm font-medium text-gray-500">Need Mentoring</p>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">Cukup</p>
                             <p class="text-xl md:text-3xl font-bold text-gray-700" id="needMentoringCount">0</p>
                         </div>
                         <div class="w-8 h-8 md:w-12 md:h-12 bg-gray-100 rounded-full flex items-center justify-center">
@@ -86,7 +86,7 @@
                 <div class="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 text-gray-700 shadow hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs md:text-sm font-medium text-gray-500">Need Improvement</p>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">Kurang</p>
                             <p class="text-xl md:text-3xl font-bold text-gray-700" id="needImprovementCount">0</p>
                         </div>
                         <div class="w-8 h-8 md:w-12 md:h-12 bg-gray-100 rounded-full flex items-center justify-center">
@@ -133,12 +133,13 @@
                             <input type="text" id="rekaptitulasiSearchInput" placeholder="Cari staff..." class="pl-8 pr-3 py-2 md:pl-10 md:pr-4 md:py-2 border border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full">
                             <i class="fas fa-search absolute left-2 top-2.5 md:left-3 md:top-3 text-blue-500 text-sm"></i>
                         </div>
-                        <select id="rekaptitulasiFilterSelect" class="px-3 py-2 md:px-4 md:py-2 border border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full">
+                        <select id="rekaptitulasiFilterSelect" class="px-3 py-2 md:px-4 md:py-2 border border-gray-200 rounded-lg md:rounded-xl ...">
                             <option>Semua Status</option>
-                            <option>Excellent Performance</option>
-                            <option>Good Performance</option>
-                            <option>Need Mentoring</option>
-                            <option>Need Improvement</option>
+                            <option value="Sangat Baik">Sangat Baik</option>
+                            <option value="Baik">Baik</option>
+                            <option value="Cukup">Cukup</option>
+                            <option value="Kurang">Kurang</option>
+                            <option value="Sangat Kurang">Sangat Kurang</option>
                         </select>
                     </div>
                 </div>
@@ -210,7 +211,6 @@
                 <div class="flex justify-end space-x-2 md:space-x-3">
                     <button type="button" onclick="closePerformanceEvaluationModal()" class="animated-button bg-gray-200 text-gray-800 px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-gray-300 transition duration-300 text-xs md:text-sm">Batal</button>
                     <button type="submit" class="animated-button bg-blue-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-blue-700 transition duration-300 text-xs md:text-sm">Simpan</button>
-                    <button type="button" id="deleteEvaluationBtn" onclick="deletePerformanceEvaluation()" class="animated-button bg-red-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-semibold hover:bg-red-700 transition duration-300 text-xs md:text-sm hidden">Hapus</button>
                 </div>
             </form>
         </div>
@@ -316,7 +316,6 @@
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="closeStaffManagementModal()" class="px-3 py-1 rounded-lg text-xs md:text-sm text-gray-700 hover:bg-gray-100">Batal</button>
                     <button type="submit" class="px-3 py-1 rounded-lg text-xs md:text-sm text-white bg-green-500 hover:bg-green-600">Simpan</button>
-                    <button type="button" id="deleteStaffManagementBtn" onclick="deleteStaffManagement()" class="px-3 py-1 rounded-lg text-xs md:text-sm text-white bg-red-500 hover:bg-red-600 hidden">Hapus</button>
                 </div>
             </form>
         </div>
@@ -332,6 +331,32 @@
                 </div>
             </div>
             <p class="text-white text-lg font-semibold animate-pulse">Loading Data...</p>
+        </div>
+    </div>
+    <div id="toast-container" class="fixed top-5 right-5 z-[10000] w-full max-w-xs space-y-3">
+        <div id="toast-template" class="hidden items-center w-full p-4 text-gray-500 bg-white rounded-lg shadow-lg" role="alert">
+            <div id="toast-icon" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg"></div>
+            <div id="toast-message" class="ms-3 text-sm font-normal"></div>
+            <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100" onclick="this.parentElement.remove()">
+                <span class="sr-only">Close</span>
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="myConfirmationModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform transition-all scale-95 opacity-0" id="confirmationModalBox">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg leading-6 font-bold text-gray-900 mt-4" id="confirmationTitle">Hapus Data</h3>
+                <p id="confirmationMessage" class="mt-2 px-2 text-sm text-gray-600">Apakah Anda yakin? Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="mt-6 flex justify-center gap-3">
+                <button id="confirmCancelBtn" type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">Batal</button>
+                <button id="confirmDeleteBtn" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:w-auto sm:text-sm">Ya, Hapus</button>
+            </div>
         </div>
     </div>
 </body>

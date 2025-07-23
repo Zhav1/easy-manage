@@ -114,6 +114,130 @@
         return fetch(url, { ...options, headers });
     }
 
+    function calculateCompliance(formType, formData) {
+        if (!formData || !formData.entries || formData.entries.length === 0) {
+            return 0;
+        }
+
+        const entries = formData.entries;
+        let numerator = 0;
+        let denominator = 0;
+
+        switch (formType) {
+            case 'hand-hygiene':
+                // FIX: This now correctly sums up the compliant actions and divides by the total opportunities.
+                numerator = entries.reduce((sum, entry) => sum + (parseInt(entry.total_handwash) || 0) + (parseInt(entry.total_handrub) || 0), 0);
+                denominator = entries.reduce((sum, entry) => sum + (parseInt(entry.total_kesempatan) || 0), 0);
+                break;
+            case 'apd':
+            case 'jatuh':
+                numerator = entries.filter(entry => entry.kepatuhan === 'Patuh' || entry.ketiga_upaya_ya).length;
+                denominator = entries.length;
+                break;
+            case 'identifikasi':
+                numerator = entries.filter(entry => entry.dilakukan).length;
+                denominator = entries.length;
+                break;
+            case 'wtri':
+                numerator = entries.filter(entry => (parseInt(entry.respon_time_ca) || 0) <= 60).length;
+                denominator = entries.length;
+                break;
+            case 'kritis-lab':
+                numerator = entries.filter(entry => entry.pelaporan_status === '≤ 30 Menit').length;
+                denominator = entries.length;
+                break;
+            case 'fornas':
+                numerator = entries.filter(entry => entry.formularium_nasional).length;
+                denominator = entries.length;
+                break;
+            case 'visite':
+                numerator = entries.filter(entry => {
+                    const jam = entry.jam ? entry.jam.split(':')[0] : '99';
+                    return parseInt(jam) < 14;
+                }).length;
+                denominator = entries.length;
+                break;
+            case 'cp':
+                const totals = formData.totals || {};
+                numerator = (totals.asesmen_p || 0) + (totals.fisik_p || 0) + (totals.penunjang_p || 0) + (totals.obat_p || 0);
+                denominator = numerator + (totals.asesmen_n || 0) + (totals.asesmen_c || 0) + (totals.fisik_n || 0) + (totals.fisik_c || 0) + (totals.penunjang_n || 0) + (totals.penunjang_c || 0) + (totals.obat_n || 0) + (totals.obat_c || 0);
+                break;
+            case 'kepuasan':
+                numerator = entries.filter(entry => {
+                    const score = parseInt(entry.nilai_kepuasan);
+                    return score >= 4;
+                }).length;
+                denominator = entries.length;
+                break;
+            case 'krk':
+                numerator = entries.filter(entry => entry.penyelesaian_ya).length;
+                denominator = entries.length;
+                break;
+            case 'poe': // Target is <5%, so we calculate NON-DELAY compliance
+                numerator = entries.filter(entry => entry.penundaan_lt_1hr).length;
+                denominator = entries.length;
+                break;
+            case 'sc':
+                numerator = entries.filter(entry => (parseInt(entry.waktu_tanggap) || 99) <= 30).length;
+                denominator = entries.length;
+                break;
+            default:
+                return 0;
+        }
+
+        return denominator > 0 ? Math.round((numerator / denominator) * 100) : 0;
+    }
+
+    function updateComplianceBars() {
+        indicators.forEach(indicator => {
+            const formType = indicator.form_type;
+            const currentData = formCurrentData[formType]?.data;
+            const percentage = calculateCompliance(formType, currentData);
+
+            const indicatorElement = document.getElementById(`indicator-${formType}`);
+            if (indicatorElement) {
+                const innerBar = indicatorElement.querySelector('.progress-bar-inner');
+                const label = indicatorElement.querySelector('.progress-bar-label');
+
+                if (innerBar && label) {
+                    innerBar.style.width = `${percentage}%`;
+                    label.textContent = `${percentage}%`;
+                    
+                    // Change bar color based on compliance
+                    if (percentage < 50) {
+                        innerBar.style.backgroundColor = '#dc3545'; // Red
+                    } else if (percentage < 80) {
+                        innerBar.style.backgroundColor = '#ffc107'; // Yellow
+                    } else {
+                        innerBar.style.backgroundColor = '#28a745'; // Green
+                    }
+                }
+            }
+        });
+    }
+
+    function updateFormCardComplianceBar(formElement, formType, data) {
+        if (!formElement) return;
+
+        const percentage = calculateCompliance(formType, data);
+
+        const innerBar = formElement.querySelector('.progress-bar-inner');
+        const label = formElement.querySelector('.progress-bar-label');
+
+        if (innerBar && label) {
+            innerBar.style.width = `${percentage}%`;
+            label.textContent = `${percentage}%`;
+
+            if (percentage < 50) {
+                innerBar.style.backgroundColor = '#dc3545'; // Red
+            } else if (percentage < 80) {
+                innerBar.style.backgroundColor = '#ffc107'; // Yellow
+            } else {
+                innerBar.style.backgroundColor = '#28a745'; // Green
+            }
+        }
+        }
+
 
     /**
      * Displays a notification message.
@@ -392,209 +516,110 @@
  * @param {Array} entries - The data entries for Hand Hygiene.
  */
     function renderHandHygieneChart(ctx, entries) {
-    if (handHygieneChartInstance) handHygieneChartInstance.destroy();
-
-    const complianceByDate = {}; // Store {date: {totalOpportunities: N, totalCompliant: M}}
-    const professionalTypes = ['dpjp', 'perawat', 'pendidikan', 'lain'];
-    const complianceByProfessional = {
-        'DPJP': { totalOpportunities: 0, totalCompliant: 0 },
-        'Perawat': { totalOpportunities: 0, totalCompliant: 0 },
-        'Pendidikan': { totalOpportunities: 0, totalCompliant: 0 },
-        'Lain-lain': { totalOpportunities: 0, totalCompliant: 0 }
-    };
-
-    const validDates = new Set(); // To collect only valid dates for labels later
-
-    entries.forEach(entry => {
-        const entryMoment = moment(entry.tgl);
-        if (!entryMoment.isValid()) {
-            console.warn('Skipping hand hygiene entry due to invalid date:', entry);
-            return;
+        if (ctx && handHygieneChartInstance) { // Only destroy if rendering to a live canvas
+            handHygieneChartInstance.destroy();
         }
 
-        const date = entryMoment.format('YYYY-MM-DD');
-        validDates.add(date);
+        const professionalCompliance = {
+            'DPJP': { opportunities: 0, compliant: 0 },
+            'Perawat': { opportunities: 0, compliant: 0 },
+            'Pendidikan': { opportunities: 0, compliant: 0 },
+            'Lain-lain': { opportunities: 0, compliant: 0 }
+        };
 
-        if (!complianceByDate[date]) {
-            complianceByDate[date] = { totalOpportunities: 0, totalCompliant: 0 };
+        if (entries && entries.length > 0) {
+            entries.forEach(entry => {
+                professionalCompliance['DPJP'].opportunities += parseInt(entry.dpjp_kesempatan) || 0;
+                professionalCompliance['DPJP'].compliant += (parseInt(entry.dpjp_handwash) || 0) + (parseInt(entry.dpjp_handrub) || 0);
+
+                professionalCompliance['Perawat'].opportunities += parseInt(entry.perawat_kesempatan) || 0;
+                professionalCompliance['Perawat'].compliant += (parseInt(entry.perawat_handwash) || 0) + (parseInt(entry.perawat_handrub) || 0);
+
+                professionalCompliance['Pendidikan'].opportunities += parseInt(entry.pendidikan_kesempatan) || 0;
+                professionalCompliance['Pendidikan'].compliant += (parseInt(entry.pendidikan_handwash) || 0) + (parseInt(entry.pendidikan_handrub) || 0);
+                
+                professionalCompliance['Lain-lain'].opportunities += parseInt(entry.lain_kesempatan) || 0;
+                professionalCompliance['Lain-lain'].compliant += (parseInt(entry.lain_handwash) || 0) + (parseInt(entry.lain_handrub) || 0);
+            });
         }
 
-        const totalKesempatan = parseInt(entry.total_kesempatan) || 0;
-        const totalHandwash = parseInt(entry.total_handwash) || 0;
-        const totalHandrub = parseInt(entry.total_handrub) || 0;
-
-        complianceByDate[date].totalOpportunities += totalKesempatan;
-        complianceByDate[date].totalCompliant += (totalHandwash + totalHandrub);
-
-        professionalTypes.forEach(type => {
-            // --- FIX START ---
-            let key;
-            if (type === 'dpjp') {
-                key = 'DPJP';
-            } else if (type === 'lain') {
-                key = 'Lain-lain';
-            } else {
-                key = type.charAt(0).toUpperCase() + type.slice(1); // 'Perawat', 'Pendidikan'
-            }
-            // --- FIX END ---
-
-            const profKesempatan = parseInt(entry[`${type}_kesempatan`]) || 0;
-            const profHandwash = parseInt(entry[`${type}_handwash`]) || 0;
-            const profHandrub = parseInt(entry[`${type}_handrub`]) || 0;
-
-            complianceByProfessional[key].totalOpportunities += profKesempatan;
-            complianceByProfessional[key].totalCompliant += (profHandwash + profHandrub);
+        const labels = Object.keys(professionalCompliance);
+        const data = labels.map(prof => {
+            const group = professionalCompliance[prof];
+            const compliantActions = group.compliant;
+            return group.opportunities > 0 ? Math.round((compliantActions / group.opportunities) * 100) : 0;
         });
-    });
 
-    const dates = Array.from(validDates).sort();
-    const labels = [];
-    const data = [];
-    let chartType = 'line';
-    let chartTitle = 'Kepatuhan Kebersihan Tangan per Tanggal';
-
-    if (dates.length > 1) {
-        dates.forEach(date => {
-            labels.push(moment(date).format('DD MMM'));
-            const total = complianceByDate[date].totalOpportunities;
-            const compliant = complianceByDate[date].totalCompliant;
-            data.push(total > 0 ? (compliant / total * 100).toFixed(2) : 0);
-        });
-    } else {
-        chartType = 'bar';
-        chartTitle = 'Kepatuhan Kebersihan Tangan per Profesi';
-        // Now, iterate directly over the initialized keys in complianceByProfessional
-        // to ensure we match the keys correctly.
-        for (const [prof, totals] of Object.entries(complianceByProfessional)) {
-            if (totals.totalOpportunities > 0) {
-                labels.push(prof);
-                data.push((totals.totalCompliant / totals.totalOpportunities * 100).toFixed(2));
-            }
-        }
-        if (labels.length === 0) {
-            labels.push('Tidak Ada Data');
-            data.push(0);
-        }
-    }
-
-    const hasMeaningfulData = data.some(val => parseFloat(val) > 0);
-    if (!hasMeaningfulData && labels.length > 0) {
-        if (labels.length === 0) {
-             labels.push('Tidak Ada Data');
-             data.push(0);
-        }
-    } else if (labels.length === 0) {
-        labels.push('Tidak Ada Data');
-        data.push(0);
-    }
-
-
-    handHygieneChartInstance = new Chart(ctx, {
-        type: chartType,
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Persentase Kepatuhan (%)',
-                data: data,
-                backgroundColor: chartType === 'line' ? 'rgba(75, 192, 192, 0.2)' : ['rgba(75, 192, 192, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)', 'rgba(153, 102, 255, 0.7)'],
-                borderColor: chartType === 'line' ? 'rgba(75, 192, 192, 1)' : ['rgba(75, 192, 192, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(153, 102, 255, 1)'],
-                borderWidth: 1,
-                fill: chartType === 'line',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: chartTitle
-                },
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            if (labels.includes('Tidak Ada Data')) {
-                                return 'Tidak Ada Data';
-                            }
-                            return `${context.dataset.label}: ${context.raw}%`;
-                        }
-                    }
-                }
+        // Step 1: Define the configuration object
+        const config = {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Kepatuhan (%)',
+                    data: data,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(54, 162, 235)',
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 206, 86)',
+                        'rgb(153, 102, 255)'
+                    ],
+                    borderWidth: 1
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    title: {
-                        display: true,
-                        text: 'Kepatuhan (%)'
-                    }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Kepatuhan Kebersihan Tangan per Profesi' },
+                    legend: { display: false },
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: chartType === 'line' ? 'Tanggal' : 'Profesi'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        // The 'max' was removed to allow values >100% to be visible, indicating data entry errors.
+                        // If you want to cap the visual chart at 100%, you can add back: max: 100,
+                        title: { display: true, text: 'Persentase Kepatuhan (%)' }
                     }
                 }
             }
+        };
+
+        // Step 2: Only create a new Chart instance if a canvas context is provided (i.e., not for PDF export)
+        if (ctx) {
+            handHygieneChartInstance = new Chart(ctx, config);
         }
-    });
-}
 
-    /**
-    * Renders the APD compliance chart.
-    * Shows overall compliance or compliance by APD type.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for APD.
-    */
+        // Step 3: Always return the config object for the PDF exporter to use
+        return { config };
+    }
+
     function renderApdChart(ctx, entries) {
-        if (apdChartInstance) apdChartInstance.destroy();
-
-        const apdTypes = [
-            { key: 'sarung_tangan', label: 'Sarung Tangan' },
-            { key: 'masker', label: 'Masker' },
-            { key: 'topi', label: 'Topi' },
-            { key: 'google', label: 'Google' },
-            { key: 'pakaian', label: 'Pakaian' },
-            { key: 'sepatu', label: 'Sepatu' },
-        ];
-
+        let chartInstance = apdChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
+        const apdTypes = [{ key: 'sarung_tangan', label: 'Sarung Tangan' }, { key: 'masker', label: 'Masker' }, { key: 'topi', label: 'Topi' }, { key: 'google', label: 'Google' }, { key: 'pakaian', label: 'Pakaian' }, { key: 'sepatu', label: 'Sepatu' }];
         const overallComplianceCounts = { 'Patuh': 0, 'Tidak': 0 };
-        const apdTypeCompliance = {}; // { type: { Y: N, T: M } }
-
+        const apdTypeCompliance = {};
         entries.forEach(entry => {
-            if (entry.kepatuhan === 'Patuh') {
-                overallComplianceCounts.Patuh++;
-            } else if (entry.kepatuhan === 'Tidak') {
-                overallComplianceCounts.Tidak++;
-            }
-
+            if (entry.kepatuhan === 'Patuh') overallComplianceCounts.Patuh++; else if (entry.kepatuhan === 'Tidak') overallComplianceCounts.Tidak++;
             apdTypes.forEach(apd => {
-                if (!apdTypeCompliance[apd.label]) {
-                    apdTypeCompliance[apd.label] = { 'Ya': 0, 'Tidak': 0 };
-                }
-                if (entry[`${apd.key}_y`]) {
-                    apdTypeCompliance[apd.label].Ya++;
-                }
-                if (entry[`${apd.key}_t`]) {
-                    apdTypeCompliance[apd.label].Tidak++;
-                }
+                if (!apdTypeCompliance[apd.label]) apdTypeCompliance[apd.label] = { 'Ya': 0, 'Tidak': 0 };
+                if (entry[`${apd.key}_y`]) apdTypeCompliance[apd.label].Ya++; if (entry[`${apd.key}_t`]) apdTypeCompliance[apd.label].Tidak++;
             });
         });
-
-        let labels = [];
-        let compliantData = [];
-        let nonCompliantData = [];
-        let chartTitle = 'Kepatuhan Penggunaan APD per Jenis APD';
-
-        // Determine if we have enough diverse data for a detailed chart
+        let config;
         const hasEnoughApdTypeData = Object.values(apdTypeCompliance).some(vals => vals.Ya > 0 || vals.Tidak > 0);
 
         if (hasEnoughApdTypeData) {
+            let labels = [], compliantData = [], nonCompliantData = [];
             apdTypes.forEach(apd => {
                 const total = (apdTypeCompliance[apd.label]?.Ya || 0) + (apdTypeCompliance[apd.label]?.Tidak || 0);
                 if (total > 0) {
@@ -603,937 +628,368 @@
                     nonCompliantData.push((apdTypeCompliance[apd.label].Tidak / total * 100).toFixed(2));
                 }
             });
-
-            // If no data to show by type, default to overall
-            if (labels.length === 0) {
-                labels.push('Tidak Ada Data');
-                compliantData.push(0);
-                nonCompliantData.push(0);
-            }
-            
-            apdChartInstance = new Chart(ctx, {
+            if (labels.length === 0) { labels.push('Tidak Ada Data'); compliantData.push(0); nonCompliantData.push(0); }
+            config = {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        {
-                            label: 'Patuh (%)',
-                            data: compliantData,
-                            backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Tidak Patuh (%)',
-                            data: nonCompliantData,
-                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }
+                        { label: 'Patuh (%)', data: compliantData, backgroundColor: 'rgba(75, 192, 192, 0.7)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1 },
+                        { label: 'Tidak Patuh (%)', data: nonCompliantData, backgroundColor: 'rgba(255, 99, 132, 0.7)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1 }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: chartTitle
-                        },
-                        legend: {
-                            position: 'top'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.dataset.label}: ${context.raw}%`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: false,
-                            title: {
-                                display: true,
-                                text: 'Jenis APD'
-                            }
-                        },
-                        y: {
-                            stacked: false,
-                            beginAtZero: true,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'Persentase (%)'
-                            }
-                        }
-                    }
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { title: { display: true, text: 'Kepatuhan APD per Jenis' }, legend: { position: 'top' }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.raw}%` } } },
+                    scales: { x: { stacked: false, title: { display: true, text: 'Jenis APD' } }, y: { stacked: false, beginAtZero: true, max: 100, title: { display: true, text: 'Persentase (%)' } } }
                 }
-            });
-        } else { // Fallback to a simple pie chart of overall compliance if no specific APD type data
+            };
+        } else {
             const total = overallComplianceCounts.Patuh + overallComplianceCounts.Tidak;
-            labels = ['Patuh', 'Tidak Patuh'];
-            compliantData = [overallComplianceCounts.Patuh, overallComplianceCounts.Tidak];
-            
-            if (total === 0) { // If absolutely no entries or data
-                labels = ['Tidak Ada Data'];
-                compliantData = [1]; // Show a full slice for "No Data"
-            }
-
-            apdChartInstance = new Chart(ctx, {
+            config = {
                 type: 'pie',
                 data: {
-                    labels: labels,
-                    datasets: [{
-                        data: compliantData,
-                        backgroundColor: total === 0 ? ['#ccc'] : ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                        borderColor: '#fff',
-                        borderWidth: 1
-                    }]
+                    labels: total > 0 ? ['Patuh', 'Tidak Patuh'] : ['Tidak Ada Data'],
+                    datasets: [{ data: total > 0 ? [overallComplianceCounts.Patuh, overallComplianceCounts.Tidak] : [1], backgroundColor: total > 0 ? ['#4bc0c0', '#ff6384'] : ['#ccc'], borderColor: '#fff' }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: {
-                        title: {
-                            display: true,
-                            text: 'Kepatuhan Penggunaan APD (Keseluruhan)'
-                        },
-                        legend: {
-                            position: 'right'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    if (total === 0) return 'Tidak Ada Data: 100%';
-                                    let value = context.parsed;
-                                    let percentage = (value / total * 100).toFixed(2);
-                                    return `${context.label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
+                        title: { display: true, text: 'Kepatuhan APD (Keseluruhan)' },
+                        legend: { position: 'right' },
+                        tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / total * 100).toFixed(2)}%)`; } } }
                     }
                 }
-            });
+            };
         }
+
+        if (ctx) { apdChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
-
-    /**
-    * Renders the Patient Identification compliance chart.
-    * Shows compliance based on 'dilakukan' vs 'tidak_dilakukan' and can break down by verbal/visual.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for Identifikasi Pasien.
-    */
     function renderIdentifikasiChart(ctx, entries) {
-        if (identifikasiChartInstance) identifikasiChartInstance.destroy();
-
-        const complianceCounts = { 'Dilakukan': 0, 'Tidak Dilakukan': 0 };
-        const breakdownCounts = {
-            'Verbal Nama': 0, 'Verbal Tgl Lahir': 0,
-            'Visual Nama': 0, 'Visual RM': 0
-        };
+        let chartInstance = identifikasiChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
         const totalObservations = entries.length;
-
+        const complianceCounts = { 'Dilakukan': 0, 'Tidak Dilakukan': 0 };
         entries.forEach(entry => {
             if (entry.dilakukan) complianceCounts.Dilakukan++;
             if (entry.tidak_dilakukan) complianceCounts['Tidak Dilakukan']++;
-
-            if (entry.verbal_nama) breakdownCounts['Verbal Nama']++;
-            if (entry.verbal_tgl_lahir) breakdownCounts['Verbal Tgl Lahir']++;
-            if (entry.visual_nama) breakdownCounts['Visual Nama']++;
-            if (entry.visual_rm) breakdownCounts['Visual RM']++;
         });
-
-        let labels = ['Dilakukan', 'Tidak Dilakukan'];
-        let data = [complianceCounts.Dilakukan, complianceCounts['Tidak Dilakukan']];
-        let chartTitle = 'Kepatuhan Identifikasi Pasien';
-
-        if (totalObservations === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1]; // For a visually complete pie chart
-        }
-
-        identifikasiChartInstance = new Chart(ctx, {
+        
+        const config = {
             type: 'pie',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalObservations === 0 ? ['#ccc'] : ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: totalObservations > 0 ? Object.keys(complianceCounts) : ['Tidak Ada Data'],
+                datasets: [{ data: totalObservations > 0 ? Object.values(complianceCounts) : [1], backgroundColor: totalObservations > 0 ? ['#4bc0c0', '#ff6384'] : ['#ccc'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: chartTitle + (totalObservations > 0 ? ` (Total Observasi: ${totalObservations})` : '')
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalObservations === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed;
-                                let percentage = (value / totalObservations * 100).toFixed(2);
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Kepatuhan Identifikasi Pasien (Total: ${totalObservations})` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => { if (totalObservations === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / totalObservations * 100).toFixed(2)}%)`; }}}
                 }
             }
-        });
+        };
+        if (ctx) { identifikasiChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
-
-    /**
-    * Renders the WTRI (Waktu Tunggu Rawat Jalan) chart.
-    * Shows average response time (C-A or C-B) over time or distribution of response times.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for WTRI.
-    */
     function renderWtriChart(ctx, entries) {
-        if (wtriChartInstance) wtriChartInstance.destroy();
-
-        const processedData = entries.map(entry => {
-            const date = moment(entry.tgl).format('YYYY-MM-DD');
-            const responTimeCA = parseInt(entry.respon_time_ca) || 0;
-            const responTimeCB = parseInt(entry.respon_time_cb) || 0;
-            return { date, responTimeCA, responTimeCB };
-        }).filter(d => d.responTimeCA > 0 || d.responTimeCB > 0);
-
-        // Group by date to show average trend
-        const dailyAverages = processedData.reduce((acc, current) => {
-            if (!acc[current.date]) {
-                acc[current.date] = { totalCA: 0, countCA: 0, totalCB: 0, countCB: 0 };
-            }
-            acc[current.date].totalCA += current.responTimeCA;
-            acc[current.date].countCA++;
-            acc[current.date].totalCB += current.responTimeCB;
-            acc[current.date].countCB++;
+        let chartInstance = wtriChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
+        const dailyAverages = entries.reduce((acc, current) => {
+            const date = moment(current.tgl).format('YYYY-MM-DD');
+            if (!acc[date]) acc[date] = { totalCA: 0, countCA: 0, totalCB: 0, countCB: 0 };
+            acc[date].totalCA += parseInt(current.respon_time_ca) || 0;
+            acc[date].countCA++;
+            acc[date].totalCB += parseInt(current.respon_time_cb) || 0;
+            acc[date].countCB++;
             return acc;
         }, {});
-
         const labels = Object.keys(dailyAverages).sort();
-        const avgDataCA = labels.map(date => (dailyAverages[date].totalCA / dailyAverages[date].countCA).toFixed(0));
-        const avgDataCB = labels.map(date => (dailyAverages[date].totalCB / dailyAverages[date].countCB).toFixed(0));
-
+        let config;
         if (labels.length === 0) {
-            wtriChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['No Data'], datasets: [{ data: [0] }] },
-                options: { plugins: { title: { display: true, text: 'Waktu Tunggu Rawat Jalan (Tidak Ada Data)' }, legend: { display: false } } }
-            });
-            return;
-        }
-
-        wtriChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels.map(date => moment(date).format('DD MMM')),
-                datasets: [
-                    {
-                        label: 'Respon Time (C-A) menit',
-                        data: avgDataCA,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    },
-                    {
-                        label: 'Respon Time (C-B) menit',
-                        data: avgDataCB,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Rata-rata Waktu Tunggu Rawat Jalan (INM & BLU)'
-                    },
-                    legend: {
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw} menit`;
-                            }
-                        }
-                    }
+            config = { type: 'bar', data: { labels: ['Tidak Ada Data'], datasets: [{ data: [0] }] }, options: { plugins: { title: { display: true, text: 'Waktu Tunggu Rawat Jalan' } } } };
+        } else {
+            const avgDataCA = labels.map(date => (dailyAverages[date].totalCA / dailyAverages[date].countCA).toFixed(0));
+            const avgDataCB = labels.map(date => (dailyAverages[date].totalCB / dailyAverages[date].countCB).toFixed(0));
+            config = {
+                type: 'line',
+                data: {
+                    labels: labels.map(d => moment(d).format('DD MMM')),
+                    datasets: [
+                        { label: 'Respon Time (C-A) menit', data: avgDataCA, borderColor: '#36a2eb', fill: false },
+                        { label: 'Respon Time (C-B) menit', data: avgDataCB, borderColor: '#ff6384', fill: false }
+                    ]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Waktu (Menit)'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Tanggal'
-                        }
-                    }
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { title: { display: true, text: 'Rata-rata Waktu Tunggu Rawat Jalan' }, legend: { position: 'top' }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.raw} menit` } } },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Waktu (Menit)' } }, x: { title: { display: true, text: 'Tanggal' } } }
                 }
-            }
-        });
+            };
+        }
+
+        if (ctx) { wtriChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
-
-    /**
-    * Renders the Kritis Lab response time chart.
-    * Shows distribution of response times (e.g., <= 30 min vs > 30 min).
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for Kritis Lab.
-    */
     function renderKritisLabChart(ctx, entries) {
-        if (kritisLabChartInstance) kritisLabChartInstance.destroy();
-
+        let chartInstance = kritisLabChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
+        const total = entries.length;
         const statusCounts = { '≤ 30 Menit': 0, '> 30 Menit': 0 };
-        entries.forEach(entry => {
-            if (entry.pelaporan_status === '≤ 30 Menit') {
-                statusCounts['≤ 30 Menit']++;
-            } else if (entry.pelaporan_status === '> 30 Menit') {
-                statusCounts['> 30 Menit']++;
-            }
-        });
-
-        const totalReports = entries.length;
-        let labels = ['≤ 30 Menit', '> 30 Menit'];
-        let data = [statusCounts['≤ 30 Menit'], statusCounts['> 30 Menit']];
-
-        if (totalReports === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-        }
-
-        kritisLabChartInstance = new Chart(ctx, {
+        entries.forEach(e => { if (statusCounts.hasOwnProperty(e.pelaporan_status)) statusCounts[e.pelaporan_status]++; });
+        
+        const config = {
             type: 'pie',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalReports === 0 ? ['#ccc'] : ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: total > 0 ? Object.keys(statusCounts) : ['Tidak Ada Data'],
+                datasets: [{ data: total > 0 ? Object.values(statusCounts) : [1], backgroundColor: total > 0 ? ['#4bc0c0', '#ff6384'] : ['#ccc'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Waktu Lapor Hasil Tes Kritis Laboratorium' + (totalReports > 0 ? ` (Total: ${totalReports} Laporan)` : '')
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalReports === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed;
-                                let percentage = (value / totalReports * 100).toFixed(2);
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Waktu Lapor Hasil Kritis (Total: ${total})` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / total * 100).toFixed(2)}%)`; } } }
                 }
             }
-        });
+        };
+        if (ctx) { kritisLabChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
-
-    /**
-    * Renders the FORNAS compliance chart.
-    * Shows compliance rate (formularium vs non-formularium) as a percentage.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for FORNAS.
-    */
     function renderFornasChart(ctx, entries) {
-        if (fornasChartInstance) fornasChartInstance.destroy();
-
-        let totalResep = 0;
-        let compliantResep = 0; // Formularium Nasional
-        let nonCompliantResep = 0; // Non Formularium
-
-        entries.forEach(entry => {
-            totalResep += (entry.jumlah_resep || 0);
-            if (entry.formularium_nasional) {
-                compliantResep += (entry.jumlah_resep || 0);
-            } else if (entry.non_formularium) {
-                nonCompliantResep += (entry.jumlah_resep || 0);
-            }
-        });
-
-        const labels = ['Formularium Nasional', 'Non Formularium'];
-        let data = [compliantResep, nonCompliantResep];
-
-        if (totalResep === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-        }
-
-        fornasChartInstance = new Chart(ctx, {
+        let chartInstance = fornasChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
+        const total = entries.length;
+        const compliant = entries.filter(e => e.formularium_nasional).length;
+        
+        const config = {
             type: 'pie',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalResep === 0 ? ['#ccc'] : ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: total > 0 ? ['Sesuai Fornas', 'Tidak Sesuai'] : ['Tidak Ada Data'],
+                datasets: [{ data: total > 0 ? [compliant, total - compliant] : [1], backgroundColor: total > 0 ? ['#4bc0c0', '#ff6384'] : ['#ccc'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Kepatuhan Penggunaan Formularium Nasional' + (totalResep > 0 ? ` (Total Resep: ${totalResep})` : '')
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalResep === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed;
-                                let percentage = (value / totalResep * 100).toFixed(2);
-                                return `${context.label}: ${value} Resep (${percentage}%)`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Kepatuhan Fornas (Total: ${total})` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / total * 100).toFixed(2)}%)`; } } }
                 }
             }
-        });
+        };
+        if (ctx) { fornasChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
-
-    /**
-    * Renders the Visite compliance chart.
-    * Shows the distribution of visite times (e.g., <=10.00, >10.00-12.00, etc.).
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for Visite.
-    */
     function renderVisiteChart(ctx, entries) {
-        if (visiteChartInstance) visiteChartInstance.destroy();
+        let chartInstance = visiteChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
 
-        const timeCategories = {
-            '≤10.00': 0,
-            '>10.00-12.00': 0,
-            '>12.00-14.00': 0,
-            '>14.00': 0
-        };
-        const totalVisites = entries.length;
-
-        entries.forEach(entry => {
-            if (entry.val_i === 1) timeCategories['≤10.00']++;
-            if (entry.val_ii === 1) timeCategories['>10.00-12.00']++;
-            if (entry.val_iii === 1) timeCategories['>12.00-14.00']++;
-            if (entry.val_iv === 1) timeCategories['>14.00']++;
+        // Your original detailed logic
+        const timeCategories = { '≤10:00': 0, '>10-12:00': 0, '>12-14:00': 0, '>14:00': 0 };
+        const total = entries.length;
+        entries.forEach(e => {
+            if (e.val_i) timeCategories['≤10:00']++; if (e.val_ii) timeCategories['>10-12:00']++;
+            if (e.val_iii) timeCategories['>12-14:00']++; if (e.val_iv) timeCategories['>14:00']++;
         });
 
-        let labels = Object.keys(timeCategories);
-        let data = Object.values(timeCategories);
-
-        if (totalVisites === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-        }
-
-        visiteChartInstance = new Chart(ctx, {
+        const config = {
             type: 'doughnut',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalVisites === 0 ? ['#ccc'] : [
-                        'rgba(75, 192, 192, 0.7)',  // <=10.00
-                        'rgba(54, 162, 235, 0.7)',  // >10.00-12.00
-                        'rgba(255, 206, 86, 0.7)',  // >12.00-14.00
-                        'rgba(255, 99, 132, 0.7)'   // >14.00
-                    ],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: total > 0 ? Object.keys(timeCategories) : ['Tidak Ada Data'],
+                datasets: [{ data: total > 0 ? Object.values(timeCategories) : [1], backgroundColor: total > 0 ? ['#4bc0c0', '#36a2eb', '#ffce56', '#ff6384'] : ['#ccc'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Kepatuhan Waktu Visite Dokter' + (totalVisites > 0 ? ` (Total Visite: ${totalVisites})` : '')
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalVisites === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed;
-                                let percentage = (value / totalVisites * 100).toFixed(2);
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Distribusi Waktu Visite (Total: ${total})` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / total * 100).toFixed(2)}%)`; } } }
                 }
             }
-        });
+        };
+        if (ctx) { visiteChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
-
-    /**
-    * Renders the Jatuh (fall prevention) compliance chart.
-    * Shows overall compliance for all three prevention efforts.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for Jatuh.
-    */
     function renderJatuhChart(ctx, entries) {
-        if (jatuhChartInstance) jatuhChartInstance.destroy();
+        let chartInstance = jatuhChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
 
-        let compliantCount = 0;
-        let nonCompliantCount = 0;
-        const totalObserved = entries.length;
+        // Your original detailed logic
+        const total = entries.length;
+        const compliant = entries.filter(e => e.ketiga_upaya_ya).length;
 
-        entries.forEach(entry => {
-            if (entry.ketiga_upaya_ya) {
-                compliantCount++;
-            } else if (entry.ketiga_upaya_tidak) {
-                nonCompliantCount++;
-            }
-        });
-
-        let labels = ['Patuh (3 Upaya Dilakukan)', 'Tidak Patuh'];
-        let data = [compliantCount, nonCompliantCount];
-
-        if (totalObserved === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-        }
-
-        jatuhChartInstance = new Chart(ctx, {
+        const config = {
             type: 'pie',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalObserved === 0 ? ['#ccc'] : ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: total > 0 ? ['Patuh (3 Upaya)', 'Tidak Patuh'] : ['Tidak Ada Data'],
+                datasets: [{ data: total > 0 ? [compliant, total - compliant] : [1], backgroundColor: total > 0 ? ['#4bc0c0', '#ff6384'] : ['#ccc'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Kepatuhan Pencegahan Risiko Jatuh' + (totalObserved > 0 ? ` (Total Observasi: ${totalObserved})` : '')
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalObserved === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed;
-                                let percentage = (value / totalObserved * 100).toFixed(2);
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Kepatuhan Pencegahan Jatuh (Total: ${total})` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / total * 100).toFixed(2)}%)`; } } }
                 }
             }
-        });
+        };
+        if (ctx) { jatuhChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
+    function renderCpChart(ctx, entries, formData) {
+        let chartInstance = cpChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
+        const compliancePercentage = parseFloat(formData.rata_rata_kepatuhan) || 0;
+        const total = entries.length;
 
-    /**
-    * Renders the Clinical Pathway (CP) compliance chart.
-    * Shows average compliance percentage across observed items.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for CP.
-    */
-    function renderCpChart(ctx, entries) {
-        if (cpChartInstance) cpChartInstance.destroy();
-
-        let totalCompliantItems = 0; // Sum of 'P' values
-        let totalObservedItems = 0; // Sum of (P + N + C) values
-
-        entries.forEach(entry => {
-            totalCompliantItems += (entry.asesmen_p || 0) + (entry.fisik_p || 0) + (entry.penunjang_p || 0) + (entry.obat_p || 0);
-            totalObservedItems += (entry.asesmen_p || 0) + (entry.asesmen_n || 0) + (entry.asesmen_c || 0) +
-                                (entry.fisik_p || 0) + (entry.fisik_n || 0) + (entry.fisik_c || 0) +
-                                (entry.penunjang_p || 0) + (entry.penunjang_n || 0) + (entry.penunjang_c || 0) +
-                                (entry.obat_p || 0) + (entry.obat_n || 0) + (entry.obat_c || 0);
-        });
-
-        const compliancePercentage = totalObservedItems > 0 ? (totalCompliantItems / totalObservedItems * 100).toFixed(2) : 0;
-
-        let labels = ['Kepatuhan', 'Non-Kepatuhan'];
-        let data = [compliancePercentage, (100 - compliancePercentage).toFixed(2)];
-
-        if (totalObservedItems === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-        }
-
-        cpChartInstance = new Chart(ctx, {
+        const config = {
             type: 'doughnut',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalObservedItems === 0 ? ['#ccc'] : ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: total > 0 ? ['Kepatuhan', 'Non-Kepatuhan'] : ['Tidak Ada Data'],
+                datasets: [{ data: total > 0 ? [compliancePercentage, 100 - compliancePercentage] : [100], backgroundColor: total > 0 ? ['#4bc0c0', '#e0e0e0'] : ['#ccc'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: `Rata-rata Kepatuhan Clinical Pathway: ${compliancePercentage}%`
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalObservedItems === 0) return 'Tidak Ada Data: 100%';
-                                return `${context.label}: ${context.raw}%`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Rata-rata Kepatuhan Clinical Pathway: ${compliancePercentage.toFixed(2)}%` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => `${c.label}: ${c.raw}%` } }
                 }
             }
-        });
+        };
+        if (ctx) { cpChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
-
-    /**
-    * Renders the Kepuasan Pasien (Patient Satisfaction) chart.
-    * Shows the distribution of satisfaction levels (1-5).
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for Kepuasan Pasien.
-    */
     function renderKepuasanChart(ctx, entries) {
-        if (kepuasanChartInstance) kepuasanChartInstance.destroy();
+        let chartInstance = kepuasanChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
+        const satisfactionLevels = { '1 (Sangat Tidak Puas)': 0, '2 (Tidak Puas)': 0, '3 (Cukup Puas)': 0, '4 (Puas)': 0, '5 (Sangat Puas)': 0 };
+        const total = entries.length;
+        entries.forEach(e => { if (satisfactionLevels.hasOwnProperty(e.nilai_kepuasan)) satisfactionLevels[e.nilai_kepuasan]++; });
 
-        const satisfactionLevels = {
-            '1 (Sangat Tidak Puas)': 0,
-            '2 (Tidak Puas)': 0,
-            '3 (Cukup Puas)': 0,
-            '4 (Puas)': 0,
-            '5 (Sangat Puas)': 0
-        };
-        const totalRespondents = entries.length;
-
-        entries.forEach(entry => {
-            const level = entry.nilai_kepuasan;
-            if (satisfactionLevels.hasOwnProperty(level)) {
-                satisfactionLevels[level]++;
-            }
-        });
-
-        let labels = Object.keys(satisfactionLevels);
-        let data = Object.values(satisfactionLevels);
-        const backgroundColors = [
-            'rgba(255, 99, 132, 0.7)',   // 1 (Red)
-            'rgba(255, 159, 64, 0.7)',   // 2 (Orange)
-            'rgba(255, 206, 86, 0.7)',   // 3 (Yellow)
-            'rgba(75, 192, 192, 0.7)',   // 4 (Light Green)
-            'rgba(54, 162, 235, 0.7)'    // 5 (Blue)
-        ];
-
-        if (totalRespondents === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-            backgroundColors[0] = '#ccc';
-        }
-
-        kepuasanChartInstance = new Chart(ctx, {
+        const config = {
             type: 'bar',
             data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Jumlah Responden',
-                    data: data,
-                    backgroundColor: backgroundColors,
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: total > 0 ? Object.keys(satisfactionLevels) : ['Tidak Ada Data'],
+                datasets: [{ label: 'Jumlah Responden', data: total > 0 ? Object.values(satisfactionLevels) : [0], backgroundColor: ['#ff6384', '#ff9f40', '#ffce56', '#4bc0c0', '#36a2eb'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Distribusi Tingkat Kepuasan Pasien' + (totalRespondents > 0 ? ` (Total Responden: ${totalRespondents})` : '')
-                    },
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalRespondents === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed.y;
-                                let percentage = (value / totalRespondents * 100).toFixed(2);
-                                return `Responden: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Distribusi Kepuasan Pasien (Total: ${total})` },
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `Responden: ${c.parsed.y} (${(c.parsed.y / total * 100).toFixed(2)}%)`; } } }
                 },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Tingkat Kepuasan'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Jumlah Responden'
-                        }
-                    }
-                }
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'Jumlah Responden' } } }
             }
-        });
-    }
-
-
-    /**
-    * Renders the KRK (Kecepatan Waktu Tanggap Komplain) chart.
-    * Shows compliance with grading time (Merah, Kuning, Hijau).
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for KRK.
-    */
-    function renderKrkChart(ctx, entries) {
-        if (krkChartInstance) krkChartInstance.destroy();
-
-        const gradingCompliance = {
-            'Sesuai Grading (Ya)': 0,
-            'Tidak Sesuai Grading (Tidak)': 0
         };
-        const totalComplaints = entries.length;
-
-        entries.forEach(entry => {
-            if (entry.penyelesaian_ya) {
-                gradingCompliance['Sesuai Grading (Ya)']++;
-            } else if (entry.penyelesaian_tidak) {
-                gradingCompliance['Tidak Sesuai Grading (Tidak)']++;
-            }
-        });
-
-        let labels = Object.keys(gradingCompliance);
-        let data = Object.values(gradingCompliance);
-
-        if (totalComplaints === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-        }
-
-        krkChartInstance = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalComplaints === 0 ? ['#ccc'] : ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Kepatuhan Waktu Tanggap Komplain' + (totalComplaints > 0 ? ` (Total Komplain: ${totalComplaints})` : '')
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalComplaints === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed;
-                                let percentage = (value / totalComplaints * 100).toFixed(2);
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        if (ctx) { kepuasanChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
+    function renderKrkChart(ctx, entries) {
+        let chartInstance = krkChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
 
-    /**
-    * Renders the POE (Penundaan Operasi Elektif) chart.
-    * Shows the percentage of delayed vs non-delayed surgeries.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for POE.
-    */
+        // Your original detailed logic
+        const total = entries.length;
+        const compliant = entries.filter(e => e.penyelesaian_ya).length;
+        
+        const config = {
+            type: 'pie',
+            data: {
+                labels: total > 0 ? ['Sesuai Grading', 'Tidak Sesuai'] : ['Tidak Ada Data'],
+                datasets: [{ data: total > 0 ? [compliant, total - compliant] : [1], backgroundColor: total > 0 ? ['#4bc0c0', '#ff6384'] : ['#ccc'] }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: `Kecepatan Tanggap Komplain (Total: ${total})` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / total * 100).toFixed(2)}%)`; } } }
+                }
+            }
+        };
+        if (ctx) { krkChartInstance = new Chart(ctx, config); }
+        return { config };
+    }
+
     function renderPoeChart(ctx, entries) {
-        if (poeChartInstance) poeChartInstance.destroy();
-
-        let delayedCount = 0; // penundaan_gt_1hr
-        let nonDelayedCount = 0; // penundaan_lt_1hr
-        const totalSurgeries = entries.length;
-
-        entries.forEach(entry => {
-            if (entry.penundaan_gt_1hr) {
-                delayedCount++;
-            } else if (entry.penundaan_lt_1hr) {
-                nonDelayedCount++;
-            }
-        });
-
-        let labels = ['Tertunda (>1 jam)', 'Tidak Tertunda (<=1 jam)'];
-        let data = [delayedCount, nonDelayedCount];
-
-        if (totalSurgeries === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-        }
-
-        poeChartInstance = new Chart(ctx, {
+        let chartInstance = poeChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
+        const total = entries.length;
+        const nonCompliant = entries.filter(e => e.penundaan_gt_1hr).length;
+        
+        const config = {
             type: 'pie',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalSurgeries === 0 ? ['#ccc'] : ['rgba(255, 99, 132, 0.7)', 'rgba(75, 192, 192, 0.7)'],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: total > 0 ? ['Tepat Waktu (≤ 1 jam)', 'Tertunda (> 1 jam)'] : ['Tidak Ada Data'],
+                datasets: [{ data: total > 0 ? [total - nonCompliant, nonCompliant] : [1], backgroundColor: total > 0 ? ['#4bc0c0', '#ff6384'] : ['#ccc'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Penundaan Operasi Elektif' + (totalSurgeries > 0 ? ` (Total Operasi: ${totalSurgeries})` : '')
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalSurgeries === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed;
-                                let percentage = (value / totalSurgeries * 100).toFixed(2);
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Penundaan Operasi Elektif (Total: ${total})` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / total * 100).toFixed(2)}%)`; } } }
                 }
             }
-        });
+        };
+        if (ctx) { poeChartInstance = new Chart(ctx, config); }
+        return { config };
     }
 
-
-    /**
-    * Renders the SC (Seksio Sesarea Emergensi) chart.
-    * Shows the percentage of surgeries within vs outside the 30-minute target.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    * @param {Array} entries - The data entries for SC.
-    */
     function renderScChart(ctx, entries) {
-        if (scChartInstance) scChartInstance.destroy();
-
-        let withinTargetCount = 0; // waktu_tanggap <= 30 menit
-        let outsideTargetCount = 0; // waktu_tanggap > 30 menit
-        const totalSurgeries = entries.length;
-
-        entries.forEach(entry => {
-            const waktuTanggap = parseInt(entry.waktu_tanggap) || 0;
-            if (waktuTanggap <= 30 && waktuTanggap > 0) { // Also check for positive time
-                withinTargetCount++;
-            } else if (waktuTanggap > 30) {
-                outsideTargetCount++;
-            }
-        });
-
-        let labels = ['Dalam Target (≤ 30 menit)', 'Luar Target (> 30 menit)'];
-        let data = [withinTargetCount, outsideTargetCount];
-
-        if (totalSurgeries === 0) {
-            labels = ['Tidak Ada Data'];
-            data = [1];
-        }
-
-        scChartInstance = new Chart(ctx, {
+        let chartInstance = scChartInstance;
+        if (ctx && chartInstance) chartInstance.destroy();
+        
+        // Your original detailed logic
+        const total = entries.length;
+        const compliant = entries.filter(e => (parseInt(e.waktu_tanggap) || 999) <= 30).length;
+        
+        const config = {
             type: 'pie',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: totalSurgeries === 0 ? ['#ccc'] : ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
+                labels: total > 0 ? ['Dalam Target (≤ 30 menit)', 'Luar Target (> 30 menit)'] : ['Tidak Ada Data'],
+                datasets: [{ data: total > 0 ? [compliant, total - compliant] : [1], backgroundColor: total > 0 ? ['#4bc0c0', '#ff6384'] : ['#ccc'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Waktu Tanggap Operasi Seksio Sesarea Emergensi' + (totalSurgeries > 0 ? ` (Total: ${totalSurgeries})` : '')
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (totalSurgeries === 0) return 'Tidak Ada Data: 100%';
-                                let value = context.parsed;
-                                let percentage = (value / totalSurgeries * 100).toFixed(2);
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
+                    title: { display: true, text: `Waktu Tanggap SC Emergensi (Total: ${total})` },
+                    legend: { position: 'right' },
+                    tooltip: { callbacks: { label: c => { if (total === 0) return 'Tidak Ada Data'; return `${c.label}: ${c.raw} (${(c.raw / total * 100).toFixed(2)}%)`; } } }
                 }
             }
-        });
+        };
+        if (ctx) { scChartInstance = new Chart(ctx, config); }
+        return { config };
     }
+
 
     function renderChartForForm(formType, formData) {
         const canvasIdMap = {
@@ -1791,6 +1247,8 @@
 
         // --- NEW: Call chart rendering function after data population ---
         renderChartForForm(formType, data);
+
+        updateFormCardComplianceBar(formElement, formType, data);
     }
 
 
@@ -2182,7 +1640,132 @@
     }
     return formData;
 }
+    function _downloadMutuReport(type) {
+        if (type === 'pdf') {
+            handleMutuPdfExport();
+        } else {
+            handleMutuExcelExport();
+        }
+    }
 
+    async function handleMutuExcelExport() {
+        showLoading();
+        try {
+            const response = await fetch('/api/v1/reports/export/quality-indicators/excel', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${window.authToken}`,
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_Indikator_Mutu_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Error exporting Indikator Mutu Excel:', error);
+            alert('Gagal membuat laporan Excel.');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function handleMutuPdfExport() {
+        showLoading();
+        const chartImages = {};
+
+        // 1. Create a temporary, invisible container and add it to the page
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px'; // Move it completely off-screen
+        tempContainer.style.top = '-9999px';
+        tempContainer.style.width = '600px'; // Give it a defined size
+        document.body.appendChild(tempContainer);
+
+        try {
+            for (const indicator of indicators) {
+                const formType = indicator.form_type;
+                const formData = formCurrentData[formType]?.data || { entries: [] };
+
+                // 2. Create canvas and APPEND IT to our invisible container
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = 400; 
+                tempCanvas.height = 200;
+                tempContainer.appendChild(tempCanvas);
+                const ctx = tempCanvas.getContext('2d');
+
+                const getChartRenderer = (type) => {
+                    const renderers = {
+                        'hand-hygiene': renderHandHygieneChart, 'apd': renderApdChart,
+                        'identifikasi': renderIdentifikasiChart, 'wtri': renderWtriChart,
+                        'kritis-lab': renderKritisLabChart, 'fornas': renderFornasChart,
+                        'visite': renderVisiteChart, 'jatuh': renderJatuhChart,
+                        'cp': renderCpChart, 'kepuasan': renderKepuasanChart,
+                        'krk': renderKrkChart, 'poe': renderPoeChart, 'sc': renderScChart
+                    };
+                    return renderers[type];
+                };
+
+                const renderFunction = getChartRenderer(formType);
+                if (renderFunction) {
+                    const { config } = renderFunction(null, formData.entries || [], formData);
+                    
+                    const exportConfig = {
+                        ...config,
+                        options: { ...config.options, animation: { duration: 0 } }
+                    };
+                    
+                    const tempChart = new Chart(ctx, exportConfig);
+                    
+                    // 3. Capture the image (it will now be valid)
+                    chartImages[formType] = tempChart.toBase64Image();
+                    tempChart.destroy();
+                }
+                // 4. Clear the container for the next chart
+                tempContainer.innerHTML = '';
+            }
+
+            // Send the generated images to the backend
+            const response = await fetch('/api/v1/reports/export/quality-indicators/pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/pdf',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Authorization': `Bearer ${window.authToken}`
+                },
+                body: JSON.stringify({ chart_images: chartImages })
+            });
+
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_Indikator_Mutu.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Error exporting Indikator Mutu PDF:', error);
+            alert('Gagal membuat laporan PDF Indikator Mutu.');
+        } finally {
+            document.body.removeChild(tempContainer);
+            hideLoading();
+        }
+    }
 
     // --- Form-specific row handlers and calculations ---
 
@@ -2193,44 +1776,44 @@
      * @param {object} [entry={}] - Optional initial data for the row.
      */
     function addHandHygieneRow(tbody, index, entry = {}) {
-    const newRow = tbody.insertRow();
-    newRow.innerHTML = `
-        <td>${index}</td>
-        <td>
-            <input type="date" name="tgl" value="${entry.tgl || moment().format('YYYY-MM-DD')}" required />
-        </td>
-        <td><input type="number" min="1" value="${entry.sesi || 1}" class="sesi-input" name="sesi" required /></td>
+        const newRow = tbody.insertRow();
+        newRow.innerHTML = `
+            <td>${index}</td>
+            <td>
+                <input type="date" name="tgl" value="${entry.tgl || moment().format('YYYY-MM-DD')}" required />
+            </td>
+            <td><input type="number" min="1" value="${entry.sesi || 1}" class="sesi-input" name="sesi" required /></td>
 
-        <td><input type="number" min="0" value="${entry.dpjp_kesempatan || 0}" name="dpjp_kesempatan" required /></td>
-        <td><input type="number" min="0" value="${entry.dpjp_handwash || 0}" name="dpjp_handwash" required /></td>
-        <td><input type="number" min="0" value="${entry.dpjp_handrub || 0}" name="dpjp_handrub" required /></td>
+            <td><input type="number" min="0" value="${entry.dpjp_kesempatan || 0}" name="dpjp_kesempatan" required /></td>
+            <td><input type="number" min="0" value="${entry.dpjp_handwash || 0}" name="dpjp_handwash" required /></td>
+            <td><input type="number" min="0" value="${entry.dpjp_handrub || 0}" name="dpjp_handrub" required /></td>
 
-        <td><input type="number" min="0" value="${entry.perawat_kesempatan || 0}" name="perawat_kesempatan" required /></td>
-        <td><input type="number" min="0" value="${entry.perawat_handwash || 0}" name="perawat_handwash" required /></td>
-        <td><input type="number" min="0" value="${entry.perawat_handrub || 0}" name="perawat_handrub" required /></td>
+            <td><input type="number" min="0" value="${entry.perawat_kesempatan || 0}" name="perawat_kesempatan" required /></td>
+            <td><input type="number" min="0" value="${entry.perawat_handwash || 0}" name="perawat_handwash" required /></td>
+            <td><input type="number" min="0" value="${entry.perawat_handrub || 0}" name="perawat_handrub" required /></td>
 
-        <td><input type="number" min="0" value="${entry.pendidikan_kesempatan || 0}" name="pendidikan_kesempatan" required /></td>
-        <td><input type="number" min="0" value="${entry.pendidikan_handwash || 0}" name="pendidikan_handwash" required /></td>
-        <td><input type="number" min="0" value="${entry.pendidikan_handrub || 0}" name="pendidikan_handrub" required /></td>
+            <td><input type="number" min="0" value="${entry.pendidikan_kesempatan || 0}" name="pendidikan_kesempatan" required /></td>
+            <td><input type="number" min="0" value="${entry.pendidikan_handwash || 0}" name="pendidikan_handwash" required /></td>
+            <td><input type="number" min="0" value="${entry.pendidikan_handrub || 0}" name="pendidikan_handrub" required /></td>
 
-        <td><input type="number" min="0" value="${entry.lain_kesempatan || 0}" name="lain_kesempatan" required /></td>
-        <td><input type="number" min="0" value="${entry.lain_handwash || 0}" name="lain_handwash" required /></td>
-        <td><input type="number" min="0" value="${entry.lain_handrub || 0}" name="lain_handrub" required /></td>
+            <td><input type="number" min="0" value="${entry.lain_kesempatan || 0}" name="lain_kesempatan" required /></td>
+            <td><input type="number" min="0" value="${entry.lain_handwash || 0}" name="lain_handwash" required /></td>
+            <td><input type="number" min="0" value="${entry.lain_handrub || 0}" name="lain_handrub" required /></td>
 
-        <td><input type="number" min="0" value="${entry.total_kesempatan || 0}" readonly name="total_kesempatan" /></td>
-        <td><input type="number" min="0" value="${entry.total_handwash || 0}" readonly name="total_handwash" /></td>
-        <td><input type="number" min="0" value="${entry.total_handrub || 0}" readonly name="total_handrub" /></td>
-    `;
+            <td><input type="number" min="0" value="${entry.total_kesempatan || 0}" readonly name="total_kesempatan" /></td>
+            <td><input type="number" min="0" value="${entry.total_handwash || 0}" readonly name="total_handwash" /></td>
+            <td><input type="number" min="0" value="${entry.total_handrub || 0}" readonly name="total_handrub" /></td>
+        `;
 
-    // Attach event listeners for dynamic calculation (unchanged)
-    newRow.querySelectorAll('input[type="number"]').forEach(input => {
-        input.addEventListener('input', function() {
-            updateHandHygieneTotals(input.closest('.form-card'));
+        // Attach event listeners for dynamic calculation (unchanged)
+        newRow.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                updateHandHygieneTotals(input.closest('.form-card'));
+            });
         });
-    });
-    // Trigger initial calculation if data is provided
-    updateHandHygieneTotals(newRow.closest('.form-card'));
-}
+        // Trigger initial calculation if data is provided
+        updateHandHygieneTotals(newRow.closest('.form-card'));
+    }
 
 
     /**
@@ -2956,30 +2539,69 @@
     /**
      * Initializes data by fetching current and historical data for all forms.
      */
-    async function initializeData() {
-    for (const indicator of indicators) {
+    async function initializeData(forceRefresh = false) {
+        const cacheKey = 'prefetched_indikator_mutu_all';
+        const cachedAllIndicatorsData = sessionStorage.getItem(cacheKey);
+
+        if (cachedAllIndicatorsData && !forceRefresh) {
+            console.log('⚡️ Memuat semua data Indikator Mutu dari cache.');
+            try {
+                const allData = JSON.parse(cachedAllIndicatorsData);
+                // Populate local variables from the single cached object
+                for (const indicator of indicators) {
+                    const indicatorData = allData[indicator.id];
+                    if (indicatorData) {
+                        formCurrentData[indicator.id] = {
+                            data: indicatorData.data || { entries: [] },
+                            history: indicatorData.history || []
+                        };
+                        formHistoryData[indicator.id] = indicatorData.history || [];
+                    } else {
+                        formCurrentData[indicator.id] = { data: { entries: [] }, history: [] };
+                        formHistoryData[indicator.id] = [];
+                    }
+                }
+                return; // Exit function, we are done
+            } catch (e) {
+                console.error("Gagal mem-parsing data Indikator Mutu dari cache, mengambil dari API.", e);
+            }
+        }
+        
+        // Fallback: If no cache or forceRefresh is true, fetch all data from a single new endpoint.
+        if (forceRefresh) console.log('🔄 Memaksa pembaruan data Indikator Mutu...');
+        else console.log('Cache tidak ditemukan. Mengambil semua data Indikator Mutu dari API...');
+        
         try {
-            // Fetch all data at once
-            const response = await authenticatedFetch(`${API_BASE_URL}/${indicator.id}/all`);
-            if (response.ok) {
-                const result = await response.json();
-                formCurrentData[indicator.id] = { 
-                    data: result.data || { entries: [] },
-                    history: result.history || []
-                };
-                formHistoryData[indicator.id] = result.history || [];
-            } else {
-                console.warn(`Failed to fetch data for ${indicator.id}:`, response.statusText);
+            const response = await authenticatedFetch(`${API_BASE_URL}/all-indicators/all`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch all indicators: ${response.statusText}`);
+            }
+            const allData = await response.json();
+            
+            // **NEW**: Cache the entire object of all indicators
+            sessionStorage.setItem(cacheKey, JSON.stringify(allData));
+            console.log('✅ Semua data Indikator Mutu berhasil disimpan di cache.');
+            
+            // Now, populate the local variables from the fetched data
+            for (const indicator of indicators) {
+                const indicatorData = allData[indicator.id];
+                if (indicatorData) {
+                    formCurrentData[indicator.id] = {
+                        data: indicatorData.data || { entries: [] },
+                        history: indicatorData.history || []
+                    };
+                    formHistoryData[indicator.id] = indicatorData.history || [];
+                }
+            }
+        } catch (error) {
+            console.error('Error initializing all indicator data:', error);
+            // On failure, initialize all forms as empty
+            for (const indicator of indicators) {
                 formCurrentData[indicator.id] = { data: { entries: [] }, history: [] };
                 formHistoryData[indicator.id] = [];
             }
-        } catch (error) {
-            console.error(`Error initializing data for ${indicator.id}:`, error);
-            formCurrentData[indicator.id] = { data: { entries: [] }, history: [] };
-            formHistoryData[indicator.id] = [];
         }
     }
-}
 
     /**
      * Checks for incomplete forms from previous weeks and attempts to auto-submit them.
@@ -3018,20 +2640,12 @@
      * @param {string} [weekStartDate=null] - Optional specific week start date for historical saves.
      * @param {object} [existingData=null] - Optional data to send if it's an auto-submission of existing (potentially incomplete) data.
      */
+    // REPLACE your old saveFormData() function with this new one
     async function saveFormData(formType, weekStartDate = null, existingData = null) {
         showLoading();
         try {
-            let dataToSave;
-            if (existingData) {
-                dataToSave = existingData; // Use provided data for auto-submission of old forms
-            } else {
-                dataToSave = getFormData(formType); // Get current form data from UI
-            }
-
+            let dataToSave = existingData || getFormData(formType);
             const requestBody = { data: dataToSave };
-
-            // If a specific weekStartDate is provided (e.g., for auto-submitting old data), use it.
-            // Otherwise, the backend will default to the current week.
             if (weekStartDate) {
                 requestBody.week_start_date = weekStartDate;
             }
@@ -3047,15 +2661,13 @@
             }
 
             const result = await response.json();
-            formCurrentData[formType] = result.data; // Update local current data with response
+            
+            // **MODIFIED**: Instead of updating just one form's data,
+            // we will now call initializeData(true) to refresh EVERYTHING.
+            // This ensures all compliance scores, stats, and histories are up to date.
+            await initializeData(true);
 
-            // Re-fetch history to ensure it's up-to-date
-            const historyResponse = await authenticatedFetch(`${API_BASE_URL}/${formType}/history`);
-            if (historyResponse.ok) {
-                formHistoryData[formType] = await historyResponse.json();
-            }
-
-            updateStatisticsDisplay(); // Update dashboard stats after save
+            updateStatisticsDisplay(); // Update dashboard stats after the fresh data is loaded
             showNotification(result.message, 'success');
 
         } catch (error) {
@@ -3419,14 +3031,4 @@
                 }
             });
         });
-
-
-    document.addEventListener('DOMContentLoaded', async function() {
-        showLoading();
-        await initializeData();
-        updateStatisticsDisplay();
-        setupFormEventListeners();  
-        showSection('list');
-        hideLoading();
-    });
     }

@@ -23,14 +23,6 @@ html, body {
 }
 
    </style>
-   <script>
-        if (localStorage.getItem('color-theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('color-theme', 'light');
-        }
-    </script>
 </head>
 <body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     @include('components.sidebar-navbar')
