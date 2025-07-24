@@ -150,10 +150,7 @@
                                 <i class="fas fa-chart-line text-orange-500 w-4 mr-3" aria-hidden="true"></i>
                                 <span>Stok tersedia: {{ $logistikTotalStock }} item</span>
                             </div>
-                            <div class="flex items-center text-sm text-gray-600">
-                                <i class="fas fa-exclamation-circle text-orange-500 w-4 mr-3" aria-hidden="true"></i>
-                                <span>Menipis: {{ $logistikThinningItems }} item</span>
-                            </div>
+                           
                         </div>
                         
                         <a href="/manajemen-logistik" class="inline-flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
@@ -181,6 +178,7 @@
                                 <i class="fas fa-clipboard-check text-blue-500 w-4 mr-3" aria-hidden="true"></i>
                                 <span>Audit terakhir: {{ $ppiLastAuditDaysAgo }}</span>
                             </div>
+                            
                         </div>
                         
                         <a href="/pengendalian-dan-pencegahan-infeksi" class="inline-flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">

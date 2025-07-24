@@ -61,10 +61,7 @@
                                 <p class="text-gray-600 font-medium text-sm md:text-base">{{ $user->position }}</p>
                             </div>
 
-                            <span class="mt-2 md:mt-0 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs md:text-sm font-medium inline-flex items-center justify-center">
-                                <i class="fas fa-circle text-green-500 text-xs mr-1"></i>
-                                Aktif
-                            </span>
+                            
                         </div>
                     </div>
                 </div>

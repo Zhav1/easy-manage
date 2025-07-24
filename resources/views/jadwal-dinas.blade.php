@@ -71,9 +71,7 @@
                         <div class="relative">
                             <img class="h-24 w-24 sm:h-32 sm:w-32 rounded-full object-cover border-4 border-green-500" 
                                     src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('images/p.png') }}" alt="Profile Photo">
-                            <div class="absolute bottom-0 right-0 bg-green-500 rounded-full p-1 border-2 border-white">
-                                <i class="fas fa-check text-white text-xs"></i>
-                            </div>
+                            
                         </div>
                     </div>
                     <div class="p-4 md:w-3/4">
@@ -86,9 +84,7 @@
                                     <span>{{ Auth::user()->hospital->name }}</span>
                                 </div>
                             </div>
-                            <div class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                Aktif
-                            </div>
+                           
                         </div>
                         <div class="bg-gray-50 p-2 rounded-lg text-center">
                             <p class="text-gray-500 text-xs">Total Staff</p>
