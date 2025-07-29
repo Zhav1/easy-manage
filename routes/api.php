@@ -18,29 +18,8 @@
     use App\Http\Controllers\NotificationController;
     use App\Http\Controllers\LogisticController;
 
-    Route::get('/logistics/items', function (Request $request) {
-            $category = $request->query('category');
-            
-            if (!in_array($category, ['Alat Kesehatan', 'Barang Habis Pakai'])) {
-                return response()->json([], 400);
-            }
 
-            $items = \App\Models\Logistic::where('category', $category)
-                ->where('department_id', auth()->user()->department_id)
-                ->select('id', 'item_name')
-                ->distinct('item_name')
-                ->get();
-
-            return response()->json($items);
-    })->middleware('auth:sanctum');
-
-
-Route::prefix('v1/logistics')->group(function () {
-
-    Route::post('/process-transaction', [LogisticController::class, 'processTransaction']);
-    Route::get('/transactions', [LogisticController::class, 'getTransactions']);});
-
-    Route::middleware(['auth:sanctum'])->prefix('v1')->group(function() {
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(function() {
         // Departments
         Route::get('/departments', [DepartmentController::class, 'index']) ;
         Route::post('/departments', [DepartmentController::class, 'store']);

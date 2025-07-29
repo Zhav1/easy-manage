@@ -114,6 +114,359 @@
         return fetch(url, { ...options, headers });
     }
 
+    /**
+    * Defines the validation rules for every form type.
+    * Rules: 'required', 'numeric', 'min:VALUE', 'time'
+    */
+    const validationRules = {
+        'hand-hygiene': {
+            entries: {
+                tgl: ['required'],
+                sesi: ['required', 'numeric', 'min:1'],
+                dpjp_kesempatan: ['required', 'numeric', 'min:0'],
+                dpjp_handwash: ['required', 'numeric', 'min:0'],
+                dpjp_handrub: ['required', 'numeric', 'min:0'],
+                perawat_kesempatan: ['required', 'numeric', 'min:0'],
+                perawat_handwash: ['required', 'numeric', 'min:0'],
+                perawat_handrub: ['required', 'numeric', 'min:0'],
+                pendidikan_kesempatan: ['required', 'numeric', 'min:0'],
+                pendidikan_handwash: ['required', 'numeric', 'min:0'],
+                pendidikan_handrub: ['required', 'numeric', 'min:0'],
+                lain_kesempatan: ['required', 'numeric', 'min:0'],
+                lain_handwash: ['required', 'numeric', 'min:0'],
+                lain_handrub: ['required', 'numeric', 'min:0'],
+            },
+            entryFunctions: [
+                // Custom function to ensure compliance counts do not exceed opportunities for each role.
+                (row) => {
+                    const check = (role) => {
+                        const k = parseInt(row.querySelector(`[name="${role}_kesempatan"]`)?.value) || 0;
+                        const hw = parseInt(row.querySelector(`[name="${role}_handwash"]`)?.value) || 0;
+                        const hr = parseInt(row.querySelector(`[name="${role}_handrub"]`)?.value) || 0;
+                        if ((hw + hr) > k) {
+                            return { isValid: false, fieldName: `${role}_handwash`, message: `Jumlah Handwash & Handrub untuk ${role} tidak boleh melebihi Kesempatan.` };
+                        }
+                        return { isValid: true };
+                    };
+                    const results = ['dpjp', 'perawat', 'pendidikan', 'lain'].map(check);
+                    return results.find(res => !res.isValid) || { isValid: true };
+                }
+            ]
+        },
+        'apd': {
+            entries: {
+                tgl: ['required'],
+                profesi: ['required'],
+                ruang: ['required'],
+                pelayanan: ['required'],
+                kepatuhan: ['required']
+            }
+        },
+        'identifikasi': {
+            topLevel: {
+                identifikasi_unit_kerja: ['required']
+            },
+            entries: {
+                tgl: ['required'],
+                staf: ['required'],
+            }
+        },
+        'wtri': {
+            topLevel: {
+                wtrj_unit_kerja: ['required']
+            },
+            entries: {
+                tgl: ['required'],
+                no_rm: ['required', 'numeric'],
+                nama_pasien: ['required'],
+                jam_reg_pendaftaran: ['required', 'time'],
+                jam_reg_poli: ['required', 'time'],
+                jam_dilayani_dokter: ['required', 'time']
+            },
+            entryFunctions: [
+                // Custom function to validate time sequence.
+                (row) => {
+                    const regPoli = row.querySelector('[name="jam_reg_poli"]').value;
+                    const dilayani = row.querySelector('[name="jam_dilayani_dokter"]').value;
+                    if (regPoli && dilayani && moment(dilayani, 'HH:mm').isBefore(moment(regPoli, 'HH:mm'))) {
+                        return { isValid: false, fieldName: 'jam_dilayani_dokter', message: 'Jam Dilayani harus setelah Jam Registrasi Poli.' };
+                    }
+                    return { isValid: true };
+                }
+            ]
+        },
+        'kritis-lab': {
+            entries: {
+                tgl: ['required'],
+                no_rm: ['required', 'numeric'],
+                nama_pasien: ['required'],
+                critical_value: ['required'],
+                waktu_hasil_keluar: ['required', 'time'],
+                waktu_dilaporkan: ['required', 'time'],
+                nama_penerima: ['required'],
+                pelaporan_status: ['required']
+            },
+            entryFunctions: [
+                (row) => {
+                    const hasil = row.querySelector('[name="waktu_hasil_keluar"]').value;
+                    const lapor = row.querySelector('[name="waktu_dilaporkan"]').value;
+                    if (hasil && lapor && moment(lapor, 'HH:mm').isBefore(moment(hasil, 'HH:mm'))) {
+                        return { isValid: false, fieldName: 'waktu_dilaporkan', message: 'Waktu Dilaporkan harus setelah Waktu Hasil Keluar.' };
+                    }
+                    return { isValid: true };
+                }
+            ]
+        },
+        'fornas': {
+            entries: {
+                unit_kerja: ['required'],
+                nama_pasien: ['required'],
+                no_rm: ['required', 'numeric'],
+                jumlah_resep: ['required', 'numeric', 'min:1']
+            }
+        },
+        'visite': {
+            entries: {
+                tgl_registrasi: ['required'],
+                nama_pasien: ['required'],
+                no_rm: ['required', 'numeric'],
+                ruangan: ['required'],
+                jml_hari_efektif: ['required', 'numeric', 'min:0'],
+                jml_hari_rawat: ['required', 'numeric', 'min:0'],
+                dpjp_utama: ['required'],
+                smf: ['required'],
+                tgl_visite: ['required'],
+                jam: ['required'],
+                jam_visite_akhir: ['required', 'time']
+            },
+            entryFunctions: [
+                (row) => {
+                    const efektif = parseInt(row.querySelector('[name="jml_hari_efektif"]').value) || 0;
+                    const rawat = parseInt(row.querySelector('[name="jml_hari_rawat"]').value) || 0;
+                    if (efektif > rawat) {
+                        return { isValid: false, fieldName: 'jml_hari_efektif', message: 'Hari Efektif tidak boleh melebihi Hari Rawat.' };
+                    }
+                    return { isValid: true };
+                }
+            ]
+        },
+        'jatuh': {
+            entries: {
+                nama_pasien: ['required'],
+                no_rm: ['required', 'numeric'],
+                assessment_awal: ['required'],
+                assessment_ulang: ['required'],
+                intervensi: ['required']
+            }
+        },
+
+        // 'input[name="cp_total_asesmen_p"]').value = data.totals.asesmen_p || 0;
+        //         formElement.querySelector('input[name="cp_total_asesmen_n"]').value = data.totals.asesmen_n || 0;
+        //         formElement.querySelector('input[name="cp_total_asesmen_c"]').value = data.totals.asesmen_c || 0;
+        //         formElement.querySelector('input[name="cp_total_fisik_p"]').value = data.totals.fisik_p || 0;
+        //         formElement.querySelector('input[name="cp_total_fisik_n"]').value = data.totals.fisik_n || 0;
+        //         formElement.querySelector('input[name="cp_total_fisik_c"]').value = data.totals.fisik_c || 0;
+        //         formElement.querySelector('input[name="cp_total_penunjang_p"]').value = data.totals.penunjang_p || 0;
+        //         formElement.querySelector('input[name="cp_total_penunjang_n"]').value = data.totals.penunjang_n || 0;
+        //         formElement.querySelector('input[name="cp_total_penunjang_c"]').value = data.totals.penunjang_c || 0;
+        //         formElement.querySelector('input[name="cp_total_obat_p"]').value = data.totals.obat_p || 0;
+        //         formElement.querySelector('input[name="cp_total_obat_n"]').value = data.totals.obat_n || 0;
+        //         formElement.querySelector('input[name="cp_total_obat_c"]').value = data.totals.obat_c || 0;
+        //         formElement.querySelector('input[name="cp_grand_total"]').value = data.totals.grand_total || 0;
+        'cp': {
+            topLevel: {
+                cp_ruangan: ['required'],
+                cp_judul_cp: ['required']
+            },
+            entries: {
+                no_mr: ['required', 'numeric'],
+                asesmen_p: ['required', 'numeric', 'min:0'],
+                asesmen_n: ['required', 'numeric', 'min:0'],
+                asesmen_c: ['required', 'numeric', 'min:0'],
+                fisik_p: ['required', 'numeric', 'min:0'],
+                //... and so on for all numeric fields
+            }
+        },
+        'kepuasan': {
+            entries: {
+                tanggal: ['required'],
+                unit_kerja: ['required'],
+                nilai_ikm: ['required'],
+                jenis_pelayanan: ['required'],
+                nilai_kepuasan: ['required']
+            }
+        },
+        'krk': {
+            entries: {
+                tgl: ['required'],
+                isi_komplain: ['required'],
+                kategori_komplain: ['required'],
+                waktu_tanggap: ['required', 'numeric', 'min:0']
+            }
+        },
+        'poe': {
+            entries: {
+                tgl: ['required'],
+                nama_pasien: ['required'],
+                no_rm: ['required', 'numeric'],
+                ruangan: ['required'],
+                diagnosa: ['required'],
+                tindakan_bedah: ['required'],
+                dpjp_bedah: ['required'],
+                jam_rencana_operasi: ['required', 'time'],
+                jam_insisi: ['required', 'time']
+            },
+            entryFunctions: [
+                (row) => {
+                    const rencana = row.querySelector('[name="jam_rencana_operasi"]').value;
+                    const insisi = row.querySelector('[name="jam_insisi"]').value;
+                    if (rencana && insisi && moment(insisi, 'HH:mm').isBefore(moment(rencana, 'HH:mm'))) {
+                        return { isValid: false, fieldName: 'jam_insisi', message: 'Jam Insisi harus setelah Jam Rencana Operasi.' };
+                    }
+                    return { isValid: true };
+                }
+            ]
+        },
+        'sc': {
+            entries: {
+                nama_pasien: ['required'],
+                no_rm: ['required', 'numeric'],
+                diagnosa_kategori: ['required'],
+                jam_tiba_igd: ['required', 'time'],
+                jam_diputuskan_operasi: ['required', 'time'],
+                jam_mulai_insisi: ['required', 'time'],
+                gt_30_menit: ['required']
+            },
+            entryFunctions: [
+                (row) => {
+                    const tiba = row.querySelector('[name="jam_tiba_igd"]').value;
+                    const putus = row.querySelector('[name="jam_diputuskan_operasi"]').value;
+                    const mulai = row.querySelector('[name="jam_mulai_insisi"]').value;
+                    if (tiba && putus && moment(putus, 'HH:mm').isBefore(moment(tiba, 'HH:mm'))) {
+                        return { isValid: false, fieldName: 'jam_diputuskan_operasi', message: 'Jam Diputuskan Operasi harus setelah Jam Tiba IGD.' };
+                    }
+                    if (putus && mulai && moment(mulai, 'HH:mm').isBefore(moment(putus, 'HH:mm'))) {
+                        return { isValid: false, fieldName: 'jam_mulai_insisi', message: 'Jam Mulai Insisi harus setelah Jam Diputuskan Operasi.' };
+                    }
+                    return { isValid: true };
+                }
+            ]
+        },
+    };
+
+    /**
+    * Removes all previous error styles from a form.
+    * @param {HTMLElement} formElement - The form element to clear.
+    */
+    function clearValidationStyles(formElement) {
+        formElement.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    }
+
+    /**
+    * Validates a form's data against its defined rules.
+    * @param {string} formType - The type of form (e.g., 'hand-hygiene').
+    * @returns {{isValid: boolean, errors: {element: HTMLElement, message: string}[]}}
+    */
+    function validateForm(formType) {
+        const rules = validationRules[formType];
+        if (!rules) return { isValid: true, errors: [] };
+
+        const formElement = document.getElementById(formIdMap[formType]);
+        clearValidationStyles(formElement);
+
+        const errors = [];
+        let isValid = true;
+        
+        // Helper for checking a single field
+        const checkField = (input, fieldRules, rowIdentifier = '', row = null) => {
+            if (!input) return;
+            const value = input.value.trim();
+            const fieldLabel = input.closest('td, div')?.previousElementSibling?.textContent || input.name;
+
+            for (const rule of fieldRules) {
+                // Handle custom function rules
+                if (typeof rule === 'function') {
+                    const result = rule(row); // Pass the entire row for context
+                    if (result.isValid === false) {
+                        isValid = false;
+                        // Find the primary element to attach the error to
+                        const errorElement = row.querySelector(`[name="${result.fieldName}"]`) || input;
+                        errors.push({ element: errorElement, message: result.message });
+                    }
+                    continue; // Move to the next rule
+                }
+
+                // Handle string-based rules
+                let [ruleName, ruleValue] = rule.split(':');
+
+                if (ruleName === 'required' && !value) {
+                    isValid = false;
+                    errors.push({ element: input, message: `Field "${fieldLabel}" ${rowIdentifier} wajib diisi.` });
+                    break; // No need to check other rules if it's empty
+                }
+                if (value) { // Only run other validations if there is a value
+                    if (ruleName === 'numeric' && isNaN(Number(value))) {
+                        isValid = false;
+                        errors.push({ element: input, message: `Field "${fieldLabel}" ${rowIdentifier} harus berupa angka.` });
+                    } else if (ruleName === 'min' && Number(value) < Number(ruleValue)) {
+                        isValid = false;
+                        errors.push({ element: input, message: `Field "${fieldLabel}" ${rowIdentifier} minimal harus ${ruleValue}.` });
+                    } else if (ruleName === 'max' && Number(value) > Number(ruleValue)) {
+                        isValid = false;
+                        errors.push({ element: input, message: `Field "${fieldLabel}" ${rowIdentifier} maksimal harus ${ruleValue}.` });
+                    } else if (ruleName === 'time' && !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
+                        isValid = false;
+                        errors.push({ element: input, message: `Format waktu untuk "${fieldLabel}" ${rowIdentifier} harus HH:MM.` });
+                    } else if (ruleName === 'regex') {
+                        const pattern = new RegExp(ruleValue);
+                        if (!pattern.test(value)) {
+                            isValid = false;
+                            errors.push({ element: input, message: `Format isian "${fieldLabel}" ${rowIdentifier} tidak valid.` });
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Validate top-level fields
+        if (rules.topLevel) {
+            for (const fieldName in rules.topLevel) {
+                const input = formElement.querySelector(`[name="${fieldName}"]`);
+                checkField(input, rules.topLevel[fieldName]);
+            }
+        }
+
+        // Validate entries in the table
+        if (rules.entries) {
+            const rows = formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)');
+            rows.forEach((row, index) => {
+                // Check individual fields
+                for (const fieldName in rules.entries) {
+                    const input = row.querySelector(`[name="${fieldName}"]`);
+                    checkField(input, rules.entries[fieldName], `di baris ${index + 1}`, row);
+                }
+                // Check complex, multi-field rules
+                if(rules.entryFunctions) {
+                    for (const funcRule of rules.entryFunctions) {
+                        checkField(null, [funcRule], `di baris ${index + 1}`, row);
+                    }
+                }
+            });
+        }
+
+        return { isValid, errors };
+    }
+
+    /**
+    * Applies error styles to invalid inputs.
+    * @param {Array} errors - An array of error objects from validateForm.
+    */
+    function applyErrorStyles(errors) {
+        errors.forEach(error => {
+            error.element.classList.add('input-error');
+        });
+    }
+
     function calculateCompliance(formType, formData) {
         if (!formData || !formData.entries || formData.entries.length === 0) {
             return 0;
@@ -1292,7 +1645,6 @@
             formData.entries = [];
             formElement.querySelectorAll('.form-table tbody tr:not(.total-row):not(.rata-rata-row):not(.nb-row)').forEach(row => {
                 const entry = {
-                    // CHANGED: Use 'tgl' field and ensure it's a valid date string or today's date.
                     tgl: getInputValue(row, `tgl`) || moment().format('YYYY-MM-DD'),
                     sesi: getParsedInt(row, `sesi`),
                     dpjp_kesempatan: getParsedInt(row, `dpjp_kesempatan`),
@@ -2640,8 +2992,14 @@
      * @param {string} [weekStartDate=null] - Optional specific week start date for historical saves.
      * @param {object} [existingData=null] - Optional data to send if it's an auto-submission of existing (potentially incomplete) data.
      */
-    // REPLACE your old saveFormData() function with this new one
     async function saveFormData(formType, weekStartDate = null, existingData = null) {
+        const validationResult = validateForm(formType);
+        if (!validationResult.isValid) {
+            applyErrorStyles(validationResult.errors);
+            showNotification(validationResult.errors[0].message, 'error');
+            validationResult.errors[0].element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return; 
+        }
         showLoading();
         try {
             let dataToSave = existingData || getFormData(formType);

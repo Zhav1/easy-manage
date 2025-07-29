@@ -186,7 +186,6 @@ function cacheDinasData(data) {
     sessionStorage.setItem('prefetched_dinas_departments', JSON.stringify(data.departments));
     sessionStorage.setItem('prefetched_dinas_positions', JSON.stringify(data.positions));
     sessionStorage.setItem('prefetched_dinas_staff', JSON.stringify(data.staffMembers));
-    sessionStorage.setItem('prefetched_dinas_shifts', JSON.stringify(data.shifts));
     console.log('✅ Dinas page data has been cached.');
 }
 
@@ -199,15 +198,13 @@ async function loadInitialData() {
     const cachedDepts = sessionStorage.getItem('prefetched_dinas_departments');
     const cachedPos = sessionStorage.getItem('prefetched_dinas_positions');
     const cachedStaff = sessionStorage.getItem('prefetched_dinas_staff');
-    const cachedShifts = sessionStorage.getItem('prefetched_dinas_shifts');
     
-    if (cachedUserInfo && cachedDepts && cachedPos && cachedStaff && cachedShifts) {
+    if (cachedUserInfo && cachedDepts && cachedPos && cachedStaff) {
         console.log('⚡️ Loading Dinas data from cache.');
         userInfo = JSON.parse(cachedUserInfo);
         departments = JSON.parse(cachedDepts);
         positions = JSON.parse(cachedPos);
         staffMembers = JSON.parse(cachedStaff);
-        shifts = JSON.parse(cachedShifts);
         
         // Render UI with cached data
         updateStaffDropdown();
@@ -236,17 +233,15 @@ async function loadInitialData() {
             fetch('/api/v1/departments', {headers}),
             fetch('/api/v1/positions', {headers}),
             fetch('/api/v1/staff', {headers}), 
-            fetch('/api/v1/shifts', {headers})
         ]);
         
         userInfo = await userInfoResponse.json();
         departments = await deptsResponse.json();
         positions = await posResponse.json();
         staffMembers = await staffResponse.json(); 
-        shifts = await shiftResponse.json();
 
         // **NEW**: Cache the freshly fetched data
-        cacheDinasData({ userInfo, departments, positions, staffMembers, shifts });
+        cacheDinasData({ userInfo, departments, positions, staffMembers });
 
         // Render UI
         updateStaffDropdown();
@@ -263,6 +258,13 @@ async function loadInitialData() {
 }
 
 function updateShiftDropdown() {
+    // Static shift data based on your database screenshot.
+    const staticShifts = [
+        { id: 1, code: 'Pagi', start: '07:00', end: '14:00' },
+        { id: 2, code: 'Siang', start: '14:00', end: '21:00' },
+        { id: 3, code: 'Malam', start: '21:00', end: '07:00' }
+    ];
+
     const select = document.getElementById('shiftType');
     if (!select) {
         console.warn('Element #shiftType not found!');
@@ -271,11 +273,12 @@ function updateShiftDropdown() {
 
     select.innerHTML = '<option value="">Pilih Shift</option>';
 
-    shifts.forEach(shift => {
+    staticShifts.forEach(shift => {
         const option = document.createElement('option');
+        // The value is the shift ID, so it stays "connected" to the backend.
         option.value = shift.id;
-        // Display format includes times from your shifts table
-        option.textContent = `${shift.code} (${shift.start.substring(0, 5)} - ${shift.end.substring(0, 5)})`;
+        // The text is formatted for display.
+        option.textContent = `${shift.code} (${shift.start} - ${shift.end})`;
         select.appendChild(option);
     });
 }
