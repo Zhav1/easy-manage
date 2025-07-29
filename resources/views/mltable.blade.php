@@ -32,6 +32,50 @@
         .edit-btn:hover {
             transform: scale(1.1);
         }
+        /* Table container styling */
+.table-container {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+    background-color: white; /* Pastikan background putih */
+    border-radius: 0 0 0.75rem 0.75rem; /* Sesuaikan dengan border radius card */
+}
+
+/* Ensure table takes full width and has white background */
+table {
+    width: 100%;
+    background-color: white;
+}
+
+/* Make sure the card extends to bottom */
+.rounded-xl {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 8rem); /* Sesuaikan dengan kebutuhan */
+}
+
+/* Search bar responsive width */
+@media (min-width: 768px) {
+    .md\:w-96 {
+        width: 24rem; /* Lebar searchbar di desktop */
+    }
+}
+        /* Search bar styling */
+/* Search bar styling */
+#searchInput {
+    min-width: 250px;
+    transition: all 0.3s ease;
+    color: #000000; /* Warna teks hitam */
+}
+
+#searchInput::placeholder {
+    color: #9CA3AF; /* Warna placeholder abu-abu */
+}
+
+#searchInput:focus {
+    min-width: 300px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    color: #000000; /* Pastikan teks tetap hitam saat focus */
+}
         /* Status badges */
         .status-badge {
             font-size: 0.75rem;
@@ -57,15 +101,25 @@
     @include('components.sidebar-navbar')
     
     <div class="p-4 pt-20 pl-60 pr-5">
-        <div class="p-6 border border-gray-300 rounded-xl shadow-sm bg-white">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">Tabel Detail Alat Kesehatan & Logistik RS</h1>
-                <button onclick="openAddItemModal()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+    <div class="p-6 border border-gray-300 rounded-xl shadow-sm bg-white">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <h1 class="text-2xl font-bold text-gray-900">Tabel Detail Alat Kesehatan & Logistik RS</h1>
+            <div class="w-full md:w-auto flex flex-col-reverse md:flex-row gap-4 items-stretch md:items-center">
+                <!-- Search Bar - Lebih panjang di mobile -->
+                <div class="relative flex-grow md:w-96">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" id="searchInput" 
+                           class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black" 
+                           placeholder="Cari barang...">
+                </div>
+                <!-- Add Item Button -->
+                <button onclick="openAddItemModal()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap">
                     <i class="fas fa-plus mr-2"></i> Tambahkan Barang
                 </button>
-                 
-   
             </div>
+        </div>
            
             <div class="table-container">
                 <table class="min-w-full bg-white">
@@ -103,7 +157,7 @@
                             <td class="px-4 py-3 whitespace-nowrap text-gray-900">{{ $item->unit_of_measure ?? '-' }}</td>
                             <td class="px-4 py-3 whitespace-nowrap">
                                 @if($item->stock > 10)
-                                    <span class="status-badge status-available">Tersedia</span>
+                                    <span class="status-badge status-available">Tersediak</span>
                                 @elseif($item->stock > 5)
                                     <span class="status-badge status-limited">Terbatas</span>
                                 @else
@@ -319,13 +373,7 @@
                 </div>
                 
                 <!-- Catatan Penggunaan -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Penggunaan</label>
-                    <textarea name="usage_notes" rows="3" 
-                              class="w-full p-3 border border-gray-300 rounded-lg text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                              placeholder="Contoh: Digunakan untuk pasien ICU"></textarea>
-                </div>
-
+               
                 <!-- Tombol Aksi -->
                 <div class="flex space-x-3 pt-6">
                     <button type="button" onclick="closeUseItemModal()" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors duration-200">
@@ -440,7 +488,20 @@
             // Hide calibration fields
             calibrationFields.classList.add('hidden');
         }
-
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        if (rowText.includes(searchValue)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
         // Modal functions for Add Item
         function openAddItemModal() {
             document.getElementById('addItemModal').classList.remove('hidden');

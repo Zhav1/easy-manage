@@ -103,7 +103,7 @@ class LogisticController extends Controller
             ->where('stock', '>=', 5)
             ->count();
         $lowStock = Logistic::where('department_id', $departmentId)
-            ->where('stock', '<', 5)
+            ->where('stock', '<=', 5)
             ->count();
         
         return view('manajemenlogistik', compact('totalStock', 'limitedStock', 'lowStock'));

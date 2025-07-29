@@ -179,12 +179,7 @@ html, body {
                                 </div>
                                 
                                 <!-- Catatan -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
-                                    <textarea name="notes" rows="2" 
-                                              class="w-full p-3 border border-gray-300 rounded-lg text-gray-800 bg-white focus:ring-2 focus:ring-gray-800 focus:border-transparent" 
-                                              placeholder="Catatan tambahan..."></textarea>
-                                </div>
+                              
                             </div>
                         </div>
                         
@@ -283,11 +278,16 @@ html, body {
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->brand ?? '-' }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->stock }} {{ $item->unit_of_measure }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    @if($item->stock > 0)
+                                                    @if($item->stock > 10)
                                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Tersedia</span>
+                                                    @elseif($item->stock > 5)
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Terbatas</span>
+                                                    
                                                     @else
-                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Habis</span>
-                                                    @endif
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Menipis/Habis</span>
+                                                    
+                                                        @endif
+                                                     
                                                 </td>
                                                 @if($category == 'Alat Kesehatan')
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
