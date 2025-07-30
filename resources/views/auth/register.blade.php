@@ -176,7 +176,7 @@
             </form>
 
             <div class="text-center mt-8">
-                <p class="text-black/60 text-xs">© 2024 EasyManage. Semua hak dilindungi.</p>
+                <p class="text-black/60 text-xs">© 2025 EasyManage. Semua hak dilindungi.</p>
             </div>
         </div>
     </div>
