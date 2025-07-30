@@ -199,7 +199,7 @@
                 </div>
                 <h1 class="text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
                     <span class="text-gradient-green">Wahid Angkasa</span><br>
-                    <span class="text-gradient-blue">Paripurna</span>
+                    <span class="text-gradient-green">Paripurna</span>
                 </h1>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                     Membangun masa depan pelayanan kesehatan Indonesia melalui inovasi teknologi 
