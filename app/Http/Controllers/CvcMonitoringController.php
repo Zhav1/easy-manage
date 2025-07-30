@@ -475,7 +475,7 @@ class CvcMonitoringController extends Controller
                 'insertion_location' => 'nullable|string|max:255',
                 'days_inserted' => 'nullable|integer|min:0', // Added
                 'infection_diagnosis_date' => 'required|date',
-                'infection_type' => 'required|in:CLABSI (Central Line Associated Bloodstream Infection),Exit Site Infection,Tunnel Infection,Pocket Infection',
+                'infection_type' => 'required|in:CLABSI,Exit Site Infection,Tunnel Infection,Pocket Infection',
                 'clinical_symptoms' => 'nullable|string|max:1000',
                 'microorganism' => 'nullable|string|max:255',
                 'management' => 'nullable|string|max:1000',

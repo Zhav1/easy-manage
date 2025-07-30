@@ -4,8 +4,19 @@
     <title>{{ $title }}</title>
     <style>
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 10px; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed; /* <-- ADD THIS LINE */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 4px;
+            text-align: left;
+            vertical-align: top;
+            word-wrap: break-word; /* <-- AND ADD THIS LINE */
+        }
         th { background-color: #f2f2f2; }
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { margin: 0; font-size: 18px; }
@@ -13,7 +24,7 @@
         .user-info { margin-bottom: 20px; border: 1px solid #eee; padding: 10px; border-radius: 5px;}
         .user-info p { margin: 2px 0; }
         .section-title { font-size: 14px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; }
-        .page-break { page-break-after: always; } /* For new page between tables if desired */
+        .page-break { page-break-after: always; }
         .status-badge {
             display: inline-block;
             padding: 2px 5px;
@@ -22,13 +33,13 @@
             font-weight: bold;
             text-align: center;
         }
-        .status-ya { background-color: #d4edda; color: #155724; } /* green-ish */
-        .status-tidak { background-color: #f8d7da; color: #721c24; } /* red-ish */
-        .status-na { background-color: #e2e3e5; color: #383d41; } /* gray-ish */
-        .case-type-resiko-tinggi { background-color: #f8d7da; color: #721c24; } /* red */
-        .case-type-kompleks { background-color: #fff3cd; color: #856404; } /* yellow */
-        .case-type-kasus-langka { background-color: #e0b0ff; color: #4b0082; } /* light purple */
-        .case-type-default { background-color: #e2e3e5; color: #383d41; } /* gray */
+        .status-ya { background-color: #d4edda; color: #155724; }
+        .status-tidak { background-color: #f8d7da; color: #721c24; }
+        .status-na { background-color: #e2e3e5; color: #383d41; }
+        .case-type-resiko-tinggi { background-color: #f8d7da; color: #721c24; }
+        .case-type-kompleks { background-color: #fff3cd; color: #856404; }
+        .case-type-kasus-langka { background-color: #e0b0ff; color: #4b0082; }
+        .case-type-default { background-color: #e2e3e5; color: #383d41; }
     </style>
 </head>
 <body>
@@ -51,13 +62,13 @@
     <table>
         <thead>
             <tr>
-                <th>Tanggal & Waktu</th>
-                <th>Briefing?</th>
-                <th>Rapat?</th>
-                <th>Supervisi?</th>
-                <th>Handover?</th>
-                <th>Tugas Luar</th>
-                <th>Catatan</th>
+                <th style="width: 15%;">Tanggal & Waktu</th> 
+                <th style="width: 10%;">Briefing</th>
+                <th style="width: 10%;">Rapat</th>
+                <th style="width: 10%;">Supervisi</th>
+                <th style="width: 10%;">Handover</th>
+                <th style="width: 20%;">Tugas Luar</th>
+                <th style="width: 25%;">Catatan</th>
             </tr>
         </thead>
         <tbody>
@@ -79,15 +90,16 @@
         </tbody>
     </table>
 
-    <div class="page-break"></div> <h2 class="section-title">Kasus Perhatian Khusus (Semua Data)</h2>
+    <div class="page-break"></div>
+    <h2 class="section-title">Kasus Perhatian Khusus (Semua Data)</h2>
     <table>
         <thead>
             <tr>
-                <th>Tanggal Kasus</th>
-                <th>Nama Pasien</th>
-                <th>Jenis Kasus</th>
-                <th>Detail</th>
-                <th>Tindakan</th>
+                <th style="width: 15%;">Tanggal Kasus</th>
+                <th style="width: 20%;">Nama Pasien</th>
+                <th style="width: 15%;">Jenis Kasus</th>
+                <th style="width: 25%;">Detail</th>
+                <th style="width: 25%;">Tindakan</th>
             </tr>
         </thead>
         <tbody>
