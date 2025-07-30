@@ -174,7 +174,7 @@
                 <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/" class="text-gray-600 hover:text-green-600 transition-colors duration-300">Kembali</a>
-                    <a href="#about" class="text-green-600 font-medium">Tentang Kami</a>
+                    <a href="#about" class="text-gray-600 font-medium">Tentang Kami</a>
                     <a href="#services" class="text-gray-600 hover:text-green-600 transition-colors duration-300">Layanan</a>
                     <a href="#contact" class="text-gray-600 hover:text-green-600 transition-colors duration-300">Kontak</a>
                 </div>
