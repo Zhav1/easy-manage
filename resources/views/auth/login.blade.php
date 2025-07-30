@@ -166,17 +166,7 @@
                     
                     <!-- Remember Me -->
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <input
-                                id="remember_me"
-                                name="remember"
-                                type="checkbox"
-                                class="w-4 h-4 text-green-600 bg-gray-50 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-                            />
-                            <label for="remember_me" class="text-sm text-black/90">
-                                Ingat saya
-                            </label>
-                        </div>
+                        
                         @if (Route::has('password.request'))
                             <a href="{{ route('password.request') }}" class="text-sm text-black/80 hover:text-black transition-colors">
                                 Lupa password?
