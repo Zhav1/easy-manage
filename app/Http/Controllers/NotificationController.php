@@ -251,7 +251,7 @@ class NotificationController extends Controller
                     'tag' => 'Minggu Ini',
                     'tag_color' => 'teal',
                     'priority' => 3,
-                    'link' => '/pengendalian-dan-pencegahan-infeksi',
+                    'link' => '/ppi',
                     'remind_at' => $now, // Remind immediately when command runs
                 ]);
                 Log::info("Created PPI audit reminder for user {$user->id}.");

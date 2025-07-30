@@ -49,17 +49,10 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
         return view('settings');
     });
     
-    Route::get('/pengendalian-dan-pencegahan-infeksi', function () {
+    Route::get('/ppi', function () {
         return view('ppi');
     });
 
-    Route::get('/bundle-insersi', function () {
-        return view('bundle-insersi');
-    });
-    
-    Route::get('/bundle-maintenance', function () {
-        return view('bundle-maintenance');
-    });
     
     Route::get('/schedule', function () {
         return view('schedule');
