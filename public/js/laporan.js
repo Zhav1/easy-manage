@@ -696,7 +696,7 @@
                                 <span class="${log.handover_done === 'Ya' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-1 rounded">${log.handover_done}</span>
                             </td>
                             <td class="px-4 py-3 text-gray-700">${log.external_task || '-'}</td>
-                            <td class="px-4 py-3 text-gray-700">${log.notes || '-'}</td>
+                            <td class="px-4 py-3 text-gray-700 max-w-sm break-words">${log.notes || '-'}</td>
                         </tr>
                     `).join('') : `
                         <tr>
@@ -745,8 +745,8 @@
                                 <td class="px-4 py-3">
                                     <span class="${caseTypeClass} px-2 py-1 rounded text-xs">${log.case_type || '-'}</span>
                                 </td>
-                                <td class="px-4 py-3 text-gray-700">${log.details || '-'}</td>
-                                <td class="px-4 py-3 text-gray-700">${log.action_taken || '-'}</td>
+                                <td class="px-4 py-3 text-gray-700 max-w-sm break-words">${log.details || '-'}</td>
+                                <td class="px-4 py-3 text-gray-700 max-w-sm break-words">${log.action_taken || '-'}</td>
                             </tr>
                         `;
                     }).join('') : `

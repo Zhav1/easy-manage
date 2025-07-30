@@ -69,10 +69,8 @@
                 <th>Satuan</th>
                 <th>Status</th>
                 <th>Kode Barang</th>
-                <th>Jadwal Maint.</th>
                 <th>Tgl Kalibrasi</th>
                 <th>Kadaluarsa Kalibrasi</th>
-                <th>Catatan</th>
                 <th>Terakhir Diperbarui</th>
             </tr>
         </thead>
@@ -89,10 +87,8 @@
                         </span>
                     </td>
                     <td>{{ $item->item_code ?? '-' }}</td>
-                    <td>{{ $item->maintenance_schedule ?? '-' }}</td>
                     <td>{{ $item->calibration_date ? \Carbon\Carbon::parse($item->calibration_date)->format('d-m-Y') : '-' }}</td>
                     <td>{{ $item->calibration_expiry_date ? \Carbon\Carbon::parse($item->calibration_expiry_date)->format('d-m-Y') : '-' }}</td>
-                    <td>{{ $item->notes ?? '-' }}</td>
                     <td>{{ $item->updated_at ? \Carbon\Carbon::parse($item->updated_at)->format('d-m-Y H:i') : '-' }}</td>
                 </tr>
             @empty
@@ -116,10 +112,6 @@
                 <th>Satuan</th>
                 <th>Status</th>
                 <th>Kode Barang</th>
-                <th>Jadwal Maint.</th>
-                <th>Tgl Kalibrasi</th>
-                <th>Kadaluarsa Kalibrasi</th>
-                <th>Catatan</th>
                 <th>Terakhir Diperbarui</th>
             </tr>
         </thead>
@@ -137,10 +129,6 @@
                         </span>
                     </td>
                     <td>{{ $item->item_code ?? '-' }}</td>
-                    <td>{{ $item->maintenance_schedule ?? '-' }}</td>
-                    <td>{{ $item->calibration_date ? \Carbon\Carbon::parse($item->calibration_date)->format('d-m-Y') : '-' }}</td>
-                    <td>{{ $item->calibration_expiry_date ? \Carbon\Carbon::parse($item->calibration_expiry_date)->format('d-m-Y') : '-' }}</td>
-                    <td>{{ $item->notes ?? '-' }}</td>
                     <td>{{ $item->updated_at ? \Carbon\Carbon::parse($item->updated_at)->format('d-m-Y H:i') : '-' }}</td>
                 </tr>
             @empty

@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${schedule.handover ? '<span class="status-badge bg-amber-100 text-amber-800"><i class="fas fa-check mr-1"></i>Ya</span>' : '<span class="status-badge bg-gray-100 text-gray-600"><i class="fas fa-times mr-1"></i>Tidak</span>'}
             </td>
             <td class="px-4 py-4 text-gray-500">${schedule.external_task || '-'}</td>
-            <td class="px-4 py-4 break-words text-gray-500">${schedule.note || '-'}</td>
+            <td class="px-4 py-4 break-words max-w-sm text-gray-500">${schedule.note || '-'}</td>
             <td class="px-4 py-4 whitespace-nowrap ">
                 <div class="flex flex-col gap-2 items-center justify-center">
                     <button onclick="openEditPrivateScheduleModal('${schedule.id}')" class="edit-btn w-full gap-2 inline-flex items-center px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-sm font-medium transition-colors duration-200">
@@ -643,10 +643,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <td class="px-4 py-4 whitespace-nowrap text-sm">
                 <span class="special-case-badge ${caseTypeClass}">${specialCase.case_type}</span>
             </td>
-            <td class="px-4 py-4 text-sm text-gray-700">
+            <td class="px-4 py-4 text-sm text-gray-700 break-words max-w-sm">
                 ${specialCase.details || '-'}
             </td>
-            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+            <td class="px-4 py-4 text-sm text-gray-700 break-words max-w-sm">
                 ${specialCase.action_taken || '-'}
             </td>
             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
