@@ -27,20 +27,20 @@ html, body {
 <body class="min-h-full  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
     @include('components.sidebar-navbar')
 
-    <div class="p-4 pt-20 pl-60 pr-5 animate-fadeIn">
-        <div class="p-6 border border-gray-200 rounded-xl shadow-lg bg-white  backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
-            <!-- Header -->
-            <div class="text-center mb-10">
-                <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
-                    <h1 class="text-3xl font-bold text-black tracking-wide">Manajemen Logistik</h1>
-                </div>
-                
-                <!-- Logo -->
-                <div class="flex justify-center">
-                    <img src="images/l1.png" alt="Logo Manajemen Logistik"
-                         class="h-24 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
-                </div>
+   <div class="p-4 md:p-0 mt-8">
+    <main class="md:pl-60 pr-5 flex-1 px-4 md:px-6 py-4 md:py-8 mt-0 md:mt-8">
+        <!-- Hero -->
+        <div class="glass-effect bg-white rounded-3xl p-6 md:p-8 mb-6 md:mb-8 shadow-xl">
+            <div class="flex flex-row items-center gap-3">
+                <img src="{{ asset('images/l1.png') }}" alt="Logo Manajemen Logistik"
+                     class="h-10 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
+                <h1 class="text-3xl md:text-4xl font-bold text-black tracking-wide">
+                    Manajemen Logistik
+                </h1>
             </div>
+            <p class="text-gray-600 text-base md:text-lg mt-2">Sistem Informasi Pengelolaan dan Distribusi Logistik Rumah Sakit</p>
+        </div>
+
 
             <!-- Tombol Tambah Barang dan Lihat Barang -->
             <div class="mb-6 text-center space-x-4">

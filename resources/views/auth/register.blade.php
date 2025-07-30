@@ -49,6 +49,23 @@
             100% { transform: translate(0, -40vh) rotate(0deg); }
         }
     </style>
+
+    <script>
+        function togglePassword(fieldId, element) {
+            const input = document.getElementById(fieldId);
+            const icon = element.querySelector('i');
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            }
+        }
+    </script>
 </head>
 <body>
 <div class="gradient-bg flex items-center justify-center min-h-screen p-4">
@@ -81,33 +98,60 @@
             <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
 
-                <input type="text" name="name" value="{{ old('name') }}" placeholder="Nama Lengkap" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+                <input type="text" name="name" value="{{ old('name') }}" placeholder="Nama Lengkap" required
+                       class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
 
-                <select name="department_id" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800">
+                <select name="department_id" required
+                        class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800">
                     <option value="">Pilih Ruangan</option>
                     @foreach($departments as $dept)
-                        <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
+                        <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
+                            {{ $dept->name }}
+                        </option>
                     @endforeach
                 </select>
 
-                <select name="hospital_id" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800">
+                <select name="hospital_id" required
+                        class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800">
                     <option value="">Pilih Rumah Sakit</option>
                     @foreach($hospitals as $hospital)
-                        <option value="{{ $hospital->id }}" {{ old('hospital_id') == $hospital->id ? 'selected' : '' }}>{{ $hospital->name }}</option>
+                        <option value="{{ $hospital->id }}" {{ old('hospital_id') == $hospital->id ? 'selected' : '' }}>
+                            {{ $hospital->name }}
+                        </option>
                     @endforeach
                 </select>
 
-                <input type="text" name="id_pegawai" value="{{ old('id_pegawai') }}" placeholder="ID Pegawai" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+                <input type="text" name="id_pegawai" value="{{ old('id_pegawai') }}" placeholder="ID Pegawai" required
+                       class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
 
-                <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" required
+                       class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
 
-                <input type="password" name="password" placeholder="Password" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+                <!-- Password -->
+                <div class="relative">
+                    <input type="password" id="password" name="password" placeholder="Password" required
+                           class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+                    <span class="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                          onclick="togglePassword('password', this)">
+                        <i class="fas fa-eye-slash" id="icon-password"></i>
+                    </span>
+                </div>
 
-                <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+                <!-- Konfirmasi Password -->
+                <div class="relative mt-4">
+                    <input type="password" id="password_confirmation" name="password_confirmation"
+                           placeholder="Konfirmasi Password" required
+                           class="input-focus w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 placeholder-gray-400" />
+                    <span class="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                          onclick="togglePassword('password_confirmation', this)">
+                        <i class="fas fa-eye-slash" id="icon-password_confirmation"></i>
+                    </span>
+                </div>
 
                 @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                     <div class="flex items-start space-x-3 text-sm text-gray-700">
-                        <input type="checkbox" name="terms" required class="w-4 h-4 text-green-600 bg-gray-50 border-gray-300 rounded focus:ring-green-500 focus:ring-2">
+                        <input type="checkbox" name="terms" required
+                               class="w-4 h-4 text-green-600 bg-gray-50 border-gray-300 rounded focus:ring-green-500 focus:ring-2">
                         <label for="terms" class="leading-snug">
                             {!! __('Saya menyetujui :terms_of_service dan :privacy_policy', [
                                 'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="text-[#0CC0DF] underline">Syarat & Ketentuan</a>',
@@ -117,13 +161,15 @@
                     </div>
                 @endif
 
-                <button type="submit" class="btn-hover w-full py-3 bg-[#0CC0DF] text-white font-semibold rounded-xl shadow-md hover:scale-[1.02] transform transition duration-300">
+                <button type="submit"
+                        class="btn-hover w-full py-3 bg-[#0CC0DF] text-white font-semibold rounded-xl shadow-md hover:scale-[1.02] transform transition duration-300">
                     <i class="fas fa-user-plus mr-2"></i> Daftar Sekarang
                 </button>
 
                 <div class="text-center pt-3">
                     <p class="text-sm text-gray-600">Sudah punya akun?</p>
-                    <a href="{{ route('login') }}" class="mt-2 inline-block w-full max-w-xs mx-auto py-2 px-4 bg-white border-2 border-[#0CC0DF] text-[#0CC0DF] font-medium rounded-xl hover:bg-[#0CC0DF]/5 transition duration-200 hover:shadow-md">
+                    <a href="{{ route('login') }}"
+                       class="mt-2 inline-block w-full max-w-xs mx-auto py-2 px-4 bg-white border-2 border-[#0CC0DF] text-[#0CC0DF] font-medium rounded-xl hover:bg-[#0CC0DF]/5 transition duration-200 hover:shadow-md">
                         <span class="font-semibold">Masuk Disini</span>
                     </a>
                 </div>

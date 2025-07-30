@@ -163,17 +163,16 @@
                     
                     <!-- CTA Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <a href="/login">
                         <button class="group px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl">
-                            <a href="/login">
                             <span class="flex items-center justify-center">
                                 Mulai Sekarang
                                 <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                 </svg>
                             </span>
-                                </a>
-
                         </button>
+                         </a>
                     </div>
 
                     <!-- Stats -->
@@ -341,11 +340,11 @@
                 untuk kelola ruangan dan staff mereka dengan lebih efisien.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button class="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                   <a href="/login">
-                    Mulai Sekarang?
-                   </a>
-                </button>
+                 <a href="/login">
+                    <button class="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                        Mulai Sekarang?
+                    </button>
+                </a>
             </div>
         </div>
     </section>
