@@ -196,9 +196,6 @@
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16 animate-slide-up">
                 <div class="inline-flex items-center bg-green-100 text-green-800 text-sm font-medium px-4 py-2 rounded-full mb-6 animate-bounce-gentle">
-                    <!-- Logo Wahid akan ditempatkan di sini -->
-                    <img src="images/logo wahid.png" alt="Wahid Logo" class="w-5 h-5 mr-2">
-                    Konsultan Rumah Sakit Terpercaya
                 </div>
                 <h1 class="text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
                     <span class="text-gradient-green">Wahid Angkasa</span><br>
@@ -223,7 +220,7 @@
                     </h2>
                     <div class="space-y-6 text-lg text-gray-600">
                         <p>
-                            <strong class="text-green-600">Wahid Angkasa Paripurna</strong> adalah perusahaan konsultan yang berfokus pada transformasi digital dan manajemen operasional rumah sakit di Indonesia. Kami memahami bahwa setiap rumah sakit memiliki kebutuhan unik dalam mengelola fasilitas dan sumber daya manusia.
+                            <strong class="text-green-600">PT Wahid Angkasa Paripurna</strong> berdiri pada tahun 2021, bergerak di bidang konsultasi, pelatihan dan teknologi informasi. Wahid Training and Consulting dibawah naungan PT WAP ingin berkonstribusi dalam pengelolaan manajemen yang berkualitas, bekerjasama dengan klien dalam merencanakan, mengembangkan, menerapkan dan mendampingi serta mengevaluasi berbagai program manajemen. Peningkatan kualitas SDM juga menjadi sasaran perbaikan dan peningkatan mutu agar dapat menciptakan produktifitas kerja yang optimal. Wahid Tech sebagai unit yang aktif dalam pengembangan teknologi informasi juga berpartisipasi untuk implementasi digitalisasi pelayanan fasilitas kesehatan agar kendali mutu dan kendali biaya menjadi optimal.
                         </p>
                         <p>
                             Dengan pengalaman bertahun-tahun di industri kesehatan, kami menghadirkan solusi teknologi yang tidak hanya canggih, tetapi juga mudah digunakan oleh tim medis dan administratif.
@@ -247,8 +244,8 @@
                                     </div>
                                     <h3 class="text-2xl font-bold text-gray-900 mb-4">Visi Kami</h3>
                                     <p class="text-gray-600">
-                                        Menjadi partner terpercaya dalam transformasi digital rumah sakit di Indonesia, 
-                                        menghadirkan solusi inovatif yang meningkatkan efisiensi operasional dan kualitas pelayanan pasien.
+                                    menjadi wadah konsultasi manajemen, pengelolaan pelatihan dan 
+                                    inovasi sistem digitalisasi kesehatan yang berdedikasi, penuh loyaliltas dan profesional.
                                     </p>
                                 </div>
                             </div>
@@ -420,100 +417,6 @@
         </div>
     </section>
 
-    <!-- Timeline Section -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">
-                    Perjalanan Perusahaan
-                </h2>
-                <p class="text-xl text-gray-600">
-                    Milestone penting dalam perjalanan kami membangun solusi teknologi untuk rumah sakit Indonesia.
-                </p>
-            </div>
-
-            <div class="space-y-8">
-                <div class="timeline-item animate-slide-up">
-                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">2020</span>
-                            <h3 class="text-xl font-semibold text-gray-900 ml-4">Pendirian Perusahaan</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Wahid Angkasa Paripurna didirikan dengan visi untuk mentransformasi manajemen rumah sakit 
-                            di Indonesia melalui teknologi dan konsultasi yang inovatif.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="timeline-item animate-slide-up" style="animation-delay: 0.2s;">
-                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">2021</span>
-                            <h3 class="text-xl font-semibold text-gray-900 ml-4">Proyek Pertama</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Berhasil mengimplementasikan sistem manajemen staff dan ruangan pertama di rumah sakit 
-                            regional, membuktikan efektivitas solusi kami.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="timeline-item animate-slide-up" style="animation-delay: 0.4s;">
-                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <span class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 rounded-full">2022</span>
-                            <h3 class="text-xl font-semibold text-gray-900 ml-4">Ekspansi Layanan</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Mengembangkan portfolio layanan dengan menambahkan konsultasi manajemen operasional 
-                            dan sistem pelaporan terintegrasi.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="timeline-item animate-slide-up" style="animation-delay: 0.6s;">
-                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1 rounded-full">2023</span>
-                            <h3 class="text-xl font-semibold text-gray-900 ml-4">Pengembangan EasyManage</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Meluncurkan platform EasyManage sebagai solusi komprehensif untuk manajemen ruangan 
-                            dan staff rumah sakit dengan interface yang user-friendly.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="timeline-item animate-slide-up" style="animation-delay: 0.8s;">
-                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">2024</span>
-                            <h3 class="text-xl font-semibold text-gray-900 ml-4">Pertumbuhan Signifikan</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Berhasil melayani lebih dari 50 rumah sakit di seluruh Indonesia dengan tingkat 
-                            kepuasan klien yang tinggi dan sistem yang stabil.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="timeline-item animate-slide-up" style="animation-delay: 1s;">
-                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">2025</span>
-                            <h3 class="text-xl font-semibold text-gray-900 ml-4">Inovasi Berkelanjutan</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Terus berinovasi dengan fitur-fitur baru dan ekspansi ke lebih banyak rumah sakit 
-                            untuk mendukung digitalisasi sektor kesehatan Indonesia.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Team Section -->
     <section class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div class="max-w-7xl mx-auto">
@@ -591,15 +494,6 @@
                 Tertarik untuk mengetahui lebih lanjut tentang solusi kami? 
                 Tim ahli kami siap membantu transformasi digital rumah sakit Anda.
             </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button class="px-8 py-4 bg-white text-green-600 font-semibold rounded-full hover:bg-green-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    Konsultasi Gratis
-                </button>
-                <button class="px-8 py-4 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white">
-                    Hubungi Kami
-                </button>
-            </div>
-
             <!-- Contact Info -->
             <div class="grid md:grid-cols-3 gap-8 mt-16">
                 <div class="text-center">
@@ -609,7 +503,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-white mb-2">Email</h3>
-                    <p class="text-green-100">info@wahidangkasa.com</p>
+                    <p class="text-green-100">wahidangkasap@gmail.com</p>
                 </div>
 
                 <div class="text-center">
@@ -619,7 +513,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-white mb-2">Telepon</h3>
-                    <p class="text-green-100">+62 21 1234 5678</p>
+                    <p class="text-green-100">+62 21 7828 770</p>
                 </div>
 
                 <div class="text-center">
@@ -630,7 +524,8 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-white mb-2">Alamat</h3>
-                    <p class="text-green-100">Jakarta, Indonesia</p>
+                    <p class="text-green-100">Head Office :
+                                                Jl Teratai Raya Blok F No 4 Tanjung Barat Jagakarsa Jakarta Selatan 12530</p>
                 </div>
             </div>
         </div>
