@@ -1,4 +1,6 @@
-<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 text-base">
+<!-- resources/views/components/sidebar-navbar.blade.php -->
+
+<nav class="fixed top-0 z-[99] w-full bg-white border-b border-gray-200 text-base">
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
     <div class="grid grid-cols-2 md:grid-cols-12 items-center w-full">
 
@@ -38,33 +40,33 @@
         <div class="hidden sm:block text-sm text-gray-600 font-medium whitespace-nowrap">
           <span id="realtime-date"></span>
         </div>
+        
         <div class="relative">
           <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300" aria-expanded="false" data-dropdown-toggle="dropdown-user">
             <span class="sr-only">Open user menu</span>
             <img class="w-8 h-8 rounded-full bg-white" src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('images/p.png') }}" alt="user photo">
           </button>
+
+          <div class="z-50 hidden absolute mt-2 right-0 w-48 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow" id="dropdown-user">
+              <div class="px-4 py-3" role="none">
+                <p class="text-sm text-gray-900" role="none">{{ Auth::user()->name }}</p>
+                <p class="text-sm font-medium text-gray-900 truncate" role="none">{{ Auth::user()->email }}</p>
+              </div>
+              <ul class="py-1" role="none">
+                <li><a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a></li>
+                <li>
+                  <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</button>
+                  </form>
+                </li>
+              </ul>
+          </div>
         </div>
       </div>
-
     </div>
   </div>
 </nav>
-
-<div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow absolute mt-12 right-4" id="dropdown-user">
-    <div class="px-4 py-3" role="none">
-        <p class="text-sm text-gray-900" role="none">{{ Auth::user()->name }}</p>
-        <p class="text-sm font-medium text-gray-900 truncate" role="none">{{ Auth::user()->email }}</p>
-    </div>
-    <ul class="py-1" role="none">
-        <li><a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a></li>
-        <li>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</button>
-            </form>
-        </li>
-    </ul>
-</div>
 
 <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
   <div class="h-full px-3 pb-4 overflow-y-auto bg-white flex flex-col">
@@ -140,7 +142,7 @@
       </li>
     </ul>
     
-    <div class="mt-auto py-4 flex justify-left">
+    <div class="mt-auto py-4 flex justify-center">
       <img src="{{ asset('images/logo wahid.png') }}" alt="Logo Wahid" class="w-12 h-12 object-contain opacity-70 hover:opacity-100 transition-opacity duration-300">
     </div>
   </div>
