@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>PPI Monitoring System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script src="{{ asset('js/ppi.js') }}"></script>
@@ -19,19 +20,20 @@
     </script>
     @include('components.sidebar-navbar')
 
-  <div class="p-4 pt-20 md:pl-60 pr-5 animate-fadeIn">
-        <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
-            <div class="text-center mb-10">
-                <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
-                    <h1 class="text-4xl font-bold text-black mb-3">Pengendalian dan Pencegahan Infeksi</h1>
-                    <p class="text-gray-600 mt-2">Sistem Monitoring Bundle CVC Terintegrasi</p>
-                </div>
-
-                <div class="flex justify-center">
-                    <img src="{{ asset('images/icon-suntik.png') }}" alt="Logo Pengendalian dan Pencegahan Infeksi"
-                            class="h-24 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
-                </div>
+  <div class="p-4 md:p-0 mt-8">
+    <main class="md:pl-60 pr-5 flex-1 px-4 md:px-6 py-4 md:py-8 mt-0 md:mt-8">
+        <!-- Hero -->
+        <div class="glass-effect bg-white rounded-3xl p-6 md:p-8 mb-6 md:mb-8 shadow-xl">
+            <div class="flex flex-row gap-2">
+                <img src="{{ asset('images/icon-suntik.png') }}" alt="Logo Pengendalian dan Pencegahan Infeksi"
+                    class="h-10 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
+                <h1 class="text-3xl md:text-4xl font-bold text-black mb-3">
+                    Pengendalian dan Pencegahan Infeksi
+                </h1>
             </div>
+            <p class="text-gray-600 text-base md:text-lg">Sistem Monitoring Bundle CVC Terintegrasi</p>
+        </div>
+
 
            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-md border border-blue-100 flex items-center hover:shadow-lg transition-shadow duration-300">

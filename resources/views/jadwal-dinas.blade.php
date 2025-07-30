@@ -51,18 +51,22 @@
 
     @include('components.sidebar-navbar')
     
-    <div class="pt-20 px-4 sm:pl-64 sm:pr-5 animate-fadeIn">
-        <div class="p-4 sm:p-6 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-white-800/80">
-            <!-- Header -->
-            <div class="text-center mb-6">
-                <div class="inline-block p-4 transform hover:scale-105 transition-all duration-300">
-                    <h1 class="text-2xl sm:text-4xl font-bold text-black mb-3">Jadwal Dinas</h1>
-                </div>
-                <div class="flex justify-center">
-                    <img src="{{ asset('images/icon-jadwal-piket.png') }}" alt="Logo Jadwal Dinas"
-                         class="h-16 sm:h-20 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
-                </div>
+   <div class="p-4 md:p-0 mt-8">
+    <main class="md:pl-60 pr-5 flex-1 px-4 md:px-6 py-4 md:py-8 mt-0 md:mt-8">
+        <!-- Hero -->
+        <div class="glass-effect bg-white rounded-3xl p-6 md:p-8 mb-6 md:mb-8 shadow-xl">
+            <div class="flex flex-row items-center gap-3">
+                <img src="{{ asset('images/icon-jadwal-piket.png') }}" alt="Logo Jadwal Dinas"
+                     class="h-10 md:h-12 w-auto rounded-lg transition-transform duration-300 hover:scale-105" />
+                <h1 class="text-3xl md:text-4xl font-bold text-black tracking-wide">
+                    Jadwal Dinas
+                </h1>
             </div>
+            <p class="text-gray-600 text-base md:text-lg mt-2">
+                Pantau dan kelola jadwal dinas staf dengan mudah dan efisien
+            </p>
+        </div>
+
 
             <!-- Profile Kepala Ruangan - Responsive -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
