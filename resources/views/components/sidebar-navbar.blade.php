@@ -140,7 +140,7 @@
       </li>
     </ul>
     
-    <div class="mt-auto py-4 flex justify-center">
+    <div class="mt-auto py-4 flex justify-left">
       <img src="{{ asset('images/logo wahid.png') }}" alt="Logo Wahid" class="w-12 h-12 object-contain opacity-70 hover:opacity-100 transition-opacity duration-300">
     </div>
   </div>
