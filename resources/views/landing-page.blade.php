@@ -382,11 +382,11 @@
                     </ul>
                 </div>
                 <div>
-    <h4 class="font-semibold mb-4">
+    {{-- <h4 class="font-semibold mb-4">
         <a href="{{ url('/tentang-kami') }}" class="hover:text-green-300 transition-colors">
             Tentang kami
         </a>
-    </h4>
+    </h4> --}}
 </div>
             </div>
            <div class="pt-8 border-t border-green-700 text-center text-green-200 flex items-center justify-center">
