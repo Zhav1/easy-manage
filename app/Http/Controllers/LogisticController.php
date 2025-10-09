@@ -4,36 +4,37 @@ namespace App\Http\Controllers;
 
 use App\Models\Logistic;
 use App\Models\Department;
-use App\Models\UsageLog; // Added missing import
+use App\Models\UsageLog;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // For clearer auth usage
+use Illuminate\Support\Facades\Auth;
 
 class LogisticController extends Controller
 {
-    // Constants for status and categories
     const STATUS_AVAILABLE = 'Tersedia';
     const STATUS_LIMITED = 'Terbatas';
     const STATUS_LOW = 'Menipis';
-    
+
     const CATEGORY_MEDICAL_EQUIPMENT = 'Alat Kesehatan';
     const CATEGORY_CONSUMABLES = 'Barang Habis Pakai';
 
-    /**
-     * Get distinct items by category
-     */
     public function processTransaction(Request $request)
     {
-        // Logika proses transaksi logistik di sini
         return response()->json(['message' => 'Transaction processed.']);
     }
+
     public function getItems()
     {
+        $departmentId = Auth::user()->department_id;
+
         $items = [
             self::CATEGORY_MEDICAL_EQUIPMENT => Logistic::where('category', self::CATEGORY_MEDICAL_EQUIPMENT)
+                ->where('department_id', $departmentId)
                 ->distinct('item_name')
                 ->pluck('item_name')
                 ->toArray(),
+
             self::CATEGORY_CONSUMABLES => Logistic::where('category', self::CATEGORY_CONSUMABLES)
+                ->where('department_id', $departmentId)
                 ->distinct('item_name')
                 ->pluck('item_name')
                 ->toArray()
@@ -45,29 +46,25 @@ class LogisticController extends Controller
         ]);
     }
 
-    /**
-     * Store a new item
-     */
     public function storeItem(Request $request)
     {
         $validated = $request->validate([
-            'category' => 'required|in:'.self::CATEGORY_MEDICAL_EQUIPMENT.','.self::CATEGORY_CONSUMABLES,
+            'category' => 'required|in:' . self::CATEGORY_MEDICAL_EQUIPMENT . ',' . self::CATEGORY_CONSUMABLES,
             'item_name' => 'required|string|max:255'
         ]);
 
-        // Check if item already exists
         $exists = Logistic::where('category', $validated['category'])
             ->where('item_name', $validated['item_name'])
+            ->where('department_id', Auth::user()->department_id)
             ->exists();
 
         if ($exists) {
             return response()->json([
                 'success' => false,
                 'message' => 'Item sudah ada dalam database'
-            ], 409); // 409 Conflict status code
+            ], 409);
         }
 
-        // Create a minimal record
         Logistic::create([
             'department_id' => Auth::user()->department_id,
             'category' => $validated['category'],
@@ -75,28 +72,25 @@ class LogisticController extends Controller
             'stock' => 0,
             'unit_of_measure' => 'unit',
             'condition' => 'Baik',
-            'status' => self::STATUS_LOW // Since stock is 0
+            'status' => self::STATUS_LOW
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Item berhasil ditambahkan'
-        ], 201); // 201 Created status code
+        ], 201);
     }
 
-    /**
-     * Dashboard view
-     */
     public function dashboard()
     {
         $user = Auth::user();
-        
+
         if (!$user->department_id) {
             return redirect()->back()->with('error', 'Anda belum terdaftar di departemen manapun');
         }
-        
+
         $departmentId = $user->department_id;
-        
+
         $totalStock = Logistic::where('department_id', $departmentId)->sum('stock');
         $limitedStock = Logistic::where('department_id', $departmentId)
             ->where('stock', '<', 10)
@@ -105,41 +99,41 @@ class LogisticController extends Controller
         $lowStock = Logistic::where('department_id', $departmentId)
             ->where('stock', '<=', 5)
             ->count();
-        
+
         return view('manajemenlogistik', compact('totalStock', 'limitedStock', 'lowStock'));
     }
 
-    /**
-     * Display all logistics
-     */
     public function index()
     {
-        $logistics = Logistic::with('department')->get(); // Eager load department
+        $user = Auth::user();
+
+        if (!$user->department_id) {
+            return redirect()->back()->with('error', 'Anda belum terdaftar di departemen manapun');
+        }
+
+        $logistics = Logistic::with('department')
+            ->where('department_id', $user->department_id)
+            ->get();
+
         return view('mltable', compact('logistics'));
     }
 
-    /**
-     * Show create form
-     */
     public function create()
     {
-        $departments = Department::all(); // For department selection
+        $departments = Department::all();
         $categories = [
             self::CATEGORY_MEDICAL_EQUIPMENT,
             self::CATEGORY_CONSUMABLES
         ];
-        
+
         return view('logistics.create', compact('departments', 'categories'));
     }
 
-    /**
-     * Store a new logistic item
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'department_id' => 'required|exists:departments,id',
-            'category' => 'required|in:'.self::CATEGORY_MEDICAL_EQUIPMENT.','.self::CATEGORY_CONSUMABLES,
+            'category' => 'required|in:' . self::CATEGORY_MEDICAL_EQUIPMENT . ',' . self::CATEGORY_CONSUMABLES,
             'item_name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
             'item_code' => 'nullable|string|max:100|unique:logistics,item_code',
@@ -158,9 +152,6 @@ class LogisticController extends Controller
             ->with('success', 'Barang berhasil ditambahkan!');
     }
 
-    /**
-     * Show edit form
-     */
     public function edit($id)
     {
         $logistic = Logistic::findOrFail($id);
@@ -169,30 +160,23 @@ class LogisticController extends Controller
             self::CATEGORY_MEDICAL_EQUIPMENT,
             self::CATEGORY_CONSUMABLES
         ];
-        
+
         return view('editml', compact('logistic', 'departments', 'categories'));
     }
 
-    /**
-     * Show single logistic item
-     */
     public function show(Logistic $logistic)
     {
         return view('logistics.show', compact('logistic'));
     }
 
-    /**
-     * Update a logistic item
-     */
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'department_id' => 'required|exists:departments,id',
-            'category' => 'required|in:'.self::CATEGORY_MEDICAL_EQUIPMENT.','.self::CATEGORY_CONSUMABLES,
+            'category' => 'required|in:' . self::CATEGORY_MEDICAL_EQUIPMENT . ',' . self::CATEGORY_CONSUMABLES,
             'item_name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
-            'item_code' => 'nullable|string|max:100|unique:logistics,item_code,'.$id,
-
+            'item_code' => 'nullable|string|max:100|unique:logistics,item_code,' . $id,
             'calibration_date' => 'nullable|date',
             'calibration_expiry_date' => 'nullable|date|after_or_equal:calibration_date',
             'stock' => 'required|integer|min:0',
@@ -209,9 +193,6 @@ class LogisticController extends Controller
             ->with('success', 'Data berhasil diperbarui!');
     }
 
-    /**
-     * Record item usage
-     */
     public function useItem(Request $request, $id)
     {
         $validated = $request->validate([
@@ -220,22 +201,20 @@ class LogisticController extends Controller
         ]);
 
         $item = Logistic::findOrFail($id);
-        
+
         if ($validated['quantity'] > $item->stock) {
             return back()->with('error', 'Jumlah yang digunakan melebihi stok yang tersedia!');
         }
 
-        // Update stock and used count
         $item->stock -= $validated['quantity'];
         $item->used += $validated['quantity'];
         $item->status = $this->determineStatus($item->stock);
         $item->save();
 
-        // Create usage log
         UsageLog::create([
             'logistic_id' => $item->id,
             'quantity' => $validated['quantity'],
-            'notes' => $validated['usage_notes'],
+            'notes' => $validated['usage_notes'] ?? null,
             'user_id' => Auth::id(),
         ]);
 
@@ -243,9 +222,6 @@ class LogisticController extends Controller
             ->with('success', 'Penggunaan barang berhasil dicatat!');
     }
 
-    /**
-     * Delete a logistic item
-     */
     public function destroy($id)
     {
         $logistic = Logistic::findOrFail($id);
@@ -255,9 +231,6 @@ class LogisticController extends Controller
             ->with('success', 'Data berhasil dihapus!');
     }
 
-    /**
-     * Determine status based on stock level
-     */
     private function determineStatus($stock)
     {
         if ($stock < 5) {

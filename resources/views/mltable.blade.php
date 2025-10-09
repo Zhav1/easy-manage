@@ -115,9 +115,7 @@ table {
                            placeholder="Cari barang...">
                 </div>
                 <!-- Add Item Button -->
-                <button onclick="openAddItemModal()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap">
-                    <i class="fas fa-plus mr-2"></i> Tambahkan Barang
-                </button>
+                
             </div>
         </div>
            
