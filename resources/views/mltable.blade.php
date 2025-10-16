@@ -155,7 +155,7 @@ table {
                             <td class="px-4 py-3 whitespace-nowrap text-gray-900">{{ $item->unit_of_measure ?? '-' }}</td>
                             <td class="px-4 py-3 whitespace-nowrap">
                                 @if($item->stock > 10)
-                                    <span class="status-badge status-available">Tersediak</span>
+                                    <span class="status-badge status-available">Tersedia</span>
                                 @elseif($item->stock > 5)
                                     <span class="status-badge status-limited">Terbatas</span>
                                 @else
