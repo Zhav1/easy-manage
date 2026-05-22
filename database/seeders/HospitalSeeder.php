@@ -26,6 +26,7 @@ class HospitalSeeder extends Seeder
             'RS Bunda Thamrin',
             'RSUD T Mansyur Tanjung Balai',
             'RSUD A MANAN Kisaran',
+            'RSUD PANYABUNGAN',
         ];
 
         foreach ($list as $name) {
