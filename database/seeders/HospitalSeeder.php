@@ -19,8 +19,6 @@ class HospitalSeeder extends Seeder
             'RSUD Deli Serdang',
             'RS Bhayangkara TK II Medan',
             'RS Haji Medan',
-            'RS Royal Prima Medan',
-            'RS Siloam Medan',
             'RS Universitas Sumatera Utara',
             'RS Mitra Sejati',
             'RS Bunda Thamrin',
@@ -28,6 +26,12 @@ class HospitalSeeder extends Seeder
             'RSUD A MANAN Kisaran',
             'RSUD PANYABUNGAN',
             'RSUD Sultan Sulaiman',
+            'RSUD Porsea',
+            'RSUD Sidempuan',
+            'RSUD Samosir',
+            'RSUD FL Tobing Sibolga',
+            'RSUD Tarutung',
+            
             
         ];
 
