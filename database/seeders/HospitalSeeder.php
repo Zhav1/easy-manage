@@ -31,6 +31,7 @@ class HospitalSeeder extends Seeder
             'RSUD Samosir',
             'RSUD FL Tobing Sibolga',
             'RSUD Tarutung',
+            'RSUD Sidikalang',
             
             
         ];
